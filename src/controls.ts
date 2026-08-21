@@ -5,7 +5,7 @@ import { state, update } from "./state";
 
 declare var C: HTMLCanvasElement;
 
-let buttonsDown: number[] = [];
+let buttonsDown: number[] = []; 
 
 export const
 
