@@ -1,4 +1,4 @@
-import { clamp, floor, scale, sub, sum, Vec2 } from "./math";
+import { clamp, floor, scale, sub, sum, Vec2 } from "./util";
 import { render } from "./renderer";
 import { photoScale, ww } from "./root";
 import { state, update } from "./state";

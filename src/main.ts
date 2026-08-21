@@ -8,7 +8,7 @@ import { tip } from "./ui";
 
 export const
   atlas = document.createElement("img"),
-  replanet = (seed:number) => {
+  replanet = (seed:number = state.seed) => {
     state.seed = seed
     generatePlanet(seed)
     prerenderPlanet()

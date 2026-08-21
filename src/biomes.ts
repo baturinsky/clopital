@@ -11,13 +11,17 @@ export type Biome = {
 
 export type BiomeName = keyof typeof biomesByNames;
 
+/**   wet 
+ *hot    cold
+ *   arid
+ */
 export const biomeMatrix = [
   ["rainforest", "swamp", "taiga", "snow"],
-  ["savannah", "forest", "forest", "snow"],
-  ["desert", "plains", "tundra", "snow"],
+  ["plains", "forest", "taiga", "snow"],
+  ["desert", "savannah", "tundra", "snow"],
 ] as BiomeName[][];
 
-export const FIR=1, TREE=2, PALM=3, MOUNTAIN=4, GRASS=5, WAVES=6, DUNES=7;
+export const FIR=1, TREE=2, PALM=3, HILLS=4, GRASS=5, WAVES=6, DUNES=7, MESA=8;
 
 export const biomesByNames:{ [name: string]: Biome } = {
   snow: {
@@ -28,7 +32,7 @@ export const biomesByNames:{ [name: string]: Biome } = {
     prop: GRASS
   },
   plains: {
-    color: "#0f0",
+    color: "#2c0",
     prop: GRASS
   },
   swamp: {
@@ -44,11 +48,11 @@ export const biomesByNames:{ [name: string]: Biome } = {
     prop: GRASS
   },
   rainforest: {
-    color: "#2a2",
+    color: "#060",
     prop: PALM
   },
   forest: {
-    color: "#084",
+    color: "#0a0",
     prop: TREE
   },
   taiga: {

@@ -1,12 +1,12 @@
 import { atlas } from "./main";
-import { clamp, Vec2, sum, rng, tween, sub, scale, mulv, round } from "./math";
-import { altitude, temperature, wetness, hexPos, rivers, biomeAt, hexCenter, riverAt } from "./planet";
-import { ww, photoScale, wh, SeaLevel, RGBA, HillLevel, loop, MountainLevel } from "./root";
-import { Biome, biomeMatrix, BiomeName, biomesByNames, MOUNTAIN } from "./biomes"
+import { clamp, Vec2, sum, rng, tween, sub, scale, mulv, round } from "./util";
+import { altitude, temperature, wetness, hexPos, rivers, biomeAt, hexCenter, riverAt, HighlandLevel, MountainLevel, layer } from "./planet";
+import { ww, photoScale, wh, RGBA, loop } from "./root";
+import { Biome, biomeMatrix, BiomeName, biomesByNames, MESA, WAVES } from "./biomes"
 import { state } from "./state";
 
 
-export let worldPhoto: HTMLCanvasElement, wx: CanvasRenderingContext2D,
+export let worldPhoto: HTMLCanvasElement,
   cx: CanvasRenderingContext2D, props: HTMLCanvasElement[],
   filters = new Set();
 
@@ -38,7 +38,7 @@ export const
   },
   initRenderer = () => {
     Object.values(biomesByNames).forEach(b => b.sprites = makeBiomeSprites(b))
-    props = loop(9, i => cutSpriteFromAtlas(i * 10 - 10, 22, 10, 20))
+    props = loop(9, i => cutSpriteFromAtlas(i * 10 - 10, 30, 10, 20))
     //let treeSprite =
     C.width = innerWidth;
     C.height = innerHeight;
@@ -58,24 +58,25 @@ export const
     worldPhoto = document.createElement('canvas');
     worldPhoto.width = (ww + .5) * photoScale[0];
     worldPhoto.height = wh * photoScale[1];
-    wx = worldPhoto.getContext("2d") as CanvasRenderingContext2D;
+    let cx = worldPhoto.getContext("2d") as CanvasRenderingContext2D;
 
-    for (let renderingHills of [false, true]) {
+    loop(3, drawingLayer => {
       drawOrder.forEach((at) => {
-        let biome = biomeAt[at], isHill = altitude[at] >= HillLevel
-        if (isHill == renderingHills) {
-          wx.drawImage(biome.sprites[at % 3 + (isHill ? 3 : 0)], ...pixelHexPos(at));
+        let biome = biomeAt[at];
+        let pos = pixelHexPos(at)
+        if (layer(at) == drawingLayer) {
+          cx.drawImage(biome.sprites[at % 3 + (layer(at) == 2 ? 3 : 0)], ...sum(pos, [0, 5]));
         }
       })
-    }
+    })
 
-    wx.save()
-    wx.scale(...photoScale);
+    cx.save()
+    cx.scale(...photoScale);
 
-    wx.lineCap = "round"
+    cx.lineCap = "round"
 
     for (let riverLayer of [0, 1]) {
-      wx.strokeStyle = ["#a44", "#0080D3"][riverLayer];
+      cx.strokeStyle = ["#a44", "#0080D3"][riverLayer];
       rivers.forEach(river => {
         //let coords = river.map(at => sum(hexPos(at), [.4+ rng()*.2, .4+ rng()*.2]))
         let coords = river.map(at => sum(hexPos(at), [.5, .5]))
@@ -84,25 +85,35 @@ export const
         coords[river.length - 1] = tween(coords[river.length - 2], coords[river.length - 1], .5 + riverLayer * .2)
         coords.forEach((at, i) => {
           if (i > 0 && Math.abs(at[0] - coords[i - 1][0]) < 10) {
-            wx.beginPath()
+            cx.beginPath()
             let ends = [sum(coords[i - 1], [0, riverLayer / 6]), sum(at, [0, (i == river.length - 1) ? 0 : riverLayer / 8])] as [Vec2, Vec2]
-            wx.lineWidth = .25 + .05 * Math.abs(ends[0][1] - ends[1][1]);
-            wx.lineTo(...ends[0])
-            wx.lineTo(...ends[1])
-            wx.stroke()
+            cx.lineWidth = .25 + .05 * Math.abs(ends[0][1] - ends[1][1]);
+            cx.lineTo(...ends[0])
+            cx.lineTo(...ends[1])
+            cx.stroke()
           }
         })
       })
     }
-    wx.restore()
+    cx.restore()
 
     drawOrder.forEach((at) => {
-      let prop = altitude[at] >= MountainLevel ? MOUNTAIN : biomeAt[at].prop;
+      let pnum = 6
+      let prop = altitude[at] >= MountainLevel ? MESA : biomeAt[at].prop;
+      if (prop == MESA || prop == WAVES)
+        pnum = 3;
       if (prop && !riverAt[at]) {
-        loop(6, i =>
-          wx.drawImage(props[prop], ...round(sum(pixelHexPos(at), [rng(12) - 3, i - 2])))
+        loop(pnum, i =>
+          cx.drawImage(props[prop], ...round(sum(pixelHexPos(at), [rng(12) - 3, i - 2])))
         )
       }
+      if (state.debug) {
+        cx.fillStyle = "#00f";
+        cx.fillRect(...sum(pixelHexPos(at), [5, 10]), 1, -wetness[at]);
+        cx.fillStyle = "#f00";
+        cx.fillRect(...sum(pixelHexPos(at), [6, 10]), 1, -temperature[at] * 10);
+      }
+
     })
 
   },

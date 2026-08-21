@@ -1,8 +1,13 @@
 import { Biome, biomeMatrix, BiomeName, biomesByNames } from "./biomes"
-import { rng, randomElement, min, Vec2, sum, clamp, setSeed } from "./math"
-import { ws, inside, neighborShift, SeaLevel, ww, HillLevel } from "./root"
+import { rng, randomElement, min, Vec2, sum, clamp, setSeed } from "./util"
+import { ws, inside, neighborShift, ww, wh, loop, neighborsBelow } from "./root"
+
+
 
 export let
+  SeaLevel = 5,
+  HighlandLevel = 30,
+  MountainLevel = 60,
   altitude: number[],
   tectonic: number[],
   wetness: number[],
@@ -19,19 +24,28 @@ export const generatePlanet = (genSeed: number) => {
   riverAt = new Array(ws).fill(0)
   rivers = undefined as any
 
-  const erect = (at: number, limit: number, altitude: number[]) => {
+  const erect = (at: number, limit: number, base = 1) => {
     while (inside(at) && rng(100)) {
       neighborShift.forEach(d => {
         if (inside(at + d))
-          altitude[at + d]++
+          altitude[at + d] += base
       })
       at += randomElement(neighborShift);
       if (limit && !rng(10))
-        erect(at, --limit, altitude)
+        erect(at, --limit, base)
     }
   }
 
-  for (let i = 0; i < 40; i++)  erect(rng(ws), 3, altitude)
+  loop(30, () => erect(rng(ws), 3, rng(3) + 1))
+
+  SeaLevel = 0, MountainLevel = 0
+  while (altitude.filter(v => v < SeaLevel).length < ws * .6)
+    SeaLevel++
+
+  while (altitude.filter(v => v < MountainLevel).length < ws * .97)
+    MountainLevel++
+
+  console.log({ SeaLevel });
 
   const erode = (at: number, path: number[] = []) => {
     path.push(at);
@@ -48,41 +62,53 @@ export const generatePlanet = (genSeed: number) => {
     return erode(lowest, path)
   }
 
-  for (let i = 0; i < 10000; i++)
-    erode(rng(ws))
+  loop(10000, () => erode(rng(ws)))
 
   rivers = []
 
-  for (let i = 0; i < 500; i++) {
+  loop(500, () => {
     let path = erode(rng(ws));
     if (path && path.length > 1) {
       rivers.push(path)
       path.forEach(at => riverAt[at] = 1);
     }
-  }
+  })
 
   temperature = altitude.map((alt, at) => 1 - Math.abs(0.5 - at / ws) ** 2 * 5 - alt / 100);
 
-  for (let i = 0; i < 10; i++)
+  loop(12, i =>
     altitude.forEach((h, at) => {
       let
-        clouds = h <= SeaLevel ? 20 * (Math.cos(at / ws * 12.5) + 1) : riverAt[at] / 2,
-        d = at < ws * .3 || at > ws * .7 ? 1 : -1;
+        clouds = (h <= SeaLevel ? 10 : riverAt[at] ? 5 : 0) * (Math.cos(at / ws * 12.5) + 1 + rng() / 3),
+
+        d = neighborShift[i] ?? (at < ws * .3 || at > ws * .7 ? 1 : -1);
+
       while (clouds > 0 && inside(at)) {
-        [0, ...neighborShift].forEach(ns => inside(at + ns) && (wetness[at + ns] += .1))
-        clouds = clouds * .9 - h / 20;
+        [0, ...neighborShift].forEach(ns => { if (inside(at + ns)) wetness[at + ns] += clouds / 50 })
         at += d;
         if (h > 10 && !rng(2))
           at += randomElement(neighborShift);
         if (altitude[at] <= SeaLevel)
           break
+        clouds = clouds * .9 - (h - SeaLevel) / 5;
       }
     })
+  )
+
+  altitude.forEach((h, at) => {
+    if (h >= HighlandLevel) {
+      neighborsBelow.forEach((delta) => {
+        if (altitude[delta + at] < SeaLevel) {
+          altitude[delta + at] = SeaLevel + .1
+        }
+      })
+    }
+  })
 
   biomeAt = altitude.map((h, at) => {
     let b = biomesByNames[h < SeaLevel - 3 ? "ocean" : h < SeaLevel ? "sea" :
       biomeMatrix
-      [clamp(0, ~~(2 + temperature[at] / 2 - wetness[at] / 6), 2)]
+      [clamp(0, ~~(2.1 + temperature[at] / 3 - wetness[at] / 20), 2)]
       [clamp(0, ~~(3 - temperature[at] * 4), 3)]
     ]
     //console.log(clamp(0, ~~(2 + temperature[at] - wetness[at] / 5), 2),      clamp(0, ~~(2 - temperature[at] * 1.5), 3));
@@ -90,14 +116,17 @@ export const generatePlanet = (genSeed: number) => {
       debugger
     return b
   });
-}
-
-export const hexPos = (at: number, seaLevel = false) => {
-  let y = ~~(at / ww);
-  return [(at % ww + y / 2) % ww,
-  y - (seaLevel ? 0 : (altitude[at] < SeaLevel ? -.4 : altitude[at] < HillLevel ? 0 : .4))
-  ] as Vec2
 },
+
+  layer = (at: number) =>
+    altitude[at] < SeaLevel ? 0 : altitude[at] < HighlandLevel ? 1 : 2,
+
+  hexPos = (at: number, fixedLayer?: number) => {
+    let y = ~~(at / ww);
+    return [(at % ww + y / 2) % ww,
+    y - .4 * (fixedLayer ?? layer(at))
+    ] as Vec2
+  },
   hexCenter = (at: number) => sum(hexPos(at), [.5, .5])
 
 
