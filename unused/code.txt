@@ -1,0 +1,52 @@
+      wx.save();
+
+      let color = biome.color, h = altitude[at]
+      wx.translate(...pos);
+
+      wx.fillStyle = "#800";
+      drawPolygon(wx, hexBasePoints)
+      wx.fill();
+
+      wx.fillStyle = "#a44";
+      drawPolygon(wx, hexBasePointsRight)
+      wx.fill();
+
+      wx.fillStyle = color;
+      wx.beginPath();
+      drawPolygon(wx, hexPoints)
+      wx.fill();
+
+
+              if (h >= SeaLevel) {
+          wx.fillStyle = ["#00000005", "#0000000a", "#0000000f"][at % 3]
+          wx.fill();
+        }
+
+
+    cx.strokeStyle = "#0004";
+    cx.lineWidth = .05;
+
+    cx.scale(...photoScale)
+
+    cx.beginPath();
+    hexPoints.forEach((p: Vec2) => {
+      cx.lineTo(...sum(hexPos(state.tilePointed, true), p))
+    })
+    cx.stroke();
+
+    cx.lineWidth = .05;
+    cx.beginPath();
+    hexPoints.forEach((p: Vec2) => {
+      cx.lineTo(...sum(hexPos(state.tilePointed), p))
+    })
+    cx.stroke();
+        
+
+    biomeAt.forEach((biome, at) => {
+      let pos = hexPos(at);
+      if (biome.trees) {
+        for (let i = 0; i < 5; i++) {
+          wx.fillText("🌲", ...sum(pos, [rng() * .8 - .4, rng() * .8]))
+        }
+      }
+    })

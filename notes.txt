@@ -1,0 +1,22 @@
+Food
+Entertainment
+Transport
+Housing
+Education
+Luxuries
+
+
+Horse -> Anyhorse
+Unicorn -> Anyhorse
+Pegasus -> Anyhorse
+etc
+
+Anyhorse -> Education*Smarthorse
+Anyhorse -> 1 Horsepower 
+Horse -> 1.5 Horsepower
+Unicorn -> 1 Magic
+Anyhorse + Potion -> 1 Magic
+Smarthorse + 10 Magic -> 5 Potions
+Plains -> Pasture (etc)
+Anyhorse -> 1 Transport
+Pasture + Hunger -> Happy

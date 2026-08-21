@@ -1,0 +1,10 @@
+* {
+  border: 0;
+  overflow: hidden;
+}
+
+#tip {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
