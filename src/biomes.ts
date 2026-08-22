@@ -1,4 +1,4 @@
-import { RGBA, hexToRgb } from "./root";
+import { RGBA, hexToRgb } from "./util";
 
 export type Biome = { 
   color: string, 
@@ -56,7 +56,7 @@ export const biomesByNames:{ [name: string]: Biome } = {
     prop: TREE
   },
   taiga: {
-    color: "#086",
+    color: "#fff",
     prop: FIR
   },
   ocean: {

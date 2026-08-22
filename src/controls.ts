@@ -5,7 +5,7 @@ import { state, update } from "./state";
 
 declare var C: HTMLCanvasElement;
 
-let buttonsDown: number[] = []; 
+let buttonsDown: number[] = [];
 
 export const
 
@@ -15,10 +15,10 @@ export const
       let photoMousePos = sub(scale(canvasMousePos, 1 / state.scale), state.topLeftAt);
       let worldMousePos = [photoMousePos[0] / photoScale[0], photoMousePos[1] / photoScale[1]]
       worldMousePos[0] -= floor(worldMousePos[1]) / 2;
-      update({ tilePointed: floor(worldMousePos[0]) + floor(worldMousePos[1]-.1) * ww + (floor(worldMousePos[0]) < 0 ? ww : 0) })
+      update({ tilePointed: floor(worldMousePos[0]) + floor(worldMousePos[1] - .1) * ww + (floor(worldMousePos[0]) < 0 ? ww : 0) })
 
       if (e.type == "pointermove") {
-        if (buttonsDown[0] || buttonsDown[1]) {
+        if (buttonsDown[1] || buttonsDown[2]) {
           let delta = [e.movementX, e.movementY] as Vec2;
           shiftViewBy(delta);
         }
@@ -26,6 +26,10 @@ export const
 
       if (e.type == "pointerdown") {
         buttonsDown[e.button] = 1;
+        if (e.button == 0) {
+          state.queenAt = state.tilePointed;
+          render()
+        }
       }
 
       if (e.type == "pointerup") {

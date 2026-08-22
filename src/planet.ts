@@ -1,6 +1,6 @@
 import { Biome, biomeMatrix, BiomeName, biomesByNames } from "./biomes"
-import { rng, randomElement, min, Vec2, sum, clamp, setSeed } from "./util"
-import { ws, inside, neighborShift, ww, wh, loop, neighborsBelow } from "./root"
+import { rng, randomElement, min, Vec2, sum, loop, clamp, setSeed } from "./util"
+import { ws, inside, neighborShift, ww, wh, neighborsBelow } from "./root"
 
 
 

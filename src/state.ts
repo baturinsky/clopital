@@ -9,7 +9,8 @@ export let state = {
   seed: 1,
   topLeftAt: [0, 0] as Vec2,
   tilePointed: 0 as number,
-  debug: false
+  debug: false,
+  queenAt: 0
 }
 
 export type State = typeof state;
