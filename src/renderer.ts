@@ -101,7 +101,7 @@ export const
     cx.lineCap = "round"
 
     for (let riverLayer of [0, 1]) {
-      cx.strokeStyle = ["#a44", "#0080D3"][riverLayer];
+      cx.strokeStyle = ["#4444", "#0080D3"][riverLayer];
       rivers.forEach(river => {
         //let coords = river.map(at => sum(hexPos(at), [.4+ rng()*.2, .4+ rng()*.2]))
         let coords = river.map(at => sum(hexPos(at), [.5, 1]))
@@ -111,7 +111,7 @@ export const
         coords.forEach((at, i) => {
           if (i > 0 && Math.abs(at[0] - coords[i - 1][0]) < 10) {
             cx.beginPath()
-            let ends = [sum(coords[i - 1], [0, riverLayer / 6]), sum(at, [0, (i == river.length - 1) ? 0 : riverLayer / 8])] as [Vec2, Vec2]
+            let ends = [sum(coords[i - 1], [0, riverLayer / 4]), sum(at, [0, (i == river.length - 1) ? 0 : riverLayer / 6])] as [Vec2, Vec2]
             cx.lineWidth = .25 + .05 * Math.abs(ends[0][1] - ends[1][1]);
             cx.lineTo(...ends[0])
             cx.lineTo(...ends[1])

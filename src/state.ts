@@ -1,6 +1,5 @@
 import { replanet } from "./main";
 import { altitude, biomeAt, SeaLevel, temperature, wetness } from "./planet";
-import { prerenderPlanet, render } from "./renderer";
 import { tip } from "./ui";
 import { debounce, fixed, Vec2 } from "./util";
 
@@ -23,7 +22,6 @@ export const
     autoSave()
   },
   save = (slot = "a") => {
-    console.log("s");
     localStorage["CLP." + slot] = JSON.stringify(state)
   },
   autoSave = debounce(save),
@@ -34,17 +32,3 @@ export const
     replanet()
     return true;
   }
-
-onkeydown = e => {
-  switch (e.code) {
-    case "KeyG":
-      replanet(~~(Math.random() * 1e9))
-      break
-    case "KeyD":
-      update({ debug: !state.debug })
-      prerenderPlanet()
-      render()
-      break
-  }
-}
-

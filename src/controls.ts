@@ -1,7 +1,9 @@
 import { clamp, floor, scale, sub, sum, Vec2 } from "./util";
-import { render } from "./renderer";
+import { prerenderPlanet, render } from "./renderer";
 import { photoScale, ww } from "./root";
 import { state, update } from "./state";
+import { replanet } from "./main";
+import { testMarket } from "./market";
 
 declare var C: HTMLCanvasElement;
 
@@ -63,3 +65,21 @@ export const
   shiftViewBy = (delta: Vec2) => {
     update({ topLeftAt: sum(state.topLeftAt, delta, 1 / state.scale) })
   }
+
+
+onkeydown = e => {
+  switch (e.code) {
+    case "KeyG":
+      replanet(~~(Math.random() * 1e9))
+      break
+    case "KeyM":
+      testMarket()
+      break
+    case "KeyD":
+      update({ debug: !state.debug })
+      prerenderPlanet()
+      render()
+      break
+  }
+}
+

@@ -45,8 +45,6 @@ export const generatePlanet = (genSeed: number) => {
   while (altitude.filter(v => v < MountainLevel).length < ws * .97)
     MountainLevel++
 
-  console.log({ SeaLevel });
-
   const erode = (at: number, path: number[] = []) => {
     path.push(at);
     if (altitude[at] < SeaLevel)
