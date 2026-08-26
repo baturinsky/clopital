@@ -1,6 +1,11 @@
+body{
+  background: #024;
+}
+
 * {
   border: 0;
   overflow: hidden;
+  margin: 0;
 }
 
 #tip {

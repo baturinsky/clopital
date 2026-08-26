@@ -111,7 +111,7 @@ export const
         coords.forEach((at, i) => {
           if (i > 0 && Math.abs(at[0] - coords[i - 1][0]) < 10) {
             cx.beginPath()
-            let ends = [sum(coords[i - 1], [0, riverLayer / 4]), sum(at, [0, (i == river.length - 1) ? 0 : riverLayer / 6])] as [Vec2, Vec2]
+            let ends = [sum(coords[i - 1], [0, riverLayer / 8]), sum(at, [0, (i == river.length - 1) ? 0 : riverLayer / 8])] as [Vec2, Vec2]
             cx.lineWidth = .25 + .05 * Math.abs(ends[0][1] - ends[1][1]);
             cx.lineTo(...ends[0])
             cx.lineTo(...ends[1])
