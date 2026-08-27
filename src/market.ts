@@ -64,7 +64,7 @@ export class MarketAgent {
 
   /** Applies the recipe with the given multiplier */
   useRecipe(recipe: GoodNumbers, times: number) {
-    //console.log(`${this.name} using recipe ${JSON.stringify(recipe)} ${times} times`);
+    console.log(`${this.name} uses recipe ${JSON.stringify(recipe)} ${times} times`);
     let ind = this.recipes.indexOf(recipe)
     this.recipeUsageStats[ind] = (this.recipeUsageStats[ind] ?? 0) + times;
     return Object.keys(recipe).forEach((good) => this.stock[good] = (this.stock[good] ?? 0) + recipe[good] * times)
@@ -91,9 +91,7 @@ export class MarketAgent {
     return listSum(Object.keys(this.stock).map(k => this.totalUtility(k)))
   }
 
-  bestSeller(buyer: MarketAgent, minimalStock = 0) {
-
-
+  bestSeller(buyer: MarketAgent, minimalStock = 40) {
     let soldables = this.goodsSoldableTo(buyer);
     let [good, v] = bestBy([...soldables], k => this.stock[k] > minimalStock ? buyer.marginalUtility(k) / this.marginalUtility(k) : 0);
 
@@ -110,9 +108,8 @@ export class MarketAgent {
     /** Calculating the best goods to trade */
     let myBestSeller = this.bestSeller(their), theirBestSeller = their.bestSeller(this);
 
-    if (myBestSeller && theirBestSeller == undefined) {
-      this.give(their, myBestSeller, Math.min(1, this.stock[myBestSeller]))
-    }
+    //if (myBestSeller && theirBestSeller == undefined)       this.give(their, myBestSeller, Math.min(1, this.stock[myBestSeller]))
+
 
     if (!myBestSeller || !theirBestSeller)
       return false
@@ -145,11 +142,10 @@ export class MarketAgent {
 
     let maxAmountOfMyGood = Math.min(this.stock[myBestSeller], their.stock[theirBestSeller] * finalExchangeRate);
 
+    let weGive = Math.ceil(maxAmountOfMyGood / 4);
+    let theyGive = Math.min(their.stock[theirBestSeller] / 4, weGive * finalExchangeRate);
 
-    let weGive = Math.min(~~(maxAmountOfMyGood), Math.max(1, ~~(maxAmountOfMyGood / 4)));
-    let theyGive = Math.min(their.stock[theirBestSeller], weGive * finalExchangeRate);
-
-    theyGive = Math.round(theyGive * 100) / 100;
+    theyGive = Math.ceil(theyGive);
 
     if (!(weGive > 0))
       return false;
@@ -160,7 +156,7 @@ export class MarketAgent {
     addToKey(this.tradeStats, `${theirBestSeller} from ${their.name}`, theyGive)
 
     //console.log("tv0", this.totalValue(), their.totalValue());
-    console.log("tts0 them us", their.totalStockUtility(), this.totalStockUtility());
+    //console.log("tts0 them us", their.totalStockUtility(), this.totalStockUtility());
 
     this.give(their, myBestSeller, weGive)
     their.give(this, theirBestSeller, theyGive)
@@ -186,21 +182,25 @@ export class MarketAgent {
 
   iterate() {
     for (let good in this.income) {
-      if (this.income[good] < 0) {
-        let factual = Math.min(-this.income[good], this.stock[good] ?? 0)
+      let v = this.income[good] * 10
+      if (v < 0) {
+        let factual = Math.min(-v, this.stock[good] ?? 0)
         addToKey(this.consumeStats, good, factual);
-        addToKey(this.potentialConsumeStats, good, -this.income[good]);
+        addToKey(this.potentialConsumeStats, good, -v);
       }
-      this.gain(good, this.income[good])
+      this.gain(good, v)
       this.stock[good] = Math.max(0, this.stock[good])
+      this.stock["friendship"] = Math.min(100, this.stock["friendship"] ?? 0);
     }
 
+    let recipeUsed = 0;
     this.recipes.forEach((recipe, i) => {
-      while (this.recipeUtility(recipe) > 0) {
+      if (this.recipeUtility(recipe) > 0) {
         let maxUses = this.recipeMax(recipe);
         if (maxUses < 1)
           return
-        this.useRecipe(recipe, 1)
+        this.useRecipe(recipe, Math.ceil(maxUses / 4))
+        recipeUsed++;
       }
     })
   }
@@ -215,41 +215,43 @@ export class MarketAgent {
 const horses =
   new MarketAgent({
     name: "horses",
-    income: { time: 1, food: -1.5, rest: -1, housing: -.5 },
-    sellList: ["horsing"],
-    buyList: ["food", "housing"],
+    income: { time: 1, food: -2, rest: -1, housing: -1 },
+    sellList: ["horsing", "friendship"],
+    buyList: ["food", "housing", "friendship"],
     recipes: [
-      { time: -.3, rest: 3 },
-      { time: -1, horsing: 1 }
+      { time: -10, rest: 30 },
+      { time: -10, horsing: 10 },
     ],
   }),
   unicorns = new MarketAgent({
     name: "unicorns",
-    income: { time: 1, food: -1, tools: -.1, rest: -1, housing: -.5 },
+    income: { time: 1, food: -1, tools: -1, rest: -1, housing: -1 },
     recipes: [
-      { time: -.3, rest: 3 },
-      { time: -1, unicorning: 1 }
+      { time: -10, rest: 30 },
+      { time: -10, unicorning: 10 }
     ],
-    sellList: ["unicorning"],
-    buyList: ["food", "housing", "tools"]
+    sellList: ["unicorning", "friendship"],
+    buyList: ["food", "housing", "tools", "friendship"]
   }),
   farm = new MarketAgent({
     name: "farm",
-    income: { farmland: 2 },
-    buyList: ["farming", "tools", "magic"],
-    sellList: ["food"],
+    income: { farmland: 1 },
+    buyList: ["farming", "tools", "magic", "friendship"],
+    sellList: ["food", "friendship"],
     recipes: [
       { farmland: -1, growspace: 1 },
       { farmland: -1, magic: -1, growspace: 3 },
       { farming: -1, growspace: -3, food: 6 },
     ],
+    stock: { friendship: 100 }
   }),
   magistrate = new MarketAgent({
     name: "magistrate",
     income: {
       mines: 1,
       housing: 2,
-      gold: -1
+      gold: -1,
+      friendship: 1
     },
     recipes: [
       { horsing: -1, working: 1 },
@@ -257,9 +259,10 @@ const horses =
 
       { horsing: -1, strength: 1 },
 
-      { unicorning: -1, casting: 1 },
+      { unicorning: -1, magic: 1 },
 
-      { working: -1, strength: .5 },
+
+      { working: -2, strength: 1 },
       { working: -1, potions: -1, magic: 1 },
       { unicorning: -2, food: -2, potions: 1 },
 
@@ -267,12 +270,12 @@ const horses =
       { strength: -1, mining: 1 },
       { strength: -3, tools: -1, mining: 10 },
       { strength: -1, smithing: 2 },
-      { strength: -1, tools: -.1, farming: 3 },
-      { working: -1, casting: -1, smithing: 4 },
+      { strength: -10, tools: -1, farming: 30 },
+      { working: -1, magic: -1, smithing: 4 },
 
       { mining: -1, mines: -1, metal: 3 },
       { smithing: -1, metal: -3, tools: 3 },
-      { mining: -1, mines: -1, gold: 1 },
+      { mining: -1, mines: -1, gold: 3 },
     ]
   })
 
@@ -284,7 +287,7 @@ const allAgents = [magistrate, ...agentswithoutMagistrate];
 
 export function testMarket() {
   //console.log("profit", recipeProfit(market.recipes[0]));
-  loop(1000, () => {
+  loop(300, () => {
     iteration++;
     for (let agent of allAgents) {
       agent.iterate();
@@ -304,13 +307,12 @@ export function testMarket() {
     //console.log([magistrate, horses, unicorns].map(a => `${a.name} ${JSON.stringify(a.stock)}`).join("\n"));
   })
 
-  allAgents.forEach(agent => agent.reportRecipeStats())
-
   console.log("magistrate trades:");
   console.table(magistrate.tradeStats);
 
   allAgents.forEach(agent => {
-    console.log(agent.name + " has:");
+    agent.reportRecipeStats()
+    console.log(agent.name + " stock:");
     console.table(agent.stock);
     console.log(agent.name + " consumed:");
     console.table(

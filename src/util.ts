@@ -1,3 +1,5 @@
+import { neighborShift } from "./root";
+
 export type Vec2 = [number, number]
 export type RGBA = [number, number, number, number]
 
@@ -5,7 +7,7 @@ export let seed = 1;
 
 export const rng = (n = 1e9) => ~~(Math.sin(++seed) ** 2 * 1e9 % n) / (n == 1e9 ? n : 1),
   setSeed = (n: number) => { seed = n },
-  randomElement = <T>(a: T[], gen=rng) => a[gen(a.length)],
+  randomElement = <T>(a: T[], gen = rng) => a[gen(a.length)],
   clamp = (min: number, v: number, max: number) => v < min ? min : v > max ? max : v,
   minInd = <T>(a: T[], f: (v: T) => number) => {
     let amf = a.map(f)
@@ -48,8 +50,5 @@ export const rng = (n = 1e9) => ~~(Math.sin(++seed) ** 2 * 1e9 % n) / (n == 1e9 
       s += randomElement([..."kstnhmyrw", ''], gen) + randomElement([..."aiueo", ''], gen)
     return s
   }
-
-  ;
-
 
 //console.log(bestBy(["foo", "barr", "bazz", "qu"], s => s.charCodeAt(0)));

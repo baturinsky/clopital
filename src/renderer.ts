@@ -2,12 +2,12 @@ import { atlas } from "./main";
 import { clamp, Vec2, sum, RGBA, loop, rng, tween, sub, scale, mulv, round } from "./util";
 import { altitude, temperature, wetness, hexPos, rivers, biomeAt, hexCenter, riverAt, HighlandLevel, MountainLevel, layer } from "./planet";
 import { ww, photoScale, wh, TWO_PI } from "./root";
-import { Biome, biomeMatrix, BiomeName, biomesByNames, MESA, WAVES } from "./biomes"
+import { Biome, biomeMatrix, BiomeName, biomesByNames, HUTS, HUTS2, MESA, WAVES } from "./biomes"
 import { state } from "./state";
 
 
 export let worldPhoto: HTMLCanvasElement,
-  cx: CanvasRenderingContext2D, props: HTMLCanvasElement[],
+  cx: CanvasRenderingContext2D, props: HTMLCanvasElement[], huts: HTMLCanvasElement[],
   sprites: HTMLCanvasElement[],
   outlined: HTMLCanvasElement[],
   filters = new Set();
@@ -55,8 +55,9 @@ export const
   },
   initRenderer = () => {
     Object.values(biomesByNames).forEach(b => b.sprites = makeBiomeSprites(b))
-    props = loop(9, i => cutSpriteFromAtlas((i - 1) * 10, 30, 10, 18))
-    sprites = loop(8, i => cutSpriteFromAtlas((i - 1) * 16, 48, 16, 24))
+    props = loop(12, i => cutSpriteFromAtlas((i - 1) * 10, 30, 10, 18))
+    huts = loop(30, i => cutSpriteFromAtlas(90, 30, 17, 22, constructFilter([[rng(), rng(), rng(), 1], [0, 1, 0, 1], [0, 0, 1, 1]], "hut" + i))),
+      sprites = loop(8, i => cutSpriteFromAtlas((i - 1) * 16, 48, 16, 24))
     outlined = loop(8, i => cutSpriteFromAtlas((i - 1) * 16, 48, 16, 24, "url(#OUTL)"))
     //let treeSprite =
     C.width = innerWidth;
@@ -131,8 +132,9 @@ export const
         loop(pnum, i =>
         //cx.drawImage(props[prop], ...round(sum(pixelHexPos(at), [rng(12) - 3, i - 2])))
         {
-          if (riverAt[at] ? i==guaranteed : rng(3) || i % 2)
+          if (riverAt[at] ? i == guaranteed : rng(3) || i % 2)
             cx.drawImage(
+              prop == MESA?huts[rng(10)]:
               props[prop],
               ...round(sum(sum(
                 pixelHexPos(at), propSlots[i % 6]),

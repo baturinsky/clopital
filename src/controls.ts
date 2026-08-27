@@ -4,6 +4,7 @@ import { photoScale, ww } from "./root";
 import { state, update } from "./state";
 import { replanet } from "./main";
 import { testMarket } from "./market";
+import { pathfind } from "./planet";
 
 declare var C: HTMLCanvasElement;
 
@@ -30,6 +31,8 @@ export const
         buttonsDown[e.button] = 1;
         if (e.button == 0) {
           state.queenAt = state.tilePointed;
+          let r = pathfind(state.queenAt, 15);
+          console.log(r);
           render()
         }
       }

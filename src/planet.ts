@@ -3,7 +3,6 @@ import { rng, randomElement, min, Vec2, sum, loop, clamp, setSeed } from "./util
 import { ws, inside, neighborShift, ww, wh, neighborsBelow } from "./root"
 
 
-
 export let
   SeaLevel = 5,
   HighlandLevel = 30,
@@ -14,7 +13,8 @@ export let
   riverAt: number[],
   temperature: number[],
   biomeAt: Biome[],
-  rivers: number[][]
+  rivers: number[][],
+  landTravelCost: number[]
 
 export const generatePlanet = (genSeed: number) => {
   setSeed(genSeed)
@@ -116,16 +116,47 @@ export const generatePlanet = (genSeed: number) => {
   });
 },
 
+  /** vertical layer of the hex */
   layer = (at: number) =>
     altitude[at] < SeaLevel ? 0 : altitude[at] < HighlandLevel ? 1 : 2,
 
+  /** visual hex position */
   hexPos = (at: number, fixedLayer?: number) => {
     let y = ~~(at / ww);
     return [(at % ww + y / 2) % ww,
     y - .4 * (fixedLayer ?? layer(at))
     ] as Vec2
   },
-  hexCenter = (at: number) => sum(hexPos(at), [.5, .5])
 
+  /** visual hex center position */
+  hexCenter = (at: number) => sum(hexPos(at), [.5, .5]),
+
+  pathfind = (start: number, maxDist: number) => {
+    const visited = new Set<number>();
+    const queue: PathPoint[] = [], result: { [at: number]: PathPoint } = {};
+
+    queue.push({ at: start, d: 0, from: start });
+    visited.add(start);
+
+    while (queue.length > 0) {
+      // Remove the front element from the queue
+      const current = queue.shift()!;
+      result[current.at] = current;
+
+      for (const ns of neighborShift) {
+        let neighbor = current.at + ns;
+        if (!visited.has(neighbor)) {
+          visited.add(neighbor);
+          let d = current.d + (biomeAt[neighbor].travel ?? 1e9);
+          if (d <= maxDist)
+            queue.push({ at: neighbor, d, from: current.at });
+        }
+      }
+    }
+
+    return result;
+  }
+
+export type PathPoint = { at: number, d: number, from: number }
 
 //for (let i = 0; i < 1; i += .05) {  console.log(i, Math.cos(i * 12.5) + 1)}
