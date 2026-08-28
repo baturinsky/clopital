@@ -1,5 +1,5 @@
 import { replanet } from "./main";
-import { altitude, biomeAt, SeaLevel, temperature, wetness } from "./planet";
+import { altitude, biomeAt, hexNames, SeaLevel, temperature, wetness } from "./planet";
 import { tip } from "./ui";
 import { debounce, fixed, Vec2 } from "./util";
 
@@ -18,7 +18,7 @@ export const
   update = (d: Partial<State>) => {
     Object.assign(state, d);
     let at = state.tilePointed;
-    tip(`${biomeAt[at]?.name} temp ${fixed(temperature[at])} wet ${fixed(wetness[at])} alt ${fixed(altitude[at]-SeaLevel)}`)
+    tip(`${hexNames[at]} ${biomeAt[at]?.name} temp ${fixed(temperature[at])} wet ${fixed(wetness[at])} alt ${fixed(altitude[at]-SeaLevel)}`)
     autoSave()
   },
   save = (slot = "a") => {

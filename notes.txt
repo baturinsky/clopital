@@ -20,3 +20,32 @@ Smarthorse + 10 Magic -> 5 Potions
 Plains -> Pasture (etc)
 Anyhorse -> 1 Transport
 Pasture + Hunger -> Happy
+
+
+Travel
+Seafaring
+Flight
+
+Friendship
+
+Hay
+Sugarcane
+Wheat
+Apples
+Cider
+
+Magic
+Potion
+
+Iron
+Gems
+Gold
+
+Jewelry
+
+Cotton
+Cloth
+
+Fuel
+
+Rain

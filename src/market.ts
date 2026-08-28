@@ -1,3 +1,4 @@
+import { neighborhood } from "./planet";
 import { addToKey, bestBy, listSum, stween, tween, worstBy } from "./util";
 
 //import { loop } from "./util";
@@ -9,8 +10,10 @@ export const tradeable = new Set(["horsing", "unicorning", "food", "housing", "t
 
 const utilityBase = 0.97, utilityBaseLog = Math.log(utilityBase)
 
+const marginalUtilityLookup =  loop(100000, n => 1e6 * Math.pow(utilityBase, n))
+
 export function marginalUtility(amount: number) {
-  return utilityBase ** amount
+  return amount > 100000 ? 0 : marginalUtilityLookup[amount]
 }
 
 export function totalUtility(amount: number) {
@@ -19,6 +22,9 @@ export function totalUtility(amount: number) {
 
 
 export class MarketAgent {
+
+  scale = 1
+
   /** To tell markets apart */
   name?: string
 
@@ -50,11 +56,11 @@ export class MarketAgent {
 
   /** The perceived utility of the one unit of this good*/
   marginalUtility(good: string) {
-    return marginalUtility(this.stock[good] ?? 0)
+    return marginalUtility(~~((this.stock[good] ?? 0) / this.scale))
   }
 
   totalUtility(good: string) {
-    return totalUtility(this.stock[good] ?? 0)
+    return totalUtility(~~((this.stock[good] ?? 0) / this.scale))
   }
 
   /** How much the market utility will change when using the recipe without multiplier */
@@ -64,7 +70,7 @@ export class MarketAgent {
 
   /** Applies the recipe with the given multiplier */
   useRecipe(recipe: GoodNumbers, times: number) {
-    console.log(`${this.name} uses recipe ${JSON.stringify(recipe)} ${times} times`);
+    //console.log(`${this.name} uses recipe ${JSON.stringify(recipe)} ${times} times`);
     let ind = this.recipes.indexOf(recipe)
     this.recipeUsageStats[ind] = (this.recipeUsageStats[ind] ?? 0) + times;
     return Object.keys(recipe).forEach((good) => this.stock[good] = (this.stock[good] ?? 0) + recipe[good] * times)
@@ -79,7 +85,6 @@ export class MarketAgent {
       return v
     }
     )[1]
-    //if(recipe.magic)      debugger
     return bb
   }
 
@@ -114,14 +119,14 @@ export class MarketAgent {
     if (!myBestSeller || !theirBestSeller)
       return false
 
-    if (iteration > 10000 && their == unicorns) {
+    /*if (iteration > 10000 && their == unicorns) {
       console.log("rrrr", [...tradeable].map(k => [k,
         "we", this.stock[k], this.marginalUtility(k),
         "them", their.stock[k], their.marginalUtility(k),
         their.marginalUtility(k) / this.marginalUtility(k)]));
       debugger
       this.bestSeller(their)
-    }
+    }*/
 
     /** Calculating the exchange rate - how many of their good for one our good */
     let theirBreakEvenPrice = their.marginalUtility(myBestSeller) / their.marginalUtility(theirBestSeller);
@@ -150,7 +155,7 @@ export class MarketAgent {
     if (!(weGive > 0))
       return false;
 
-    console.log(`${this.name} trades ${weGive} of ${myBestSeller} for ${theyGive} of ${theirBestSeller} with ${their.name}`);
+    //console.log(`${this.name} trades ${weGive} of ${myBestSeller} for ${theyGive} of ${theirBestSeller} with ${their.name}`);
 
     addToKey(this.tradeStats, `${myBestSeller} to ${their.name}`, weGive)
     addToKey(this.tradeStats, `${theirBestSeller} from ${their.name}`, theyGive)
@@ -162,7 +167,7 @@ export class MarketAgent {
     their.give(this, theirBestSeller, theyGive)
 
 
-    console.log("tts1", their.totalStockUtility(), this.totalStockUtility(), this.utilities);
+    //console.log("tts1", their.totalStockUtility(), this.totalStockUtility(), this.utilities);
     //console.log("tv1", this.totalValue(), their.totalValue());
     //console.log(this.stock, their.stock);
     return true
@@ -247,6 +252,7 @@ const horses =
   }),
   magistrate = new MarketAgent({
     name: "magistrate",
+    scale: 100,
     income: {
       mines: 1,
       housing: 2,
@@ -286,8 +292,10 @@ const agentswithoutMagistrate = [horses, unicorns, farm];
 const allAgents = [magistrate, ...agentswithoutMagistrate];
 
 export function testMarket() {
+  console.time("testMarket")
+
   //console.log("profit", recipeProfit(market.recipes[0]));
-  loop(300, () => {
+  loop(100000, () => {
     iteration++;
     for (let agent of allAgents) {
       agent.iterate();
@@ -313,7 +321,7 @@ export function testMarket() {
   allAgents.forEach(agent => {
     agent.reportRecipeStats()
     console.log(agent.name + " stock:");
-    console.table(agent.stock);
+    console.table(Object.fromEntries(Object.keys(agent.stock).map(k => [k, { stock: agent.stock[k], mu: agent.marginalUtility(k) }])));
     console.log(agent.name + " consumed:");
     console.table(
       Object.fromEntries(
@@ -326,6 +334,10 @@ export function testMarket() {
 
 
   magistrate.barter(farm)
+
+  console.timeLog("testMarket")
+
+  console.log(neighborhood[2]);
 
   //console.log(Object.keys(market.stock).map(k => `${k}: $${~~(price(k) / price("time") * 1000)}`));
   //console.log(market.recipes.map((v, i) => `${recipeUses[i] ?? 0}*${JSON.stringify(market.recipes[i])}`));

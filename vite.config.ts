@@ -26,7 +26,7 @@ const hardTerse = {
     drop_debugger: true,
     dead_code: true,
   },
-  mangle: {
+  mangle: false && {
     // Mangle variables at the highest scope level
     toplevel: true,
 
@@ -38,6 +38,8 @@ const hardTerse = {
 
       // Mangle everything except strings enclosed in quotes (helps prevent breaking keys)
       keep_quoted: 'strict',
+
+      undeclared: true,
 
       reserved: ["C", "DEFS", "TIP", "biomesByNames"]
     }

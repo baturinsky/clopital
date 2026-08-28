@@ -1,6 +1,6 @@
 import { atlas } from "./main";
-import { clamp, Vec2, sum, RGBA, loop, rng, tween, sub, scale, mulv, round } from "./util";
-import { altitude, temperature, wetness, hexPos, rivers, biomeAt, hexCenter, riverAt, HighlandLevel, MountainLevel, layer } from "./planet";
+import { clamp, Vec2, sum, RGBA, loop, rng, tween, sub, scale, mulv, round, setSeed } from "./util";
+import { altitude, temperature, wetness, hexPos, rivers, biomeAt, hexCenter, riverAt, HighlandLevel, PeaksLevel, layer } from "./planet";
 import { ww, photoScale, wh, TWO_PI } from "./root";
 import { Biome, biomeMatrix, BiomeName, biomesByNames, HUTS, HUTS2, MESA, WAVES } from "./biomes"
 import { state } from "./state";
@@ -82,7 +82,7 @@ export const
     cx.imageSmoothingEnabled = false
     return [c, cx] as [HTMLCanvasElement, CanvasRenderingContext2D]
   },
-  prerenderPlanet = () => {
+  prerenderPlanet = () => {    
     let cx: CanvasRenderingContext2D;
     [worldPhoto, cx] = canvasElementAndContext((ww + .5) * photoScale[0], wh * photoScale[1])
 
@@ -124,8 +124,10 @@ export const
     cx.restore()
 
     drawOrder.forEach((at) => {
+      setSeed(at)
       let pnum = 6
-      let prop = altitude[at] >= MountainLevel ? MESA : biomeAt[at].prop;
+      let prop = biomeAt[at].prop
+      //let prop = altitude[at] >= PeaksLevel ? MESA : biomeAt[at].prop;
       //if (prop == MESA || prop == WAVES)        pnum = 3;
       let guaranteed = rng(pnum)
       if (prop) {
@@ -134,7 +136,7 @@ export const
         {
           if (riverAt[at] ? i == guaranteed : rng(3) || i % 2)
             cx.drawImage(
-              prop == MESA?huts[rng(10)]:
+              //prop == MESA?huts[rng(10)]:
               props[prop],
               ...round(sum(sum(
                 pixelHexPos(at), propSlots[i % 6]),

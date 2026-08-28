@@ -44,11 +44,12 @@ export const rng = (n = 1e9) => ~~(Math.sin(++seed) ** 2 * 1e9 % n) / (n == 1e9 
     return [item, -value] as [T, number]
   },
   addToKey = (o: { [id: string]: number }, k: string, amount: number) => o[k] = (o[k] ?? 0) + amount,
-  japaneseName = (gen = rng) => {
+  japaneseName = () => {
     let s = ''
-    for (let i = 0; i < gen(3) + 2; i++)
-      s += randomElement([..."kstnhmyrw", ''], gen) + randomElement([..."aiueo", ''], gen)
+    for (let i = rng(3) + 2; i > 0; i--)
+      s += randomElement([..."kstnhmyrw", ''], rng) + randomElement([..."aiueo", ''], rng)
     return s
-  }
+  },
+  cap1 = (s: string) => s.charAt(0).toUpperCase() + s.substring(1)
 
 //console.log(bestBy(["foo", "barr", "bazz", "qu"], s => s.charCodeAt(0)));

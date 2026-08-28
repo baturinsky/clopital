@@ -4,7 +4,8 @@ import { photoScale, ww } from "./root";
 import { state, update } from "./state";
 import { replanet } from "./main";
 import { testMarket } from "./market";
-import { pathfind } from "./planet";
+import { biomeAt, neighborhood, pathfind } from "./planet";
+import { biomesByNames } from "./biomes";
 
 declare var C: HTMLCanvasElement;
 
@@ -32,7 +33,11 @@ export const
         if (e.button == 0) {
           state.queenAt = state.tilePointed;
           let r = pathfind(state.queenAt, 15);
-          console.log(r);
+          console.log(r)
+          for(let n of neighborhood[4]){
+            biomeAt[state.tilePointed + n] = biomesByNames.snowfield;
+          }
+          prerenderPlanet()
           render()
         }
       }
