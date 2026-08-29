@@ -1,11 +1,11 @@
 import { clamp, floor, scale, sub, sum, Vec2 } from "./util";
-import { prerenderPlanet, render } from "./renderer";
-import { photoScale, ww } from "./root";
-import { state, update } from "./state";
-import { replanet } from "./main";
+import { prerenderUniverse, render } from "./renderer";
+import { neighborhood, photoScale, ww } from "./root";
+import { queenCell, state, update } from "./state";
+import { regenerateUniverse } from "./main";
 import { testMarket } from "./market";
-import { biomeAt, neighborhood, pathfind } from "./planet";
 import { biomesByNames } from "./biomes";
+import { u } from "./universe";
 
 declare var C: HTMLCanvasElement;
 
@@ -19,7 +19,10 @@ export const
       let photoMousePos = sub(scale(canvasMousePos, 1 / state.scale), state.topLeftAt);
       let worldMousePos = [photoMousePos[0] / photoScale[0], photoMousePos[1] / photoScale[1]]
       worldMousePos[0] -= floor(worldMousePos[1]) / 2;
-      update({ tilePointed: floor(worldMousePos[0]) + floor(worldMousePos[1] - .1) * ww + (floor(worldMousePos[0]) < 0 ? ww : 0) })
+      let tilePointed = floor(worldMousePos[0]) + floor(worldMousePos[1] - .1) * ww + (floor(worldMousePos[0]) < 0 ? ww : 0)
+
+      if(u.c[tilePointed])
+        update({ tilePointed  })
 
       if (e.type == "pointermove") {
         if (buttonsDown[1] || buttonsDown[2]) {
@@ -32,12 +35,12 @@ export const
         buttonsDown[e.button] = 1;
         if (e.button == 0) {
           state.queenAt = state.tilePointed;
-          let r = pathfind(state.queenAt, 15);
+          let r = queenCell().pathfind(15);
           console.log(r)
-          for(let n of neighborhood[4]){
-            biomeAt[state.tilePointed + n] = biomesByNames.snowfield;
+          for (let n of neighborhood[4]) {
+            u.c[state.tilePointed + n].biome = biomesByNames.snowfield;
           }
-          prerenderPlanet()
+          prerenderUniverse()
           render()
         }
       }
@@ -78,14 +81,15 @@ export const
 onkeydown = e => {
   switch (e.code) {
     case "KeyG":
-      replanet(~~(Math.random() * 1e9))
+      update({ seed: ~~(Math.random() * 1e9) })
+      regenerateUniverse()
       break
     case "KeyM":
       testMarket()
       break
     case "KeyD":
       update({ debug: !state.debug })
-      prerenderPlanet()
+      prerenderUniverse()
       render()
       break
   }

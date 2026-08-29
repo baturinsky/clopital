@@ -1,7 +1,8 @@
-import { Biome, biomeMatrix, BiomeName, biomesByNames } from "./biomes"
-import { rng, randomElement, min, Vec2, sum, loop, clamp, setSeed, japaneseName, cap1, scale } from "./util"
-import { ws, inside, neighborShift, ww, wh, neighborsBelow } from "./root"
+import { Biome, biomeMatrix, BiomeName, biomesByNames } from "../src/biomes"
+import { rng, randomElement, min, Vec2, sum, loop, clamp, setSeed, japaneseName, cap1, scale } from "../src/util"
+import { ws, inside, neighborShift, ww, wh, neighborsBelow } from "../src/root"
 
+export type PathPoint = { c: number, d: number, from: number }
 
 export let
   SeaLevel: number,
@@ -18,10 +19,6 @@ export let
   landTravelCost: number[]
 
 export const
-  neighborhood = loop(100, (radius: number) =>
-    neighborShift.map((ns, nsi) => loop(radius,
-      r => loop(r + 1, x => ns * (r + 1) + neighborShift[(nsi + 2) % 6] * x)
-    )).flat(2)),
 
   generatePlanet = (genSeed: number) => {
     setSeed(genSeed)
@@ -183,7 +180,6 @@ export const
     return result;
   }
 
-export type PathPoint = { at: number, d: number, from: number }
 
 //for (let i = 0; i < 1; i += .05) {  console.log(i, Math.cos(i * 12.5) + 1)}
 

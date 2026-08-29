@@ -1,4 +1,3 @@
-import { neighborhood } from "./planet";
 import { addToKey, bestBy, listSum, stween, tween, worstBy } from "./util";
 
 //import { loop } from "./util";
@@ -336,8 +335,6 @@ export function testMarket() {
   magistrate.barter(farm)
 
   console.timeLog("testMarket")
-
-  console.log(neighborhood[2]);
 
   //console.log(Object.keys(market.stock).map(k => `${k}: $${~~(price(k) / price("time") * 1000)}`));
   //console.log(market.recipes.map((v, i) => `${recipeUses[i] ?? 0}*${JSON.stringify(market.recipes[i])}`));

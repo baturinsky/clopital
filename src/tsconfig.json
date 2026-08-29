@@ -11,5 +11,5 @@
 		"jsxImportSource": "preact",
 		"skipLibCheck": true
 	},
-	"include": ["node_modules/vite/client.d.ts", "**/*"]
+	"include": ["node_modules/vite/client.d.ts", "**/*", "../unused/solver.ts"]
 }

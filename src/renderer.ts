@@ -1,9 +1,9 @@
 import { atlas } from "./main";
-import { clamp, Vec2, sum, RGBA, loop, rng, tween, sub, scale, mulv, round, setSeed } from "./util";
-import { altitude, temperature, wetness, hexPos, rivers, biomeAt, hexCenter, riverAt, HighlandLevel, PeaksLevel, layer } from "./planet";
 import { ww, photoScale, wh, TWO_PI } from "./root";
 import { Biome, biomeMatrix, BiomeName, biomesByNames, HUTS, HUTS2, MESA, WAVES } from "./biomes"
-import { state } from "./state";
+import { pointedCell, queenCell, state } from "./state";
+import { u } from "./universe";
+import { loop, mulv, RGBA, rng, round, scale, setSeed, sum, tween, Vec2 } from "./util";
 
 
 export let worldPhoto: HTMLCanvasElement,
@@ -26,7 +26,6 @@ export const
   hexBasePointsRight = [[.5, 1.2], [1, 1], [1, 1.2], [.5, 1.4]] as Vec2[],
   triPoints = [[0, -.5], [.5, .5], [-.5, .5]] as Vec2[],*/
 
-  drawOrder = loop(wh, row => loop(ww, col => row * ww + (col + ww - ~~(row / 2)) % ww)).flat(),
 
   drawSprite = (sprite: HTMLCanvasElement, pos: Vec2, alpha = 1) => {
     cx.save()
@@ -38,7 +37,7 @@ export const
     cx.restore()
   },
 
-  render = () => {
+  render = () => {    
     cx.imageSmoothingEnabled = false
     cx.clearRect(0, 0, 1e7, 1e7);
     cx.save();
@@ -47,11 +46,13 @@ export const
     cx.drawImage(worldPhoto, 0, 0);
     cx.restore()
 
-    drawSprite(sprites[2], hexPos(state.queenAt))
-    drawSprite(outlined[1], sum(hexPos(state.queenAt), [0, Math.sin(Date.now() / 500) / 9 - .5]))
+    let queenTopLeft = queenCell().topLeft();
+
+    drawSprite(sprites[2], queenTopLeft)
+    drawSprite(outlined[1], sum(queenTopLeft, [0, Math.sin(Date.now() / 500) / 9 - .5]))
 
     if (state.tilePointed != state.queenAt)
-      drawSprite(outlined[1], hexPos(state.tilePointed), .7)
+      drawSprite(outlined[1], pointedCell().topLeft(), .7)
   },
   initRenderer = () => {
     Object.values(biomesByNames).forEach(b => b.sprites = makeBiomeSprites(b))
@@ -71,9 +72,6 @@ export const
       cx.lineTo(...p)
     })
   },
-  pixelHexPos = (at: number) =>
-    round(mulv(hexPos(at), photoScale))
-  ,
   canvasElementAndContext = (w: number, h: number) => {
     let c = document.createElement('canvas');
     c.width = w;
@@ -82,16 +80,15 @@ export const
     cx.imageSmoothingEnabled = false
     return [c, cx] as [HTMLCanvasElement, CanvasRenderingContext2D]
   },
-  prerenderPlanet = () => {    
+  prerenderUniverse = () => {
     let cx: CanvasRenderingContext2D;
     [worldPhoto, cx] = canvasElementAndContext((ww + .5) * photoScale[0], wh * photoScale[1])
 
     loop(3, drawingLayer => {
-      drawOrder.forEach((at) => {
-        let biome = biomeAt[at];
-        let pos = pixelHexPos(at)
-        if (layer(at) == drawingLayer) {
-          cx.drawImage(biome.sprites[at % 3 + (layer(at) == 2 ? 3 : 0)], ...sum(pos, [0, 5]));
+      u.drawOrder.forEach(cell => {
+        let pos = cell.pixelPos()
+        if (cell.layer == drawingLayer) {
+          cx.drawImage(cell.biome.sprites[cell.at % 3 + (cell.layer == 2 ? 3 : 0)], ...sum(pos, [0, 5]));
         }
       })
     })
@@ -103,9 +100,9 @@ export const
 
     for (let riverLayer of [0, 1]) {
       cx.strokeStyle = ["#4444", "#0080D3"][riverLayer];
-      rivers.forEach(river => {
+      u.rivers.forEach(river => {
         //let coords = river.map(at => sum(hexPos(at), [.4+ rng()*.2, .4+ rng()*.2]))
-        let coords = river.map(at => sum(hexPos(at), [.5, 1]))
+        let coords = river.map(cell => sum(cell.topLeft(), [.5, 1]))
         if (river.length == 1)
           return
         coords[river.length - 1] = tween(coords[river.length - 2], coords[river.length - 1], .5 + riverLayer * .2)
@@ -123,23 +120,25 @@ export const
     }
     cx.restore()
 
-    drawOrder.forEach((at) => {
-      setSeed(at)
-      let pnum = 6
-      let prop = biomeAt[at].prop
+    u.drawOrder.forEach(cell => {
+      setSeed(cell.at)
+      let pnum = 6,
+        prop = cell.biome.prop,
+        guaranteed = rng(pnum)
+
       //let prop = altitude[at] >= PeaksLevel ? MESA : biomeAt[at].prop;
       //if (prop == MESA || prop == WAVES)        pnum = 3;
-      let guaranteed = rng(pnum)
+
       if (prop) {
         loop(pnum, i =>
         //cx.drawImage(props[prop], ...round(sum(pixelHexPos(at), [rng(12) - 3, i - 2])))
         {
-          if (riverAt[at] ? i == guaranteed : rng(3) || i % 2)
+          if (cell.rivers ? i == guaranteed : rng(3) || i % 2)
             cx.drawImage(
               //prop == MESA?huts[rng(10)]:
               props[prop],
               ...round(sum(sum(
-                pixelHexPos(at), propSlots[i % 6]),
+                cell.pixelPos(), propSlots[i % 6]),
                 [rng(3) - 1, rng(3) - 1]
               ))
             )
@@ -147,9 +146,9 @@ export const
       }
       if (state.debug) {
         cx.fillStyle = "#00f";
-        cx.fillRect(...sum(pixelHexPos(at), [5, 10]), 1, -wetness[at]);
+        cx.fillRect(...sum(cell.pixelPos(), [5, 10]), 1, -cell.hum);
         cx.fillStyle = "#f00";
-        cx.fillRect(...sum(pixelHexPos(at), [6, 10]), 1, -temperature[at] * 10);
+        cx.fillRect(...sum(cell.pixelPos(), [6, 10]), 1, -cell.t * 10);
       }
 
     })

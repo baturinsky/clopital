@@ -1,5 +1,3 @@
-import { neighborShift } from "./root";
-
 export type Vec2 = [number, number]
 export type RGBA = [number, number, number, number]
 

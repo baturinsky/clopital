@@ -1,6 +1,6 @@
-import { replanet } from "./main";
-import { altitude, biomeAt, hexNames, SeaLevel, temperature, wetness } from "./planet";
+import { regenerateUniverse } from "./main";
 import { tip } from "./ui";
+import { u } from "./universe";
 import { debounce, fixed, Vec2 } from "./util";
 
 export let state = {
@@ -17,8 +17,11 @@ export type State = typeof state;
 export const
   update = (d: Partial<State>) => {
     Object.assign(state, d);
-    let at = state.tilePointed;
-    tip(`${hexNames[at]} ${biomeAt[at]?.name} temp ${fixed(temperature[at])} wet ${fixed(wetness[at])} alt ${fixed(altitude[at]-SeaLevel)}`)
+    let cell = u.c[state.tilePointed];
+    tip(`${cell.name} ${cell.biome.name} temp ${fixed(cell.t)} 
+    wet ${fixed(cell.hum)} elev ${fixed(cell.elev - u.SeaElev)}
+    hab ${fixed(cell.habitability)}
+    `)
     autoSave()
   },
   save = (slot = "a") => {
@@ -29,6 +32,9 @@ export const
     let data = localStorage["CLP." + slot]
     if (data)
       Object.assign(state, JSON.parse(data))
-    replanet()
+    regenerateUniverse()
     return true;
-  }
+  }, 
+  queenCell = ()=>u.c[state.queenAt],
+  pointedCell = ()=>u.c[state.tilePointed]
+

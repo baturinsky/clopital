@@ -2,23 +2,19 @@
 import './imported.css'
 
 import { enableControls } from "./controls";
-import { generatePlanet } from "./planet";
-import { initRenderer, prerenderPlanet, render } from "./renderer";
-import { solvePlanet } from "./solver";
+import { initRenderer, prerenderUniverse, render } from "./renderer";
 import { state, save, load } from "./state";
 import { tip } from "./ui";
 import { testMarket } from "./market";
+import { Universe } from './universe';
 
 
 export const
   atlas = document.createElement("img"),
-  replanet = (seed:number = state.seed) => {
-    state.seed = seed
-    generatePlanet(seed)
-    prerenderPlanet()
-    //solvePlanet()
+  regenerateUniverse = () => {
+    new Universe(state.seed)
+    prerenderUniverse()
     save()
-    setInterval(render, 50);
   };
 
 onload = () => {
@@ -35,9 +31,13 @@ const init = () => {
 
   load()
 
+  setInterval(render, 50)
 }
 
 
 
 
-testMarket()
+
+
+
+//testMarket()

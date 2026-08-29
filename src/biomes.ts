@@ -63,7 +63,7 @@ export const biomesByNames = {
     habitability: 1,
   },
   savannah: {
-    color: "#6f2",
+    color: "#af2",
     prop: GRASS,
     travel: 1,
     habitability: 2,

@@ -1,4 +1,4 @@
-import { solveFloat } from "./yalps/YALPS";
+import { solveFloat } from "../src/yalps/YALPS";
 
 export function solvePlanet() {
   const model = {
