@@ -1,23 +1,25 @@
 import { Biome } from "./biomes"
-import { photoScale, ws, ww } from "./root"
+import { photoScale, topLeft, toXY, wh, ws, ww } from "./root"
 import { Universe } from "./universe"
-import { cap1, clamp, japaneseName, loop, min, mulv, randomElement, rng, round, setSeed, sum, Vec2 } from "./util"
+import { cap1, clamp, japaneseName, loop, min, muls, randomElement, rng, round, setSeed, sum, Vec2 } from "./util"
 
 export type PathPoint = { c: Cell, d: number, from: Cell }
-
 export class Cell {
   /** Elevation */
   elev = 0
   /** Humidity */
   hum = 0
   rivers = 0
+  roads = 0
   /** Temperature */
   t = 0
-  
+
   biome!: Biome
   name: string
   layer!: number
-  habitability!: number  
+  habitability!: number
+
+  bedrock!: boolean
 
   /** Neighbor (or undefined) to the six irections in order */
   neighborsByDir!: Cell[]
@@ -27,8 +29,10 @@ export class Cell {
 
   landTravelCost = 1
 
-  latitude(){
-    return Math.abs(.5 - this.at/ws)*2;
+  settlement: any
+
+  latitude() {
+    return Math.abs(.5 - this.at / ws) * 2;
   }
 
   water() {
@@ -38,17 +42,22 @@ export class Cell {
   constructor(public u: Universe, public at: number) {
     setSeed(at)
     this.name = cap1(japaneseName())
+    let tl = this.topLeft()
+    this.bedrock = tl[0] < 1 || tl[0] > ww - 2 || tl[1] < 1 || tl[1] > wh - 2;
   }
 
 
   erode(path: Cell[] = []): Cell[] | undefined {
+    if (this.bedrock)
+      return
+
     path.push(this);
     if (this.elev < this.u.SeaElev)
       return path;
 
     let flowTo = min(this.neighbors, c => c.elev)
-    
-      if(!flowTo)
+
+    if (!flowTo)
       return
 
     let d = this.elev - flowTo.elev;
@@ -64,8 +73,8 @@ export class Cell {
     return flowTo.erode(path)
   }
 
-
-  pathfind(maxDist: number) {
+  /** todo: traverse queue in correct order */
+  pathfind(maxDist: number, destination?: Cell) {
     const visited = new Set<Cell>();
     const queue: PathPoint[] = [], result: { [at: number]: PathPoint } = {};
 
@@ -76,13 +85,18 @@ export class Cell {
       // Remove the front element from the queue
       const current = queue.shift()!;
       result[current.c.at] = current;
+      if (current.c == destination)
+        return result
 
       current.c.neighbors.forEach(neighbor => {
         if (!visited.has(neighbor)) {
           visited.add(neighbor);
-          let d = current.d + (neighbor.biome.travel ?? 1e9);
-          if (d <= maxDist)
-            queue.push({ c: neighbor, d, from: current.c });
+          let d = current.d + ((neighbor.roads?.1:neighbor.biome.travel) ?? 1e9);
+          if (d <= maxDist) {
+            let i;
+            for (i = queue.length - 1; i >= 0 && queue[i].d > d; i--) { }
+            queue.splice(i + 1, 0, { c: neighbor, d, from: current.c });
+          }
         }
       })
     }
@@ -90,23 +104,30 @@ export class Cell {
     return result;
   }
 
+  pathFrom(pf: { [id: string]: PathPoint }) {
+    let path: Cell[] = [this], point = pf[this.at];
+    do {
+      point = pf[point.from.at]
+      path.push(point.c)
+    } while (point.c != point.from)
+    return path
+  }
+
   /** visual hex position */
   topLeft(fixedLayer?: number) {
-    let y = ~~(this.at / ww);
-    return [(this.at % ww + y / 2) % ww,
-    y - .4 * (fixedLayer ?? this.layer)
-    ] as Vec2
+    let p = topLeft(this.at);
+    p[1] -= .4 * (fixedLayer ?? this.layer ?? 0);
+    return p
   }
 
   /** visual hex center position */
-  center() {
-    return sum(this.topLeft(this.at), [.5, .5])
+  center(fixedLayer?: number) {
+    return sum(this.topLeft(fixedLayer), [.5, .5])
   }
 
   pixelPos() {
-    return round(mulv(this.topLeft(), photoScale))
+    return round(muls(this.topLeft(), photoScale))
   }
-
 
 }
 

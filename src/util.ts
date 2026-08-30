@@ -1,3 +1,4 @@
+
 export type Vec2 = [number, number]
 export type RGBA = [number, number, number, number]
 
@@ -17,7 +18,7 @@ export const rng = (n = 1e9) => ~~(Math.sin(++seed) ** 2 * 1e9 % n) / (n == 1e9 
   sum = (a: Vec2, b: Vec2, m = 1) => [a[0] + b[0] * m, a[1] + b[1] * m] as Vec2,
   sub = (a: Vec2, b: Vec2) => [a[0] - b[0], a[1] - b[1]] as Vec2,
   scale = <T extends number[]>(a: T, m: number) => a.map(v => v * m) as T,
-  mulv = (a: Vec2, b: Vec2) => [a[0] * b[0], a[1] * b[1]] as Vec2,
+  muls = (a: Vec2, b: Vec2) => [a[0] * b[0], a[1] * b[1]] as Vec2,
   tween = (a: Vec2, b: Vec2, m: number) => [a[0] * (1 - m) + b[0] * m, a[1] * (1 - m) + b[1] * m] as Vec2,
   stween = (a: number, b: number, m: number) => a * (1 - m) + b * m,
   round = <T extends number[]>(a: T) => a.map(v => ~~(v + .5)) as T,
@@ -49,5 +50,6 @@ export const rng = (n = 1e9) => ~~(Math.sin(++seed) ** 2 * 1e9 % n) / (n == 1e9 
     return s
   },
   cap1 = (s: string) => s.charAt(0).toUpperCase() + s.substring(1)
+  
 
 //console.log(bestBy(["foo", "barr", "bazz", "qu"], s => s.charCodeAt(0)));

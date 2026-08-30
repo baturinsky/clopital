@@ -1,4 +1,5 @@
 import { regenerateUniverse } from "./main";
+import { hexDist } from "./root";
 import { tip } from "./ui";
 import { u } from "./universe";
 import { debounce, fixed, Vec2 } from "./util";
@@ -18,9 +19,10 @@ export const
   update = (d: Partial<State>) => {
     Object.assign(state, d);
     let cell = u.c[state.tilePointed];
-    tip(`${cell.name} ${cell.biome.name} temp ${fixed(cell.t)} 
-    wet ${fixed(cell.hum)} elev ${fixed(cell.elev - u.SeaElev)}
-    hab ${fixed(cell.habitability)}
+    tip(`${cell.name} ${cell.settlement?"town":cell.biome.name}<br/>
+    temp ${fixed(cell.t)}  wet ${fixed(cell.hum)}<br/>
+    elev ${fixed(cell.elev - u.SeaElev)}  hab ${fixed(cell.habitability)}<br/>
+    dist ${hexDist(state.queenAt, state.tilePointed)}
     `)
     autoSave()
   },

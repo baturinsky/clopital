@@ -37,11 +37,11 @@ export const
           state.queenAt = state.tilePointed;
           let r = queenCell().pathfind(15);
           console.log(r)
-          for (let n of neighborhood[4]) {
+          /*for (let n of neighborhood[4]) {
             u.c[state.tilePointed + n].biome = biomesByNames.snowfield;
           }
           prerenderUniverse()
-          render()
+          render()*/
         }
       }
 

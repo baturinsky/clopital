@@ -5,7 +5,7 @@ export type Biome = {
   trees?: number,
   name: string,
   rgba: RGBA,
-  prop?: number,
+  prop?: number[],
   travel?: number
   seaTravel?: number
   habitability: number
@@ -24,12 +24,20 @@ export const biomeMatrix = [
   ["desert", "savannah", "tundra", "snowfield"],
 ] as BiomeName[][];
 
-export const FIR = 1, TREE = 2, PALM = 3, HILLS = 4, GRASS = 5, WAVES = 6, DUNES = 7, MESA = 8, HUTS = 9, HUTS2 = 10;
+export const BEDROCK=0, FIR = 1, TREE = 2, PALM = 3, HILLS = 4, GRASS = 5, WAVES = 6, DUNES = 7, 
+MESA = 8, MESA2 = 9,
+HUTS = 10, HUTS2 = 11;
 
 export const biomesByNames = {
+  bedrock: {
+    color: "#000",
+    prop: [BEDROCK],
+    travel: 1e9,
+    habitability: 0,
+  },
   peaks: {
     color: "#fff",
-    prop: MESA,
+    prop: [MESA, MESA2],
     travel: 2,
     habitability: 0,
   },
@@ -40,61 +48,61 @@ export const biomesByNames = {
   },
   tundra: {
     color: "#8fa",
-    prop: GRASS,
+    prop: [GRASS],
     travel: 2,
     habitability: 1,
   },
   plains: {
     color: "#2c0",
-    prop: GRASS,
+    prop: [GRASS],
     travel: 1,
     habitability: 2,
   },
   swamp: {
     color: "#0aa",
-    prop: GRASS,
+    prop: [GRASS],
     travel: 4,
     habitability: 1,
   },
   desert: {
     color: "#f80",
-    prop: DUNES,
+    prop: [DUNES],
     travel: 2,
     habitability: 1,
   },
   savannah: {
     color: "#af2",
-    prop: GRASS,
+    prop: [GRASS],
     travel: 1,
     habitability: 2,
   },
   rainforest: {
     color: "#060",
-    prop: PALM,
+    prop: [PALM],
     travel: 4,
     habitability: 1,
   },
   forest: {
     color: "#0a0",
-    prop: TREE,
+    prop: [TREE],
     travel: 2,
     habitability: 2,
   },
   taiga: {
     color: "#fff",
-    prop: FIR,
+    prop: [FIR],
     travel: 3,
     habitability: 1,
   },
   ocean: {
     color: "#03b",
-    prop: WAVES,
+    prop: [WAVES],
     seaTravel: 2,
     habitability: 0,
   },
   sea: {
     color: "#04c",
-    prop: WAVES,
+    prop: [WAVES],
     seaTravel: 1,
     habitability: 0,
   },

@@ -20,7 +20,6 @@ export const
 onload = () => {
   atlas.onload = init;
   atlas.src = 'i.webp';
-  tip("Hi")
 }
 
 const init = () => {

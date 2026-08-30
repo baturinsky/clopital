@@ -1,6 +1,6 @@
 import { biomesByNames, biomeMatrix } from "./biomes"
 import { Cell } from "./cell"
-import { ws, neighborShift, wh, ww, neighborBy } from "./root"
+import { ws, neighborShift, wh, ww, neighborBy, hexDist } from "./root"
 import { rng, loop, randomElement, clamp, setSeed, seed, sum, listSum } from "./util"
 
 export let u: Universe
@@ -19,22 +19,32 @@ export class Universe {
 
   /** All rivers*/
   rivers!: Cell[][]
+  roads: Cell[][] = []
+
+  settlements: Cell[] = []
 
   constructor(public seed: number) {
     u = this;
     this.generate()
   }
 
+  dist(a: number, b: number) {
+    return
+  }
+
   anyCell() {
     return this.c[rng(ws)]
   }
 
-  erect(at: Cell, by: number, depth: number) {
+  erect(c: Cell, by: number, depth: number) {
     while (rng(70)) {
-      at.neighbors.forEach(c => c.elev += by)
-      at = randomElement(at.neighbors)
+      let tl = c.topLeft();
+      if (c.bedrock)
+        return
+      c.neighbors.forEach(c => c.elev += by)
+      c = randomElement(c.neighbors)
       if (depth > 0 && !rng(30)) {
-        this.erect(at, by, depth - 1)
+        this.erect(c, by, depth - 1)
       }
     }
   }
@@ -56,9 +66,6 @@ export class Universe {
 
     this.c.forEach(cell => cell.elev = Math.log(cell.elev / averageElev))
 
-    //this.c.forEach(cell => { cell.elev += (~~(cell.at / ww) % 2) * 1000 });
-
-
     this.byElev = [...this.c].sort((a, b) => a.elev - b.elev)
 
     this.OceanAlt = this.quantile(.4)
@@ -67,6 +74,7 @@ export class Universe {
     this.PeaksElev = this.quantile(.97)
 
     loop(10000, () => this.anyCell().erode())
+
 
     this.rivers = []
 
@@ -113,14 +121,18 @@ export class Universe {
         })
       }
 
+      let tl = cell.topLeft()
+
       let b = biomesByNames[
-        cell.elev < this.OceanAlt ? "ocean" :
-          cell.water() ? "sea" :
-            cell.elev >= this.PeaksElev ? "peaks" :
-              biomeMatrix
-              [clamp(0, ~~(2 + cell.t / 3 - cell.hum / 20), 2)]
-              [clamp(0, ~~(4 - cell.t * 4), 3)]
+        cell.bedrock ? "bedrock" :
+          cell.elev < this.OceanAlt ? "ocean" :
+            cell.water() ? "sea" :
+              cell.elev >= this.PeaksElev ? "peaks" :
+                biomeMatrix
+                [clamp(0, ~~(2 + cell.t / 3 - cell.hum / 20), 2)]
+                [clamp(0, ~~(4 - cell.t * 4), 3)]
       ]
+
 
       cell.biome = b;
       if (!b)
@@ -136,8 +148,32 @@ export class Universe {
         coast += nb.water() ? 1 : 0;
       })
 
+      score += cell.rivers ? 10 : 0;
+
       cell.habitability = score * (coast ? 2 : 1);
+
+      if (cell.habitability > rng(1000) && !cell.water()) {
+        cell.settlement = true;
+        this.settlements.push(cell)
+      }
     })
+
+    for (let a of this.settlements) {
+      let aroads = 0;
+      for (let b of this.settlements) {
+        if (hexDist(a.at, b.at) < 15 && (!rng(aroads + 1))) {
+          let pf = a.pathfind(15, b)
+          let bp = pf[b.at]
+          if (bp) {
+            let path = b.pathFrom(pf);
+            path.forEach(c=>c.roads++)
+            this.roads.push(path)
+            aroads++;
+          }
+        }
+      }
+    }
+
 
     this.drawOrder = loop(wh, row => loop(ww, col => row * ww + (col + ww - ~~(row / 2)) % ww)).flat().map(at => this.c[at])
 
@@ -146,7 +182,5 @@ export class Universe {
   quantile(n: number) {
     return this.byElev[~~(ws * n)].elev
   }
-
-
 
 }
