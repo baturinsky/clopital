@@ -1,4 +1,4 @@
-import { Biome } from "./biomes"
+import { Biome, biomesByNames } from "./biomes"
 import { photoScale, topLeft, toXY, wh, ws, ww } from "./root"
 import { Universe } from "./universe"
 import { cap1, clamp, japaneseName, loop, min, muls, randomElement, rng, round, setSeed, sum, Vec2 } from "./util"
@@ -14,9 +14,9 @@ export class Cell {
   /** Temperature */
   t = 0
 
-  biome!: Biome
+  biome: Biome = biomesByNames.bedrock
   name: string
-  layer!: number
+  layer:number = 0 
   habitability!: number
 
   bedrock!: boolean

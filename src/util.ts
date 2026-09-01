@@ -49,7 +49,8 @@ export const rng = (n = 1e9) => ~~(Math.sin(++seed) ** 2 * 1e9 % n) / (n == 1e9 
       s += randomElement([..."kstnhmyrw", ''], rng) + randomElement([..."aiueo", ''], rng)
     return s
   },
-  cap1 = (s: string) => s.charAt(0).toUpperCase() + s.substring(1)
-  
+  cap1 = (s: string) => s.charAt(0).toUpperCase() + s.substring(1),
+  asArray = <T>(s: T): T[] => Array.isArray(s) || s == undefined ? s as T[] : [s];
+
 
 //console.log(bestBy(["foo", "barr", "bazz", "qu"], s => s.charCodeAt(0)));

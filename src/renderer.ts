@@ -3,7 +3,7 @@ import { ww, photoScale, wh, TWO_PI } from "./root";
 import { Biome, biomeMatrix, BiomeName, biomesByNames, HUTS, HUTS2, MESA, WAVES } from "./biomes"
 import { pointedCell, queenCell, state } from "./state";
 import { u } from "./universe";
-import { loop, muls, randomElement, RGBA, rng, round, scale, setSeed, sum, tween, Vec2 } from "./util";
+import { asArray, loop, muls, randomElement, RGBA, rng, round, scale, setSeed, sum, tween, Vec2 } from "./util";
 import { Cell } from "./cell";
 
 
@@ -69,11 +69,12 @@ export const
   initRenderer = () => {
     Object.values(biomesByNames).forEach(b => b.sprites = makeBiomeSprites(b))
     //props = loop(64, i => cutSpriteFromAtlas(i % 16 * 16, 16 + ~~(i/16), 16, 16))
-    huts = loop(30, i => cutSpriteFromAtlas(192, 32, 16, 16,
+    huts = loop(30, i => cutSpriteFromAtlas(16, 64, 16, 16,
       constructFilter([
-        [.5 + rng() / 2, .5 + rng() / 2, .5 + rng() / 2, 1],
+        [.5 + rng() / 3, rng() / 3, rng() / 3, 1],
         [0, 1, 0, 1],
-        [.5, 0, 0, 1]], "hut" + i))),
+        [.5 + rng() / 2, .5 + rng() / 2, .5 + rng() / 2, 1]
+      ], "hut" + i))),
       sprites = loop(96, i => cutSpriteFromAtlas((i % 16) * 16, 32 + ~~(i / 16) * 16, 16, 16))
     outlined = loop(96, i => cutSpriteFromAtlas((i % 16) * 16, 32 + ~~(i / 16) * 16, 16, 16, "url(#OUTL)"))
     letters = loop(64, i => cutSpriteFromAtlas((i % 16) * letterWidth, 209 + ~~(i / 16) * 12, letterWidth + 1, 12, "url(#OUTL)"))
@@ -152,7 +153,7 @@ export const
 
     cx.lineWidth = .05;
     cx.strokeStyle = "#880";
-    
+
 
     u.roads.forEach(road => renderPath(road, .17))
     cx.strokeStyle = "#aa0";
@@ -164,20 +165,22 @@ export const
 
       setSeed(cell.at)
       let pnum = 6,
-        prop = cell.biome.prop,
+        props = asArray(cell.biome.prop) as number[],
         guaranteed = rng(pnum)
+
 
       //let prop = altitude[at] >= PeaksLevel ? MESA : biomeAt[at].prop;
       //if (prop == MESA || prop == WAVES)        pnum = 3;
 
-      if (prop) {
+      if (props) {
+
         loop(pnum, i =>
         //cx.drawImage(props[prop], ...round(sum(pixelHexPos(at), [rng(12) - 3, i - 2])))
         {
           if (cell.rivers ? i == guaranteed : rng(3) || i % 2)
             cx.drawImage(
               cell.settlement ? huts[rng(10)] :
-                sprites[randomElement(prop)],
+                sprites[randomElement(props)],
               ...round(sum(sum(
                 cell.pixelPos(), propSlots[i % 6]),
                 [- 4, -1]

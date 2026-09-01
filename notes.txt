@@ -22,9 +22,9 @@ Anyhorse -> 1 Transport
 Pasture + Hunger -> Happy
 
 
-Travel
-Seafaring
-Flight
+Walk
+Swim
+Fly
 
 Friendship
 
@@ -32,6 +32,7 @@ Hay
 Sugarcane
 Wheat
 Apples
+
 Cider
 
 Magic
@@ -49,3 +50,4 @@ Cloth
 Fuel
 
 Rain
+

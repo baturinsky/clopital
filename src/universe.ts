@@ -158,22 +158,7 @@ export class Universe {
       }
     })
 
-    for (let a of this.settlements) {
-      let aroads = 0;
-      for (let b of this.settlements) {
-        if (hexDist(a.at, b.at) < 15 && (!rng(aroads + 1))) {
-          let pf = a.pathfind(15, b)
-          let bp = pf[b.at]
-          if (bp) {
-            let path = b.pathFrom(pf);
-            path.forEach(c=>c.roads++)
-            this.roads.push(path)
-            aroads++;
-          }
-        }
-      }
-    }
-
+    //addRoads()
 
     this.drawOrder = loop(wh, row => loop(ww, col => row * ww + (col + ww - ~~(row / 2)) % ww)).flat().map(at => this.c[at])
 
@@ -182,5 +167,24 @@ export class Universe {
   quantile(n: number) {
     return this.byElev[~~(ws * n)].elev
   }
+
+}
+
+function addRoads(){
+    for (let a of u.settlements) {
+      let aroads = 0;
+      for (let b of u.settlements) {
+        if (hexDist(a.at, b.at) < 15 && (!rng(aroads + 1))) {
+          let pf = a.pathfind(15, b)
+          let bp = pf[b.at]
+          if (bp) {
+            let path = b.pathFrom(pf);
+            path.forEach(c=>c.roads++)
+            u.roads.push(path)
+            aroads++;
+          }
+        }
+      }
+    }
 
 }
