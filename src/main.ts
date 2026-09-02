@@ -5,8 +5,9 @@ import { enableControls } from "./controls";
 import { initRenderer, prerenderUniverse, render } from "./renderer";
 import { state, save, load } from "./state";
 import { tip } from "./ui";
-import { testMarket } from "./market";
 import { Universe } from './universe';
+import { initRaces } from './races';
+import { testMarket } from './tests';
 
 
 export const
@@ -23,6 +24,7 @@ onload = () => {
 }
 
 const init = () => {
+  initRaces()
 
   initRenderer()
 
@@ -30,13 +32,7 @@ const init = () => {
 
   load()
 
-  setInterval(render, 50)
+  setInterval(render, 16)
 }
 
-
-
-
-
-
-
-//testMarket()
+testMarket()

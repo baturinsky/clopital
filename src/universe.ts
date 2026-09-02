@@ -1,5 +1,8 @@
 import { biomesByNames, biomeMatrix } from "./biomes"
 import { Cell } from "./cell"
+import { Character } from "./character"
+import { MarketAgent } from "./market"
+import { races } from "./races"
 import { ws, neighborShift, wh, ww, neighborBy, hexDist } from "./root"
 import { rng, loop, randomElement, clamp, setSeed, seed, sum, listSum } from "./util"
 
@@ -22,6 +25,7 @@ export class Universe {
   roads: Cell[][] = []
 
   settlements: Cell[] = []
+  herds: Character[] = []
 
   constructor(public seed: number) {
     u = this;
@@ -129,8 +133,8 @@ export class Universe {
             cell.water() ? "sea" :
               cell.elev >= this.PeaksElev ? "peaks" :
                 biomeMatrix
-                [clamp(0, ~~(2 + cell.t / 3 - cell.hum / 20), 2)]
-                [clamp(0, ~~(4 - cell.t * 4), 3)]
+                [clamp(0, ~~(1.8 + cell.t / 3 - cell.hum / 30), 2)]
+                [clamp(0, ~~(3.8 - cell.t * 3), 3)]
       ]
 
 
@@ -152,9 +156,16 @@ export class Universe {
 
       cell.habitability = score * (coast ? 2 : 1);
 
-      if (cell.habitability > rng(1000) && !cell.water()) {
-        cell.settlement = true;
-        this.settlements.push(cell)
+      let isCoast = !cell.water() && cell.neighbors.find(c => c.water());
+
+      if (!rng(isCoast ? 40 : cell.water() ? 300: 150)) {
+        let race = randomElement(cell.biome.races);
+        if (race) {
+          let herd = new Character({ kind: "settlement", race: races[race], cell });
+          this.herds.push(herd);
+        }
+        /*cell.settlement = herd
+        this.settlements.push(cell)*/
       }
     })
 
@@ -170,21 +181,21 @@ export class Universe {
 
 }
 
-function addRoads(){
-    for (let a of u.settlements) {
-      let aroads = 0;
-      for (let b of u.settlements) {
-        if (hexDist(a.at, b.at) < 15 && (!rng(aroads + 1))) {
-          let pf = a.pathfind(15, b)
-          let bp = pf[b.at]
-          if (bp) {
-            let path = b.pathFrom(pf);
-            path.forEach(c=>c.roads++)
-            u.roads.push(path)
-            aroads++;
-          }
+function addRoads() {
+  for (let a of u.settlements) {
+    let aroads = 0;
+    for (let b of u.settlements) {
+      if (hexDist(a.at, b.at) < 15 && (!rng(aroads + 1))) {
+        let pf = a.pathfind(15, b)
+        let bp = pf[b.at]
+        if (bp) {
+          let path = b.pathFrom(pf);
+          path.forEach(c => c.roads++)
+          u.roads.push(path)
+          aroads++;
         }
       }
     }
+  }
 
 }

@@ -1,4 +1,18 @@
-export const race = {
+import { Biome, biomesByNames } from "./biomes"
+import { GoodNumbers } from "./market"
+
+export type Race = {
+  name: string
+  job: string,
+  recipes: GoodNumbers[]
+  income: GoodNumbers
+  moving: string
+  biomes: string[]
+  sprite: number
+}
+
+//@ts-ignore
+export const races = {
   alicorns: {
     job: "alicorning"
   },
@@ -42,9 +56,9 @@ export const race = {
     recipes: [
     ]
   }
-}
+} as { [id: string]: Race }
 
-const
+export const
   recipes = [
     { $ing: -1, working: 1 },
     { working: -1, "working hard": 1 },
@@ -79,3 +93,22 @@ const
 
   }
 
+export const initRaces = () => {
+  let sprite = 48;
+  for (let rn in races) {
+    races[rn].name = rn
+    races[rn].biomes = []
+    races[rn].sprite = sprite++;
+  }
+
+  for (let b of Object.values(biomesByNames)) {
+    for (let r of b.races) {
+      races[r].biomes.push(b.name)
+    }
+  }
+
+  console.log(races);
+},
+  raceHabitabiliy = (race: Race, biome: Biome) => {
+    return biome.habitability + (biome.races.find(race.name) ? 1 : 0);
+  }

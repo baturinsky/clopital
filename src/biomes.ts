@@ -1,15 +1,15 @@
-import { RGBA, hexToRgb } from "./util";
+import { RGBA, asArray, hexToRgb } from "./util";
 
 export type Biome = {
   color: string,
-  trees?: number,
-  name?: string,
+  name: string,
   rgba: RGBA,
-  prop?: number[] | number,
+  prop: number[],
   travel?: number
   seaTravel?: number
-  habitability?: number
-  sprites?: HTMLCanvasElement[];
+  habitability: number
+  races: string[]
+  sprites: HTMLCanvasElement[];
 }
 
 export type BiomeName = keyof typeof biomesByNames;
@@ -27,7 +27,7 @@ export const biomeMatrix = [
 export const BEDROCK = 0, FIR = 1, TREE = 2, PALM = 3, HILLS = 4, GRASS = 5, WAVES = 6, DUNES = 7,
   MESA = 8, MESA2 = 9, HUTS = 10, HUTS2 = 11;
 
-/**@ts-ignore that some fields are added at preprocess*/
+//@ts-ignore
 export const biomesByNames = {
   bedrock: {
     color: "#000",
@@ -40,21 +40,21 @@ export const biomesByNames = {
     prop: [MESA, MESA2],
     travel: 2,
     habitability: 0,
-    race: "goats",
+    races: "goats",
     crop: "moss"
   },
   snowfield: {
     color: "#fff",
     travel: 2,
     habitability: 0,
-    race: "deers"
+    races: "deers"
   },
   tundra: {
     color: "#8fa",
     prop: GRASS,
     travel: 2,
     habitability: 1,
-    race: "deers",
+    races: "deers",
     crop: "moss"
   },
   plains: {
@@ -62,7 +62,7 @@ export const biomesByNames = {
     prop: GRASS,
     travel: 1,
     habitability: 2,
-    race: "horse",
+    races: "horses",
     crop: "wheat"
   },
   swamp: {
@@ -76,7 +76,7 @@ export const biomesByNames = {
     prop: DUNES,
     travel: 2,
     habitability: 1,
-    race: "zebra",
+    races: "zebras",
     crop: "cactus"
   },
   steppe: {
@@ -84,7 +84,7 @@ export const biomesByNames = {
     prop: GRASS,
     travel: 1,
     habitability: 2,
-    race: ["zebra", "horse"],
+    races: ["zebras", "horses"],
     crop: "cotton"
   },
   rainforest: {
@@ -92,7 +92,7 @@ export const biomesByNames = {
     prop: PALM,
     travel: 4,
     habitability: 1,
-    race: "zebra",
+    races: "zebras",
     mine: "gems"
   },
   forest: {
@@ -100,15 +100,15 @@ export const biomesByNames = {
     prop: TREE,
     travel: 2,
     habitability: 2,
-    race: ["deer", "horse"],
-    crop: "apple"
+    races: ["deers", "horses"],
+    crop: "apples"
   },
   taiga: {
     color: "#fff",
     prop: FIR,
     travel: 3,
     habitability: 1,
-    race: "deer",
+    races: "deers",
     crop: "honey"
   },
   ocean: {
@@ -116,7 +116,7 @@ export const biomesByNames = {
     prop: WAVES,
     seaTravel: 2,
     habitability: 0,
-    race: "seahorse",
+    races: "seahorses",
     crop: "fish"
   },
   sea: {
@@ -124,7 +124,7 @@ export const biomesByNames = {
     prop: WAVES,
     seaTravel: 1,
     habitability: 0,
-    race: "seahorse",
+    races: "seahorses",
     crop: "fish"
   },
 } as { [name: string]: Biome };
@@ -138,7 +138,6 @@ export const resources = {
     biomes: { plains: 2, steppe: 1 },
     food: 1
   },
-  
 
 }
 
@@ -146,4 +145,6 @@ for (let k in biomesByNames) {
   let b = biomesByNames[k]
   b.name = k;
   b.rgba = hexToRgb(b.color)
+  b.prop = asArray(b.prop) as number[]
+  b.races = asArray(b.races)
 }

@@ -1,9 +1,12 @@
 import { Biome, biomesByNames } from "./biomes"
+import { MarketAgent } from "./market"
+import { races } from "./races"
 import { photoScale, topLeft, toXY, wh, ws, ww } from "./root"
 import { Universe } from "./universe"
 import { cap1, clamp, japaneseName, loop, min, muls, randomElement, rng, round, setSeed, sum, Vec2 } from "./util"
 
 export type PathPoint = { c: Cell, d: number, from: Cell }
+const UNPPASSABLE = 1e12
 export class Cell {
   /** Elevation */
   elev = 0
@@ -16,7 +19,7 @@ export class Cell {
 
   biome: Biome = biomesByNames.bedrock
   name: string
-  layer:number = 0 
+  layer: number = 0
   habitability!: number
 
   bedrock!: boolean
@@ -29,7 +32,7 @@ export class Cell {
 
   landTravelCost = 1
 
-  settlement: any
+  settlement?: MarketAgent
 
   latitude() {
     return Math.abs(.5 - this.at / ws) * 2;
@@ -74,10 +77,11 @@ export class Cell {
   }
 
   /** todo: traverse queue in correct order */
-  pathfind(maxDist: number, destination?: Cell) {
+  pathfind(moveMode: string, maxDist: number, destination?: Cell) {
     const visited = new Set<Cell>();
     const queue: PathPoint[] = [], result: { [at: number]: PathPoint } = {};
 
+    const costFunction = travelCostFunction(moveMode);
     queue.push({ c: this, d: 0, from: this });
     visited.add(this);
 
@@ -91,7 +95,7 @@ export class Cell {
       current.c.neighbors.forEach(neighbor => {
         if (!visited.has(neighbor)) {
           visited.add(neighbor);
-          let d = current.d + ((neighbor.roads?.1:neighbor.biome.travel) ?? 1e9);
+          let d = current.d + costFunction(current.c, neighbor);
           if (d <= maxDist) {
             let i;
             for (i = queue.length - 1; i >= 0 && queue[i].d > d; i--) { }
@@ -106,11 +110,13 @@ export class Cell {
 
   pathFrom(pf: { [id: string]: PathPoint }) {
     let path: Cell[] = [this], point = pf[this.at];
+    if(!point)
+      return undefined;
     do {
       point = pf[point.from.at]
       path.push(point.c)
     } while (point.c != point.from)
-    return path
+    return path.reverse()
   }
 
   /** visual hex position */
@@ -131,3 +137,19 @@ export class Cell {
 
 }
 
+function travelCostFunction(moveMode: string) {
+  return (a: Cell, b: Cell) => {
+    switch (moveMode) {
+      case "flying":
+        return .5;
+      case "swimming":
+        return b.water() || a.water() ? 1 : UNPPASSABLE;
+      default:
+        let cost = ((b.roads ? .1 : b.biome.travel) ?? 1e9)
+        if (races[moveMode] && b.biome.races.includes(moveMode)) {
+          cost /= 2;
+        }
+        return cost;
+    }
+  }
+}

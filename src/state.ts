@@ -1,3 +1,4 @@
+import { MovementAnimation } from "./animation";
 import { regenerateUniverse } from "./main";
 import { hexDist } from "./root";
 import { tip } from "./ui";
@@ -10,7 +11,8 @@ export let state = {
   topLeftAt: [0, 0] as Vec2,
   tilePointed: 0 as number,
   debug: false,
-  queenAt: 0
+  queenAt: 0,
+  queenAnimation: undefined as MovementAnimation|undefined
 }
 
 export type State = typeof state;

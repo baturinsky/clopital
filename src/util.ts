@@ -19,8 +19,8 @@ export const rng = (n = 1e9) => ~~(Math.sin(++seed) ** 2 * 1e9 % n) / (n == 1e9 
   sub = (a: Vec2, b: Vec2) => [a[0] - b[0], a[1] - b[1]] as Vec2,
   scale = <T extends number[]>(a: T, m: number) => a.map(v => v * m) as T,
   muls = (a: Vec2, b: Vec2) => [a[0] * b[0], a[1] * b[1]] as Vec2,
-  tween = (a: Vec2, b: Vec2, m: number) => [a[0] * (1 - m) + b[0] * m, a[1] * (1 - m) + b[1] * m] as Vec2,
-  stween = (a: number, b: number, m: number) => a * (1 - m) + b * m,
+  vecTween = (a: Vec2, b: Vec2, m: number) => [a[0] * (1 - m) + b[0] * m, a[1] * (1 - m) + b[1] * m] as Vec2,
+  numTween = (a: number, b: number, m: number) => a * (1 - m) + b * m,
   round = <T extends number[]>(a: T) => a.map(v => ~~(v + .5)) as T,
   floor = (n: number) => ~~n - (n < 0 ? 1 : 0),
   fixed = (n: number) => ~~(n * 100) / 100,
@@ -50,7 +50,19 @@ export const rng = (n = 1e9) => ~~(Math.sin(++seed) ** 2 * 1e9 % n) / (n == 1e9 
     return s
   },
   cap1 = (s: string) => s.charAt(0).toUpperCase() + s.substring(1),
-  asArray = <T>(s: T): T[] => Array.isArray(s) || s == undefined ? s as T[] : [s];
+  asArray = <T>(s: T): any[] => s == undefined ? [] : Array.isArray(s) ? s as T[] : [s],
+  removeFromList = (list: any[], item: any) => {
+    let i = list.indexOf(item);
+    if (i != -1)
+      list.splice(i, 1)
+  },
+  /** return *slots* elements, of which *filled* is filled with random variants, while the rest us undefined */
+  nof = (variants: any[], slots: number, filled: number) =>
+    shuffle(loop(slots, i => i < filled ? randomElement(variants) : undefined))
+  ,
+  shuffle = (a: any[]) => loop(a.length, () => a.splice(rng(a.length), 1)[0]),
+  objMap = (a: any, f: (v: any, k: string)=>any) => Object.fromEntries(Object.entries(a).map((k, v) => [k, f(v, k)]))
+  ;
 
 
 //console.log(bestBy(["foo", "barr", "bazz", "qu"], s => s.charCodeAt(0)));
