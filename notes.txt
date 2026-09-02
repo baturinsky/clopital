@@ -51,3 +51,9 @@ Fuel
 
 Rain
 
+Spells:
+
+Harvest
+Friends
+Lead
+Send

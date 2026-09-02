@@ -4,6 +4,7 @@ import { Character } from "./character"
 import { MarketAgent } from "./market"
 import { races } from "./races"
 import { ws, neighborShift, wh, ww, neighborBy, hexDist } from "./root"
+import { queenCell } from "./state"
 import { rng, loop, randomElement, clamp, setSeed, seed, sum, listSum } from "./util"
 
 export let u: Universe
@@ -24,8 +25,7 @@ export class Universe {
   rivers!: Cell[][]
   roads: Cell[][] = []
 
-  settlements: Cell[] = []
-  herds: Character[] = []
+  chars: Character[] = []
 
   constructor(public seed: number) {
     u = this;
@@ -158,14 +158,12 @@ export class Universe {
 
       let isCoast = !cell.water() && cell.neighbors.find(c => c.water());
 
-      if (!rng(isCoast ? 40 : cell.water() ? 300: 150)) {
+      if (!rng(isCoast ? 40 : cell.water() ? 300 : 150)) {
         let race = randomElement(cell.biome.races);
         if (race) {
-          let herd = new Character({ kind: "settlement", race: races[race], cell });
-          this.herds.push(herd);
+          new Character(race, cell );
         }
-        /*cell.settlement = herd
-        this.settlements.push(cell)*/
+        new Character("alicorns", queenCell());
       }
     })
 
@@ -182,14 +180,13 @@ export class Universe {
 }
 
 function addRoads() {
-  for (let a of u.settlements) {
+  for (let a of u.chars) {
     let aroads = 0;
-    for (let b of u.settlements) {
+    for (let b of u.chars) {
       if (hexDist(a.at, b.at) < 15 && (!rng(aroads + 1))) {
-        let pf = a.pathfind(15, b)
-        let bp = pf[b.at]
-        if (bp) {
-          let path = b.pathFrom(pf);
+        let pf = a.pathfind(15, b.cell)
+        let path = b.cell.pathFrom(pf);
+        if (path) {
           path.forEach(c => c.roads++)
           u.roads.push(path)
           aroads++;

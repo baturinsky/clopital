@@ -41,17 +41,21 @@ export const
     cx.save()
     if (alpha != 1)
       cx.globalAlpha = alpha
-    let drawingAt = sum(muls(pos, photoScale), state.topLeftAt)
+    let drawingAt = toScreenPos(pos)
     cx.scale(state.scale, state.scale)
     cx.drawImage(sprite, ...drawingAt);
     cx.restore()
+  },
+
+  toScreenPos = (pos: Vec2) => {
+    return sum(scale(muls(pos, photoScale), 1), state.topLeftAt)
   },
 
   drawCentered = (sprite: HTMLCanvasElement, pos: Vec2, alpha = 1) => {
     drawSprite(sprite, sum(pos, [-sprite.width / 2 / photoScale[0], -sprite.height / 2 / photoScale[1]]), alpha)
   },
 
-  wobbleFlight = (p: Vec2, d=0) => sum(p, [0, Math.sin(Date.now() / 500) / 9 - d]),
+  wobbleFlight = (p: Vec2, d = 0) => sum(p, [0, Math.sin(Date.now() / 500) / 9 - d]),
 
   render = () => {
     let dt = Date.now() - lastT;
@@ -69,7 +73,7 @@ export const
     cx.restore()
 
     let queenTopLeft = queenCell().topLeft();
-    
+
     if (!state.queenAnimation) {
       drawSprite(sprites[SHADOW], queenTopLeft)
       drawSprite(sprites[QUEEN], wobbleFlight(queenTopLeft, .7))
@@ -77,6 +81,17 @@ export const
 
     if (state.tilePointed != state.queenAt)
       drawSprite(sprites[SHADOW], pointedCell().topLeft(), .7)
+
+    for (let herd of u.chars) {
+      //drawProps(herd.cell, nof([outlined[herd.race.sprite]], 6, 3), { shadow: true })
+      drawSprite(sprites[SHADOW], herd.cell.topLeft())
+      drawSprite(sprites[herd.race.sprite], herd.cell.topLeft())
+    }
+
+    for (let herd of u.chars) {
+
+      drawText(herd.name, ...toScreenPos(herd.cell.topLeft()))
+    }
 
     updateAnimations(dt)
   },
@@ -190,16 +205,6 @@ export const
 
     })
 
-    for (let herd of u.herds) {
-      drawProps(herd.cell, nof([outlined[herd.race.sprite]], 6, 3), { shadow: true })
-    }
-
-    //drawVillageTitles()
-
-    for (let herd of u.herds) {
-      drawCellTitle(herd.cell, herd.name)
-    }
-
   },
   drawProps = (cell: Cell, images: HTMLCanvasElement[], options?: { shadow?: boolean }) => {
     images.forEach((img, i) => {
@@ -242,8 +247,8 @@ export const
         scale(biome.rgba, .3)
       ], i + biome.color)))
   },
-  drawText = (s: String, x: number, y: number) => {
-    [...s].forEach((c, i) => cx.drawImage(letters[c.charCodeAt(0) - 32], x + 6 * i, y))
+  drawText = (s: string, x: number, y: number) => {
+    [...s].forEach((c, i) => cx.drawImage(letters[c.toUpperCase().charCodeAt(0) - 32], x + 6 * i, y))
   },
   drawVillageTitlesBuiltinFonts = () => {
     cx.font = "14px Georgia"
@@ -260,18 +265,6 @@ export const
     })
   },
 
-  drawVillageTitles = () => {
-    u.drawOrder.forEach(cell => {
-      if (cell.settlement) {
-        drawText(cell.name.toUpperCase(), ...muls(sum(cell.center(), [.7, -.2]), photoScale))
-      }
-    })
-
-  },
-
-  drawCellTitle = (cell: Cell, text = cell.name) => {
-    drawText(cell.name.toUpperCase(), ...muls(sum(cell.center(), [.7, -.2]), photoScale))
-  },
 
   drawImageCentered = (image: HTMLCanvasElement, pos: Vec2) => {
     cx.drawImage(image, pos[0] - image.width, pos[1] - image.height)

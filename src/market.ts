@@ -29,7 +29,7 @@ export class MarketAgent {
   ravg = 100
 
   /** To tell markets apart */
-  name?: string
+  name!: string
 
   /** Ways of convert one goods into the others */
   recipes: GoodNumbers[] = []
@@ -52,7 +52,7 @@ export class MarketAgent {
   /** Consume rolling average */
   cra = {} as any
 
-  constructor(init: Partial<MarketAgent> & { sellList?: string[], buyList?: string[] }) {
+  constructor(init: Partial<MarketAgent> & { sellList?: string[], buyList?: string[] } = {}) {
     Object.assign(this, init)
     this.recipeUsageStats = new Array(this.recipes.length).fill(0);
     if (init.sellList)

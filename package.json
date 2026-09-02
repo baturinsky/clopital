@@ -11,7 +11,8 @@
     "min": "vite build --mode=min",
     "zip": "cd dist && npx bestzip --level 9 ../dist.zip *",
     "noexif": "node noexif.js dist/i.webp dist/i.webp",
-    "pack": "npm run min && npm run noexif && npm run zip"
+    "packfli": "zipfli dist.zip dist/index.html dist/i.webp",
+    "dist": "npm run min && npm run noexif && npm run packfli"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

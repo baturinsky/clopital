@@ -35,4 +35,4 @@ const init = () => {
   setInterval(render, 16)
 }
 
-testMarket()
+//testMarket()

@@ -61,7 +61,7 @@ export const rng = (n = 1e9) => ~~(Math.sin(++seed) ** 2 * 1e9 % n) / (n == 1e9 
     shuffle(loop(slots, i => i < filled ? randomElement(variants) : undefined))
   ,
   shuffle = (a: any[]) => loop(a.length, () => a.splice(rng(a.length), 1)[0]),
-  objMap = (a: any, f: (v: any, k: string)=>any) => Object.fromEntries(Object.entries(a).map((k, v) => [k, f(v, k)]))
+  objMap = (a: any, f: (v: any, k: string) => any) => Object.fromEntries(Object.entries(a).map(([k, v]) => [k, f(v, k)]))
   ;
 
 
