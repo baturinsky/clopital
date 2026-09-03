@@ -22,6 +22,7 @@ Anyhorse -> 1 Transport
 Pasture + Hunger -> Happy
 
 
+
 Walk
 Swim
 Fly
@@ -57,3 +58,9 @@ Harvest
 Friends
 Lead
 Send
+
+
+Deposit:
+
++100% production, split between all herds and improvements in range
+Allows collection without research

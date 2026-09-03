@@ -1,13 +1,14 @@
 import { Cell } from "./cell";
 import { MarketAgent } from "./market";
 import { Race, races } from "./races";
+import { selected, state, update } from "./state";
 import { u } from "./universe";
 import { cap1, japaneseName, objMap, removeFromList } from "./util";
 
 const craScale = 10000;
 
-type SaveFormat = ReturnType<Character["save"]>
-export class Character extends MarketAgent {
+type SaveFormat = ReturnType<Agent["save"]>
+export class Agent extends MarketAgent {
   kind!: string
   race!: Race
   cell!: Cell
@@ -19,15 +20,13 @@ export class Character extends MarketAgent {
     this.race = races[race];
     this.cell = cell
     this.name = cap1(japaneseName())
-    u.chars.push(this);
-  }
-
-  pos(){
-    return this.
+    u.a.push(this);
   }
 
   remove() {
-    removeFromList(u.chars, this);
+    let sa = selected()
+    removeFromList(u.a, this);
+    update({ selected: u.a.indexOf(sa) })
   }
 
   save() {
@@ -55,7 +54,7 @@ export class Character extends MarketAgent {
       race: races[v.race],
       kind: this.kind,
       cra: objMap(this.cra, v => v / craScale)
-    } as Partial<Character>)
+    } as Partial<Agent>)
   }
 
   get at() {
@@ -65,5 +64,6 @@ export class Character extends MarketAgent {
   pathfind(maxDist: number, destination?: Cell) {
     return this.cell.pathfind(this.race.moving, maxDist, destination)
   }
+
 
 }

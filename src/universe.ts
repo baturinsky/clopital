@@ -1,10 +1,10 @@
 import { biomesByNames, biomeMatrix } from "./biomes"
 import { Cell } from "./cell"
-import { Character } from "./character"
+import { Agent } from "./agents"
 import { MarketAgent } from "./market"
 import { races } from "./races"
-import { ws, neighborShift, wh, ww, neighborBy, hexDist } from "./root"
-import { queenCell } from "./state"
+import { ws, neighborShift, wh, ww, neighborBy, hexDist, worldCoord } from "./root"
+import { queenCell, select } from "./state"
 import { rng, loop, randomElement, clamp, setSeed, seed, sum, listSum } from "./util"
 
 export let u: Universe
@@ -25,7 +25,7 @@ export class Universe {
   rivers!: Cell[][]
   roads: Cell[][] = []
 
-  chars: Character[] = []
+  a: Agent[] = []
 
   constructor(public seed: number) {
     u = this;
@@ -42,7 +42,6 @@ export class Universe {
 
   erect(c: Cell, by: number, depth: number) {
     while (rng(70)) {
-      let tl = c.topLeft();
       if (c.bedrock)
         return
       c.neighbors.forEach(c => c.elev += by)
@@ -125,8 +124,6 @@ export class Universe {
         })
       }
 
-      let tl = cell.topLeft()
-
       let b = biomesByNames[
         cell.bedrock ? "bedrock" :
           cell.elev < this.OceanAlt ? "ocean" :
@@ -161,9 +158,11 @@ export class Universe {
       if (!rng(isCoast ? 40 : cell.water() ? 300 : 150)) {
         let race = randomElement(cell.biome.races);
         if (race) {
-          new Character(race, cell );
+          new Agent(race, cell);
         }
-        new Character("alicorns", queenCell());
+        let queen = new Agent("alicorns", queenCell());
+        queen.name = "Vasilisa";
+        select(queen)
       }
     })
 
@@ -171,18 +170,26 @@ export class Universe {
 
     this.drawOrder = loop(wh, row => loop(ww, col => row * ww + (col + ww - ~~(row / 2)) % ww)).flat().map(at => this.c[at])
 
+
   }
 
   quantile(n: number) {
     return this.byElev[~~(ws * n)].elev
   }
 
+  get queen() {
+    return this.a.find(a => a.race.name == "alicorns") as Agent
+  }
+
 }
 
+
+
+
 function addRoads() {
-  for (let a of u.chars) {
+  for (let a of u.a) {
     let aroads = 0;
-    for (let b of u.chars) {
+    for (let b of u.a) {
       if (hexDist(a.at, b.at) < 15 && (!rng(aroads + 1))) {
         let pf = a.pathfind(15, b.cell)
         let path = b.cell.pathFrom(pf);
@@ -196,3 +203,4 @@ function addRoads() {
   }
 
 }
+

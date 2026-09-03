@@ -70,3 +70,60 @@
           }
         })
       })
+
+
+//export const testFilter = constructFilter([[1, 0, 1], [1, 1, 0], [1, 0, 1]]);
+/*hexPoints = [[.5, -.1], [1, .1], [1, 1], [.5, 1.2], [0, 1], [0, .1], [.5, -.1]] as Vec2[],
+hexBasePoints = [[0, 1], [.5, 1.2], [1, 1], [1, 1.2], [.5, 1.4], [0, 1.2]] as Vec2[],
+hexBasePointsRight = [[.5, 1.2], [1, 1], [1, 1.2], [.5, 1.4]] as Vec2[],
+triPoints = [[0, -.5], [.5, .5], [-.5, .5]] as Vec2[],*/
+
+
+,
+
+  renderRoads = () => {
+    cx.lineWidth = .05;
+    cx.strokeStyle = "#880";
+
+    u.roads.forEach(road => drawPath(road, .17))
+    cx.strokeStyle = "#aa0";
+    u.roads.forEach(road => drawPath(road, .1))
+  },
+
+  placeHuts = () => {
+    huts = loop(30, i => cutSpriteFromAtlas(16, 64, 16, 16,
+      constructFilter([
+        [.5 + rng() / 3, rng() / 3, rng() / 3, 1],
+        [0, 1, 0, 1],
+        [.5 + rng() / 2, .5 + rng() / 2, .5 + rng() / 2, 1]
+      ], "hut" + i)))
+  }
+
+    drawVillageTitlesBuiltinFonts = () => {
+    cx.font = "14px Georgia"
+    cx.textAlign = "center"
+    cx.shadowColor = "#000";
+    cx.shadowOffsetX = -1;
+    cx.shadowOffsetY = 1;
+
+    u.drawOrder.forEach(cell => {
+      if (cell.settlement) {
+        cx.fillStyle = "#fff"
+        cx.fillText(cell.name, ...cell.topLeft())
+      }
+    })
+  },
+
+  drawText = (s: string, x: number, y: number) => {
+    [...s].forEach((c, i) => cx.drawImage(letters[c.toUpperCase().charCodeAt(0) - 32], x + 6 * i, y))
+  },
+
+
+    if (!state.queenAnimation) {
+      drawOnCell(queenCell(), sprites[SHADOW])
+      drawOnCell(queenCell(), sprites[QUEEN]/*, wobbleFlight(queenTopLeft, .7)*/)
+    }
+    let queenTopLeft = queenCell().topLeft();
+
+
+    //letters = loop(64, i => cutSpriteFromAtlas((i % 16) * letterWidth, 209 + ~~(i / 16) * 12, letterWidth + 1, 12, "url(#OUTL)"))

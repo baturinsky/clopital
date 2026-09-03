@@ -1,7 +1,7 @@
 
 //const hexPoints = [...new Array(6)].map((_,i)=>[Math.sin(i*Math.PI/3),Math.cos(i*Math.PI/3)])
 
-import { loop, sub, Vec2 } from "./util";
+import { loop, scale, sub, sum, Vec2 } from "./util";
 
 
 //const hexPoints = [[0, 1], [.9, .5], [.9, -.5], [0, -1], [-.9, -.5], [-.9, -.5]]
@@ -19,6 +19,8 @@ export const
   neighborShift = [1 - ww, 1, ww, ww - 1, -1, -ww],
   //neighborsBelow = [ww, ww - 1],
   photoScale = [16, 12] as Vec2,
+  minusHalfPhotoScale = scale(photoScale, -.5),
+  photoShift = (v:Vec2) => sum(v,minusHalfPhotoScale),
   inside = (n: number) => n >= 0 && n < ws,
   neighborBy = (at: number, n: number) =>
     at + n + (n % ww > ww + n ? -ww : 0)
@@ -28,7 +30,7 @@ export const
       r => loop(r + 1, x => ns * (r + 1) + neighborShift[(nsi + 2) % 6] * x)
     )).flat(2)),
   toXY = (ind: number) => [ind % ww, ~~(ind / ww)] as Vec2,
-  topLeft = (at: number) => {
+  worldCoord = (at: number) => {
     let [x, y] = toXY(at);
     return [(x + y / 2) % ww, y] as Vec2;
   },

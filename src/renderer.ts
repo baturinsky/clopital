@@ -1,17 +1,20 @@
 import { atlas } from "./main";
-import { ww, photoScale, wh, TWO_PI } from "./root";
+import { ww, photoScale, wh, TWO_PI, worldCoord, photoShift } from "./root";
 import { Biome, biomeMatrix, BiomeName, biomesByNames, HUTS, HUTS2, MESA, WAVES } from "./biomes"
-import { pointedCell, queenCell, state } from "./state";
+import { pointedCell, queenCell, selected, state, update } from "./state";
 import { u } from "./universe";
 import { asArray, loop, muls, nof, randomElement, RGBA, rng, round, scale, setSeed, shuffle, sum, vecTween, Vec2 } from "./util";
 import { Cell } from "./cell";
-import { updateAnimations } from "./animation";
+import { animate, cancelAnimation, updateAnimations } from "./animation";
 
 export const
+  layerSickness = 4,
+  AtlasSpriteSize = 16,
+  CURSOR = 16,
   QUEEN = 48,
   SHADOW = 64;
 
-export let worldPhoto: HTMLCanvasElement,
+let worldPhoto: HTMLCanvasElement,
   /** Main canvas context */
   ctx: CanvasRenderingContext2D,
   /** Currently active context (ctx unless it's prerender)*/
@@ -38,13 +41,18 @@ export const
 
 
   drawSprite = (sprite: HTMLCanvasElement, pos: Vec2, alpha = 1) => {
-    cx.save()
-    if (alpha != 1)
+    if (alpha != 1) {
+      cx.save()
       cx.globalAlpha = alpha
-    let drawingAt = toScreenPos(pos)
-    cx.scale(state.scale, state.scale)
-    cx.drawImage(sprite, ...drawingAt);
-    cx.restore()
+    }
+    cx.drawImage(sprite, ...pos);
+    if (alpha != 1)
+      cx.restore()
+  },
+
+  drawOnCell = (cell: Cell, sprite: HTMLCanvasElement, pos: Vec2 = [0, 0], alpha = 1) => {
+    let p = photoShift(sum(cell.center(), pos))
+    drawSprite(sprite, p, alpha);
   },
 
   toScreenPos = (pos: Vec2) => {
@@ -55,7 +63,7 @@ export const
     drawSprite(sprite, sum(pos, [-sprite.width / 2 / photoScale[0], -sprite.height / 2 / photoScale[1]]), alpha)
   },
 
-  wobbleFlight = (p: Vec2, d = 0) => sum(p, [0, Math.sin(Date.now() / 500) / 9 - d]),
+  wobbleFlight = (p: Vec2, amplitude = 6) => sum(p, [0, amplitude * (1 + Math.sin(Date.now() / 500)) / 2]),
 
   render = () => {
     let dt = Date.now() - lastT;
@@ -68,51 +76,51 @@ export const
     cx.translate(...state.topLeftAt);
     cx.drawImage(worldPhoto, 0, 0);
 
-    //drawText("HELLO", 100, 100);
+    /** Rendering with the current zoom and image position.  */
+
+    if (state.cellPointed != state.queenAt) {
+      drawOnCell(pointedCell(), sprites[CURSOR], [0, layerSickness + 1])
+    }
+
+    for (let agent of u.a) {
+      if (selected() == agent) {
+        cx.globalAlpha = (2 + Math.sin(Date.now() / 100)) / 3;
+      }
+      drawOnCell(agent.cell, sprites[SHADOW], [0, 2])
+      drawOnCell(agent.cell, sprites[agent.race.sprite])
+      cx.globalAlpha = 1;
+    }
+
+    if (selected()) {
+      let pf = selected().pathfind(15, u.c[state.cellPointed]);
+      let p = u.c[state.cellPointed].pathFrom(pf);
+
+      if (p) {
+        cx.strokeStyle = "#4444";
+        drawPath(p, 1)
+      }
+    }
+
+
+    updateAnimations(dt)
 
     cx.restore()
 
-    let queenTopLeft = queenCell().topLeft();
-
-    if (!state.queenAnimation) {
-      drawSprite(sprites[SHADOW], queenTopLeft)
-      drawSprite(sprites[QUEEN], wobbleFlight(queenTopLeft, .7))
-    }
-
-    if (state.tilePointed != state.queenAt)
-      drawSprite(sprites[SHADOW], pointedCell().topLeft(), .7)
-
-    for (let herd of u.chars) {
-      //drawProps(herd.cell, nof([outlined[herd.race.sprite]], 6, 3), { shadow: true })
-      drawSprite(sprites[SHADOW], herd.cell.topLeft())
-      drawSprite(sprites[herd.race.sprite], herd.cell.topLeft())
-    }
-
-    for (let herd of u.chars) {
-
-      drawText(herd.name, ...toScreenPos(herd.cell.topLeft()))
-    }
-
-    updateAnimations(dt)
   },
+  atlasSprite = (id: number, filter?: string) =>
+    cutSpriteFromAtlas((id % AtlasSpriteSize) * AtlasSpriteSize, ~~(id / AtlasSpriteSize) * AtlasSpriteSize, AtlasSpriteSize, AtlasSpriteSize, filter)
+  ,
   initRenderer = () => {
     Object.values(biomesByNames).forEach(b => b.sprites = makeBiomeSprites(b))
-    huts = loop(30, i => cutSpriteFromAtlas(16, 64, 16, 16,
-      constructFilter([
-        [.5 + rng() / 3, rng() / 3, rng() / 3, 1],
-        [0, 1, 0, 1],
-        [.5 + rng() / 2, .5 + rng() / 2, .5 + rng() / 2, 1]
-      ], "hut" + i))),
-      sprites = loop(160, i => cutSpriteFromAtlas((i % 16) * 16, 32 + ~~(i / 16) * 16, 16, 16))
-    outlined = loop(160, i => cutSpriteFromAtlas((i % 16) * 16, 32 + ~~(i / 16) * 16, 16, 16, "url(#OUTL)"))
-    letters = loop(64, i => cutSpriteFromAtlas((i % 16) * letterWidth, 209 + ~~(i / 16) * 12, letterWidth + 1, 12, "url(#OUTL)"))
+    sprites = loop(160, i => atlasSprite(i))
+    outlined = loop(160, i => atlasSprite(i, "url(#OUTL)"))
     C.width = innerWidth;
     C.height = innerHeight;
     ctx = C.getContext("2d") as CanvasRenderingContext2D;
     ctx.imageSmoothingEnabled = false;
   },
 
-  drawPolygon = (cx: CanvasRenderingContext2D, points: Vec2[]) => {
+  drawCurve = (points: Vec2[]) => {
     cx.beginPath();
     points.forEach((p: Vec2) => {
       cx.lineTo(...p)
@@ -128,26 +136,28 @@ export const
     return [c, cx] as [HTMLCanvasElement, CanvasRenderingContext2D]
   },
 
-  renderPath = (path: Cell[], lw: number, transform: (v: Vec2, i: number) => Vec2 = a => a, halfEnd = 0) => {
+  drawPath = (path: Cell[], lw: number, transform: (v: Vec2, i: number) => Vec2 = a => a, riverEnd = 0) => {
 
-    let coords = path.map((cell, i) => transform(sum(cell.topLeft(), [.5, 1]), i));
+    let coords = path.map((cell, i) => transform(sum(cell.center(), [0, layerSickness + 2]), i));
+
     if (path.length == 1)
       return
 
-    if (halfEnd)
+    if (riverEnd) {
       coords[path.length - 1] = vecTween(coords[path.length - 2], coords[path.length - 1], .7)
+      coords[path.length - 1][1] -= 3;
+    }
 
-    coords.forEach((at, i) => {
-      if (i > 0 && Math.abs(at[0] - coords[i - 1][0]) < 10) {
-        cx.beginPath()
-        let ends = [coords[i - 1], at] as [Vec2, Vec2]
-        cx.lineWidth = lw * (1 + .2 * Math.abs(ends[0][1] - ends[1][1]));
-        cx.moveTo(...ends[0])
-        cx.lineTo(...ends[1])
-        cx.stroke()
-      }
-    })
+    cx.lineWidth = lw;
+    drawCurve(coords);
+    cx.stroke()
 
+  },
+
+  smoothLine = (line: Vec2[]) => {
+    let line1 = line.map((v, i) => [v, vecTween(v, line[i + 1] ?? v, .5)]).flat(1);
+    let line2 = line1.map((v, i) => vecTween(v, vecTween(line[i - 1] ?? v, line[i + 1] ?? v, .5), .5))
+    return line2;
   },
 
   prerenderUniverse = () => {
@@ -155,35 +165,28 @@ export const
 
     loop(3, drawingLayer => {
       u.drawOrder.forEach(cell => {
-        let pos = cell.pixelPos()
+        let pos = cell.topLeft()
         if (cell.layer == drawingLayer && !cell.bedrock) {
           cx.drawImage(cell.biome.sprites[cell.at % 3 + (cell.layer == 2 ? 3 : 0)], ...sum(pos, [0, 5]));
         }
       })
     })
 
-    cx.save()
-    cx.scale(...photoScale);
-
     cx.lineCap = "round"
-    cx.lineWidth = .05;
 
     for (let riverLayer of [0, 1]) {
       cx.strokeStyle = ["#4444", "#0093F0"][riverLayer];
-
-      u.rivers.forEach(river => renderPath(
+      u.rivers.forEach(river => drawPath(
         river,
-        .2,
-        (v: Vec2, i) => sum(v, ([[0, 0], [0, -.15]] as Vec2[])[riverLayer]),
+        4,
+        (v: Vec2, i) => sum(v, [0,
+          (i == river.length - 1 && riverLayer == 0 ? 1 : 0) +
+          [1, 2][riverLayer]
+        ] as Vec2
+        ),
         1
       ))
     }
-
-    //let grad:CanvasPattern = cx.createPattern(sprites[48], "repeat")    cx.strokeStyle = grad;
-
-    renderRoads()
-
-    cx.restore()
 
     u.drawOrder.forEach(cell => {
 
@@ -198,9 +201,9 @@ export const
 
       if (state.debug) {
         cx.fillStyle = "#00f";
-        cx.fillRect(...sum(cell.pixelPos(), [5, 10]), 1, -cell.hum);
+        cx.fillRect(...sum(cell.topLeft(), [5, 10]), 1, -cell.hum);
         cx.fillStyle = "#f00";
-        cx.fillRect(...sum(cell.pixelPos(), [6, 10]), 1, -cell.t * 10);
+        cx.fillRect(...sum(cell.topLeft(), [6, 10]), 1, -cell.t * 10);
       }
 
     })
@@ -213,13 +216,13 @@ export const
           cx.drawImage(
             sprites[SHADOW],
             ...round(sum(sum(
-              cell.pixelPos(), propSlots[i % 6]), [0, 4]))
+              cell.topLeft(), propSlots[i % 6]), [0, 4]))
           )
         }
         cx.drawImage(
           img,
           ...round(sum(
-            cell.pixelPos(), propSlots[i % 6]))
+            cell.topLeft(), propSlots[i % 6]))
         )
       }
     })
@@ -241,48 +244,28 @@ export const
   },
   makeBiomeSprites = (biome: Biome) => {
     return [...new Array(6)].map((v, i) =>
-      cutSpriteFromAtlas(0, 0, 17, 22, constructFilter([
+      cutSpriteFromAtlas(0, 235, 17, 22, constructFilter([
         scale(biome.rgba, 1.3 - .05 * i - (i > 2 ? .2 : 0)),
         scale(biome.rgba, .5),
         scale(biome.rgba, .3)
       ], i + biome.color)))
   },
-  drawText = (s: string, x: number, y: number) => {
-    [...s].forEach((c, i) => cx.drawImage(letters[c.toUpperCase().charCodeAt(0) - 32], x + 6 * i, y))
-  },
-  drawVillageTitlesBuiltinFonts = () => {
-    cx.font = "14px Georgia"
-    cx.textAlign = "center"
-    cx.shadowColor = "#000";
-    cx.shadowOffsetX = -1;
-    cx.shadowOffsetY = 1;
+  moveWithAnimation = () => {
+    let pf = queenCell().pathfind("flying", 100, u.c[state.cellPointed]);
+    let p = u.c[state.cellPointed].pathFrom(pf);
 
-    u.drawOrder.forEach(cell => {
-      if (cell.settlement) {
-        cx.fillStyle = "#fff"
-        cx.fillText(cell.name, ...muls(sum(cell.center(), [0, -.5]), photoScale))
-      }
-    })
+    if (p) {
+      cancelAnimation(state.queenAnimation);
+      state.queenAnimation = animate(sprites[QUEEN], p.map(c => c.topLeft()))
+      state.queenAnimation.f = () => delete state.queenAnimation
+      update({ queenAt: state.cellPointed });
+    }
+
   },
 
 
   drawImageCentered = (image: HTMLCanvasElement, pos: Vec2) => {
     cx.drawImage(image, pos[0] - image.width, pos[1] - image.height)
-  },
+  };
 
-  renderRoads = () => {
-    cx.lineWidth = .05;
-    cx.strokeStyle = "#880";
-
-    u.roads.forEach(road => renderPath(road, .17))
-    cx.strokeStyle = "#aa0";
-    u.roads.forEach(road => renderPath(road, .1))
-  }
-  ;
-
-//export const testFilter = constructFilter([[1, 0, 1], [1, 1, 0], [1, 0, 1]]);
-/*hexPoints = [[.5, -.1], [1, .1], [1, 1], [.5, 1.2], [0, 1], [0, .1], [.5, -.1]] as Vec2[],
-hexBasePoints = [[0, 1], [.5, 1.2], [1, 1], [1, 1.2], [.5, 1.4], [0, 1.2]] as Vec2[],
-hexBasePointsRight = [[.5, 1.2], [1, 1], [1, 1.2], [.5, 1.4]] as Vec2[],
-triPoints = [[0, -.5], [.5, .5], [-.5, .5]] as Vec2[],*/
 

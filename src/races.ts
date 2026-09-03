@@ -14,54 +14,49 @@ export type Race = {
 //@ts-ignore
 export const races = {
   alicorns: {
-    job: "alicorning"
+    job: "alicorning",
+    moving: "flying"
   },
   horses: {
     job: "horsing",
-    recipes: [
-      { "horsing": -1, "working hard": 1 }
-    ]
   },
   unicorns: {
     job: "unicorning",
     income: { gems: -1 },
-    recipes: [
-      { unicorning: -1, magic: 1 }
-    ]
   },
   pegasi: {
     job: "pegasing",
-    income: {},
+    income: { fabric: -1 },
     moving: "flying",
-    recipes: [
-      { pegasing: -1, rain: 1 }
-    ]
   },
   zebras: {
     job: "zebring",
-    income: {},
+    income: { jam: -1 },
   },
   deers: {
     job: "deering",
-    income: {},
+    income: { salt: -1 },
   },
   goats: {
     job: "goating",
-    income: {},
+    income: { tools: -1 },
   },
   seahorses: {
     job: "seahorsing",
-    income: {},
-    moving: "swimming",
-    recipes: [
-    ]
+    income: { wood: -1 },
+    moving: "swimming"
   }
 } as { [id: string]: Race }
 
-export const
-  recipes = [
+export const recipes = {
+  common: [
+    { horsing: -2, "working hard": 3 },
+    { pegasing: -1, rain: 1 },
+    { unicorning: -1, magic: 1 },
+
     { $ing: -1, working: 1 },
     { working: -1, "working hard": 1 },
+    { working: -1, magic: -5, "working hard": 3 },
     { working: -1, thinking: 1 },
     { thinking: -1, spelunking: 1 },
     { strength: -1, digging: 1 },
@@ -70,28 +65,24 @@ export const
     { rain: -1, irrigation: 1 }
   ],
 
-  farm = {
-    recipes: [
-      { soil: -1, irrigation: 1 },
-      { soil: -1, fertilizer: 1 },
-      { soil: -1, irrigation: -1, fertilizer: -1, plant: -1, harvest: 1 },
-      { harvest: -1, $fruit: 1 },
-    ]
-  },
+  farm: [
+    { soil: -1, irrigation: 1 },
+    { soil: -1, fertilizer: 1 },
+    { soil: -1, irrigation: -1, fertilizer: -1, plant: -1, harvest: 1 },
+    { harvest: -1, $fruit: 1 },
+  ],
 
-  mine = {
-    recipes: [
-      { spelunking: -1, digging: -1, $ore: 1 }
-    ]
-  },
+  mine: [
+    { digging: -5, spelunking: 1 },
+    { spelunking: -1, digging: -1, $mineral: 1 }
+  ],
 
-  lumbermill = {
+  forester: [
+    { trees: -1, wood: 1 }
+  ],
 
-  },
-
-  well = {
-
-  }
+  well: []
+}
 
 export const initRaces = () => {
   let sprite = 48;
@@ -110,5 +101,5 @@ export const initRaces = () => {
   console.log(races);
 },
   raceHabitabiliy = (race: Race, biome: Biome) => {
-    return biome.habitability + (biome.races.find(race.name) ? 1 : 0);
+    return biome.habitability + (biome.races.indexOf(race.name) < 0 ? 0 : 1);
   }

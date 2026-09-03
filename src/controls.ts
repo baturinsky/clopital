@@ -1,9 +1,8 @@
 import { clamp, floor, scale, sub, sum, Vec2 } from "./util";
-import { outlined, prerenderUniverse, QUEEN, render, sprites } from "./renderer";
-import { neighborhood, photoScale, topLeft, ww } from "./root";
-import { queenCell, state, update } from "./state";
+import { prerenderUniverse, render } from "./renderer";
+import { neighborhood, photoScale, worldCoord, ww } from "./root";
+import { queenCell, select, state, update } from "./state";
 import { regenerateUniverse } from "./main";
-import { testMarket } from "./market";
 import { biomesByNames } from "./biomes";
 import { u } from "./universe";
 import { animate, cancelAnimation } from "./animation";
@@ -23,7 +22,7 @@ export const
       let tilePointed = floor(worldMousePos[0]) + floor(worldMousePos[1] - .1) * ww + (floor(worldMousePos[0]) < 0 ? ww : 0)
 
       if (u.c[tilePointed])
-        update({ tilePointed })
+        update({ cellPointed: tilePointed })
 
       if (e.type == "pointermove") {
         if (buttonsDown[1] || buttonsDown[2]) {
@@ -35,21 +34,10 @@ export const
       if (e.type == "pointerdown") {
         buttonsDown[e.button] = 1;
         if (e.button == 0) {
-
-          let pf = queenCell().pathfind("flying", 100, u.c[state.tilePointed]);
-          let p = u.c[state.tilePointed].pathFrom(pf);
-          if (p) {
-            cancelAnimation(state.queenAnimation);
-            state.queenAnimation = animate(sprites[QUEEN], p.map(c => sum(topLeft(c.at), [0, 0])))
-            state.queenAnimation.f = () => delete state.queenAnimation
-            update({queenAt: state.tilePointed});
+          let a = u.a.find(a=>a.cell.at == state.cellPointed)
+          if(a){
+            select(a)
           }
-
-          /*for (let n of neighborhood[4]) {
-            u.c[state.tilePointed + n].biome = biomesByNames.snowfield;
-          }
-          prerenderUniverse()
-          render()*/
         }
       }
 

@@ -41,7 +41,8 @@ export const biomesByNames = {
     travel: 2,
     habitability: 0,
     races: "goats",
-    crop: "moss"
+    crop: "moss",
+    minerals: 3
   },
   snowfield: {
     color: "#fff",
@@ -55,7 +56,8 @@ export const biomesByNames = {
     travel: 2,
     habitability: 1,
     races: "deers",
-    crop: "moss"
+    crop: "moss",
+    soil:1
   },
   plains: {
     color: "#2c0",
@@ -63,13 +65,15 @@ export const biomesByNames = {
     travel: 1,
     habitability: 2,
     races: "horses",
-    crop: "wheat"
+    crop: "wheat",
+    soil: 4
   },
   swamp: {
     color: "#0aa",
     prop: GRASS,
     travel: 4,
     habitability: 1,
+    soil: 2
   },
   desert: {
     color: "#f80",
@@ -77,7 +81,8 @@ export const biomesByNames = {
     travel: 2,
     habitability: 1,
     races: "zebras",
-    crop: "cactus"
+    crop: "cactus",
+    soil: 1
   },
   steppe: {
     color: "#af2",
@@ -85,7 +90,8 @@ export const biomesByNames = {
     travel: 1,
     habitability: 2,
     races: ["zebras", "horses"],
-    crop: "cotton"
+    crop: "cotton",
+    soil: 3
   },
   rainforest: {
     color: "#060",
@@ -93,7 +99,9 @@ export const biomesByNames = {
     travel: 4,
     habitability: 1,
     races: "zebras",
-    mine: "gems"
+    mine: "gems",
+    soil: 2,
+    trees: 4
   },
   forest: {
     color: "#0a0",
@@ -101,7 +109,9 @@ export const biomesByNames = {
     travel: 2,
     habitability: 2,
     races: ["deers", "horses"],
-    crop: "apples"
+    crop: "apples",
+    soil: 2,
+    trees: 3
   },
   taiga: {
     color: "#fff",
@@ -109,7 +119,9 @@ export const biomesByNames = {
     travel: 3,
     habitability: 1,
     races: "deers",
-    crop: "honey"
+    crop: "honey",
+    soil: 2,
+    trees: 2
   },
   ocean: {
     color: "#03b",
@@ -117,7 +129,8 @@ export const biomesByNames = {
     seaTravel: 2,
     habitability: 0,
     races: "seahorses",
-    crop: "fish"
+    crop: "fish",
+    water: 1
   },
   sea: {
     color: "#04c",
@@ -125,7 +138,8 @@ export const biomesByNames = {
     seaTravel: 1,
     habitability: 0,
     races: "seahorses",
-    crop: "fish"
+    crop: "fish",
+    water: 1
   },
 } as { [name: string]: Biome };
 

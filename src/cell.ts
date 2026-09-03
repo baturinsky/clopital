@@ -1,7 +1,8 @@
 import { Biome, biomesByNames } from "./biomes"
 import { MarketAgent } from "./market"
 import { races } from "./races"
-import { photoScale, topLeft, toXY, wh, ws, ww } from "./root"
+import { layerSickness } from "./renderer"
+import { photoScale, worldCoord, toXY, wh, ws, ww } from "./root"
 import { Universe } from "./universe"
 import { cap1, clamp, japaneseName, loop, min, muls, randomElement, rng, round, setSeed, sum, Vec2 } from "./util"
 
@@ -45,8 +46,8 @@ export class Cell {
   constructor(public u: Universe, public at: number) {
     setSeed(at)
     this.name = cap1(japaneseName())
-    let tl = this.topLeft()
-    this.bedrock = tl[0] < 1 || tl[0] > ww - 2 || tl[1] < 1 || tl[1] > wh - 2;
+    let coord = worldCoord(at)
+    this.bedrock = coord[0] < 1 || coord[0] > ww - 2 || coord[1] < 1 || coord[1] > wh - 2;
   }
 
 
@@ -110,7 +111,7 @@ export class Cell {
 
   pathFrom(pf: { [id: string]: PathPoint }) {
     let path: Cell[] = [this], point = pf[this.at];
-    if(!point)
+    if (!point)
       return undefined;
     do {
       point = pf[point.from.at]
@@ -119,20 +120,16 @@ export class Cell {
     return path.reverse()
   }
 
-  /** visual hex position */
-  topLeft(fixedLayer?: number) {
-    let p = topLeft(this.at);
-    p[1] -= .4 * (fixedLayer ?? this.layer ?? 0);
+  /** visual hex position in photo coords */
+  topLeft(shift: Vec2 = [0, 0], fixedLayer?: number) {
+    let p = worldCoord(this.at);
+    p = sum(muls(p, photoScale), shift);
+    p[1] -= layerSickness * (fixedLayer ?? this.layer ?? 0)
     return p
   }
 
-  /** visual hex center position */
-  center(fixedLayer?: number) {
-    return sum(this.topLeft(fixedLayer), [.5, .5])
-  }
-
-  pixelPos() {
-    return round(muls(this.topLeft(), photoScale))
+  center(shift: Vec2 = [0, 0], fixedLayer?: number) {
+    return this.topLeft(sum(shift, photoScale, .5), fixedLayer)
   }
 
 }
@@ -141,7 +138,7 @@ function travelCostFunction(moveMode: string) {
   return (a: Cell, b: Cell) => {
     switch (moveMode) {
       case "flying":
-        return .5;
+        return b.bedrock ? UNPPASSABLE : .5;
       case "swimming":
         return b.water() || a.water() ? 1 : UNPPASSABLE;
       default:

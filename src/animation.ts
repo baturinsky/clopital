@@ -1,4 +1,4 @@
-import { cx, drawCentered, drawSprite, wobbleFlight } from "./renderer";
+import { cx, drawCentered, drawSprite, wobbleFlight as verticalWobble } from "./renderer";
 import { removeFromList, vecTween, Vec2 } from "./util";
 
 let animations: MovementAnimation[] = [];
@@ -31,7 +31,7 @@ export const animate = (sprite: HTMLCanvasElement, waypoints: Vec2[]) => {
       a.f && a.f();
       return false;
     }
-    let p = wobbleFlight(vecTween(a.wp[t], a.wp[t + 1], a.t - t))
+    let p = verticalWobble(vecTween(a.wp[t], a.wp[t + 1], a.t - t))
     drawCentered(a.i, p)
     return true;
   })
