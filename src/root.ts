@@ -20,7 +20,7 @@ export const
   //neighborsBelow = [ww, ww - 1],
   photoScale = [16, 12] as Vec2,
   minusHalfPhotoScale = scale(photoScale, -.5),
-  photoShift = (v:Vec2) => sum(v,minusHalfPhotoScale),
+  photoShift = (v: Vec2) => sum(sum(v, minusHalfPhotoScale),[0,5]),
   inside = (n: number) => n >= 0 && n < ws,
   neighborBy = (at: number, n: number) =>
     at + n + (n % ww > ww + n ? -ww : 0)

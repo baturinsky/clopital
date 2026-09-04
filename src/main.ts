@@ -3,7 +3,7 @@ import './imported.css'
 
 import { enableControls } from "./controls";
 import { initRenderer, prerenderUniverse, render } from "./renderer";
-import { state, save, load } from "./state";
+import { state, saveAndUpdateTip, load } from "./state";
 import { tip } from "./ui";
 import { Universe } from './universe';
 import { initRaces } from './races';
@@ -15,7 +15,7 @@ export const
   regenerateUniverse = () => {
     new Universe(state.seed)
     prerenderUniverse()
-    save()
+    saveAndUpdateTip()
   };
 
 onload = () => {

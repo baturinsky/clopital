@@ -1,39 +1,54 @@
-import { type Agent } from "./agents";
+import { type Agent } from "./agent";
 import { MovementAnimation } from "./animation";
+import { Cell } from "./cell";
 import { regenerateUniverse } from "./main";
-import { hexDist } from "./root";
-import { tip } from "./ui";
+import { centerOn, constructHexFilter, drawIcons } from "./renderer";
+import { hexDist, photoScale, wh, ww } from "./root";
+import { asList, asTable, tip } from "./ui";
 import { u } from "./universe";
-import { debounce, fixed, Vec2 } from "./util";
+import { clamp, debounce, fixed, Vec2 } from "./util";
 
 export let state = {
   scale: 1,
   seed: 1,
   topLeftAt: [0, 0] as Vec2,
+  targetTLA: [0, 0] as Vec2,
   cellPointed: 0 as number,
   debug: false,
-  queenAt: 0,
   selected: 0,
-  queenAnimation: undefined as MovementAnimation | undefined
+  turn: 0
 }
 
 export type State = typeof state;
 
+let lastCell: Cell|undefined;
+
 export const
   update = (d: Partial<State> = {}) => {
     Object.assign(state, d);
+    let tl = state.topLeftAt;
+    tl[0] = clamp(-ww * .5 * photoScale[0] * state.scale, tl[0], ww * 1.8 * photoScale[0] * state.scale);
+    tl[1] = clamp(-wh * .5 * photoScale[1] * state.scale, tl[1], wh * 1.8 * photoScale[1] * state.scale);
+    state.topLeftAt = tl;
+
     let cell = u.c[state.cellPointed];
-    tip(`${cell.name} ${cell.settlement ? "town" : cell.biome.name}<br/>
-    temp ${fixed(cell.t)}  wet ${fixed(cell.hum)}<br/>
-    elev ${fixed(cell.elev - u.SeaElev)}  hab ${fixed(cell.habitability)}<br/>
-    dist ${hexDist(state.queenAt, state.cellPointed)}
+
+    if (cell && cell != lastCell) {
+      lastCell = cell;
+      tip(`
+      ${agentPointed() ? `<h4>${agentPointed().name} ${agentPointed().race.name}</h4>` : ''}
+      <h4>${cell.name} ${cell.settlement ? "town" : cell.biome.name}</h4>
+      <span data-icon="107"></span>${asList(cell.resources)}</br>
+      <span data-icon="106"></span>${asList(cell.neighborhoodResources())}
     `)
-    autoSave()
+    }
+
+    debouncedUpdate()
   },
-  save = (slot = "a") => {
+  saveAndUpdateTip = (slot = "a") => {
     localStorage["CLP." + slot] = JSON.stringify(state)
   },
-  autoSave = debounce(save),
+  debouncedUpdate = debounce(saveAndUpdateTip),
   load = (slot = "a") => {
     let data = localStorage["CLP." + slot]
     if (data)
@@ -41,9 +56,16 @@ export const
     regenerateUniverse()
     return true;
   },
-  queenCell = () => u.c[state.queenAt],
   pointedCell = () => u.c[state.cellPointed],
   selected = () => u.a[state.selected],
-  select = (a: Agent) => update({ selected: u.a.indexOf(a) })
+  select = (a: Agent) => {
+    update({ selected: u.a.indexOf(a) })
+    centerOn(a.cell)
+  },
+  agentPointed = () => u.a.find(a => a.cell.at == state.cellPointed) as Agent,
+  queen = () => u.a.find(a => a.race.name == "alicorn") as Agent,
+  queenCell = () => queen()?.cell
+
+
 
 

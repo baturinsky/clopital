@@ -1,13 +1,15 @@
-import { Biome, biomesByNames } from "./biomes"
-import { MarketAgent } from "./market"
+import { Biome, biomesByNames, HILLS } from "./biomes"
+import { GoodNumbers, MarketAgent } from "./market"
 import { races } from "./races"
 import { layerSickness } from "./renderer"
 import { photoScale, worldCoord, toXY, wh, ws, ww } from "./root"
 import { Universe } from "./universe"
-import { cap1, clamp, japaneseName, loop, min, muls, randomElement, rng, round, setSeed, sum, Vec2 } from "./util"
+import { cap1, clamp, japaneseName, loop, min, muls, objAdd, randomElement, rng, round, setSeed, sum, Vec2 } from "./util"
 
 export type PathPoint = { c: Cell, d: number, from: Cell }
-const UNPPASSABLE = 1e12
+
+export const UNPPASSABLE = 1e12, SEALVL = 0, GROUNDLVL = 1, HILLSLVL = 2
+
 export class Cell {
   /** Elevation */
   elev = 0
@@ -20,7 +22,9 @@ export class Cell {
 
   biome: Biome = biomesByNames.bedrock
   name: string
-  layer: number = 0
+
+  layer: number = SEALVL | GROUNDLVL | HILLSLVL
+
   habitability!: number
 
   bedrock!: boolean
@@ -31,9 +35,14 @@ export class Cell {
   /** Non-undefined neighbors */
   neighbors!: Cell[]
 
+  /** neighbors and itself*/
+  neighborhood!: Cell[]
+
   landTravelCost = 1
 
   settlement?: MarketAgent
+
+  resources!: GoodNumbers
 
   latitude() {
     return Math.abs(.5 - this.at / ws) * 2;
@@ -77,6 +86,10 @@ export class Cell {
     return flowTo.erode(path)
   }
 
+  neighborhoodResources(){
+    return this.neighborhood.map(c=>c.resources).reduce(objAdd, {})
+  }
+
   /** todo: traverse queue in correct order */
   pathfind(moveMode: string, maxDist: number, destination?: Cell) {
     const visited = new Set<Cell>();
@@ -109,7 +122,7 @@ export class Cell {
     return result;
   }
 
-  pathFrom(pf: { [id: string]: PathPoint }) {
+  pathFrom(pf: { [id: string]: PathPoint } = {}) {
     let path: Cell[] = [this], point = pf[this.at];
     if (!point)
       return undefined;
@@ -132,6 +145,8 @@ export class Cell {
     return this.topLeft(sum(shift, photoScale, .5), fixedLayer)
   }
 
+  
+
 }
 
 function travelCostFunction(moveMode: string) {
@@ -140,7 +155,7 @@ function travelCostFunction(moveMode: string) {
       case "flying":
         return b.bedrock ? UNPPASSABLE : .5;
       case "swimming":
-        return b.water() || a.water() ? 1 : UNPPASSABLE;
+        return b.water() || a.water() || a.rivers || b.rivers ? 1 : UNPPASSABLE;
       default:
         let cost = ((b.roads ? .1 : b.biome.travel) ?? 1e9)
         if (races[moveMode] && b.biome.races.includes(moveMode)) {

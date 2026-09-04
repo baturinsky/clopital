@@ -1,8 +1,6 @@
 import { biomesByNames, biomeMatrix } from "./biomes"
-import { Cell } from "./cell"
-import { Agent } from "./agents"
-import { MarketAgent } from "./market"
-import { races } from "./races"
+import { Cell, GROUNDLVL, HILLSLVL, SEALVL } from "./cell"
+import { Agent } from "./agent"
 import { ws, neighborShift, wh, ww, neighborBy, hexDist, worldCoord } from "./root"
 import { queenCell, select } from "./state"
 import { rng, loop, randomElement, clamp, setSeed, seed, sum, listSum } from "./util"
@@ -61,6 +59,7 @@ export class Universe {
     this.c.forEach(c => {
       c.neighborsByDir = neighborShift.map(ns => this.c[neighborBy(ns, c.at)]).filter(c => c)
       c.neighbors = c.neighborsByDir.filter(c => c)
+      c.neighborhood = [c, ...c.neighbors];
     })
 
     loop(100, () => this.erect(this.anyCell(), rng(3) + 1, 3))
@@ -138,7 +137,7 @@ export class Universe {
       cell.biome = b;
       if (!b)
         debugger
-      cell.layer = cell.water() ? 0 : cell.elev < this.HighlandElev ? 1 : 2
+      cell.layer = cell.water() ? SEALVL : cell.elev < this.HighlandElev ? GROUNDLVL : HILLSLVL
     })
 
     this.c.forEach(cell => {
@@ -155,16 +154,26 @@ export class Universe {
 
       let isCoast = !cell.water() && cell.neighbors.find(c => c.water());
 
-      if (!rng(isCoast ? 40 : cell.water() ? 300 : 150)) {
+      if (!rng(isCoast || cell.rivers ? 60 : cell.water() ? 200 : 150)) {
         let race = randomElement(cell.biome.races);
         if (race) {
           new Agent(race, cell);
         }
-        let queen = new Agent("alicorns", queenCell());
-        queen.name = "Vasilisa";
-        select(queen)
       }
+      cell.resources = {
+        soil: cell.biome.soil ?? 0,
+        trees: cell.biome.trees ?? 0,
+        water: (cell.biome.water ?? 0) + (cell.rivers ? 1 : 0),
+        minerals: (cell.biome.minerals ?? 0) + (cell.layer == HILLSLVL ? 2 : 1)
+      }
+
     })
+
+    let randomHorse = randomElement(this.a.filter(a => a.race.name == "horses"))
+    randomHorse.remove()
+    let queen = new Agent("alicorn", randomHorse.cell);
+    queen.name = "Vasilisa";
+    select(queen)
 
     //addRoads()
 
@@ -177,13 +186,13 @@ export class Universe {
     return this.byElev[~~(ws * n)].elev
   }
 
-  get queen() {
-    return this.a.find(a => a.race.name == "alicorns") as Agent
-  }
-
 }
 
-
+export function nextTurn() {
+  for (let a of u.a) {
+    a.nextTurn()
+  }
+}
 
 
 function addRoads() {

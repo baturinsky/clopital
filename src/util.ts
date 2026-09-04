@@ -17,6 +17,7 @@ export const rng = (n = 1e9) => ~~(Math.sin(++seed) ** 2 * 1e9 % n) / (n == 1e9 
   listSum = <T>(a: T[], f = (a: any) => a) => a.reduce((q, p) => q + f(p), 0),
   sum = (a: Vec2, b: Vec2, m = 1) => [a[0] + b[0] * m, a[1] + b[1] * m] as Vec2,
   sub = (a: Vec2, b: Vec2) => [a[0] - b[0], a[1] - b[1]] as Vec2,
+  dist = (a: Vec2, b: Vec2) => len(sub(a, b)),
   scale = <T extends number[]>(a: T, m: number) => a.map(v => v * m) as T,
   muls = (a: Vec2, b: Vec2) => [a[0] * b[0], a[1] * b[1]] as Vec2,
   vecTween = (a: Vec2, b: Vec2, m: number) => [a[0] * (1 - m) + b[0] * m, a[1] * (1 - m) + b[1] * m] as Vec2,
@@ -24,6 +25,7 @@ export const rng = (n = 1e9) => ~~(Math.sin(++seed) ** 2 * 1e9 % n) / (n == 1e9 
   round = <T extends number[]>(a: T) => a.map(v => ~~(v + .5)) as T,
   floor = (n: number) => ~~n - (n < 0 ? 1 : 0),
   fixed = (n: number) => ~~(n * 100) / 100,
+  len = (a: Vec2) => (a[0] ** 2 + a[1] ** 2) ** .5,
   debounce = (callback: Function) => {
     let timeoutId: any;
     return () => {
@@ -49,7 +51,7 @@ export const rng = (n = 1e9) => ~~(Math.sin(++seed) ** 2 * 1e9 % n) / (n == 1e9 
       s += randomElement([..."kstnhmyrw", ''], rng) + randomElement([..."aiueo", ''], rng)
     return s
   },
-  cap1 = (s: string) => s.charAt(0).toUpperCase() + s.substring(1),
+  cap1 = (s: string) => `${s}`.charAt(0).toUpperCase() + `${s}`.substring(1),
   asArray = <T>(s: T): any[] => s == undefined ? [] : Array.isArray(s) ? s as T[] : [s],
   removeFromList = (list: any[], item: any) => {
     let i = list.indexOf(item);
@@ -61,7 +63,12 @@ export const rng = (n = 1e9) => ~~(Math.sin(++seed) ** 2 * 1e9 % n) / (n == 1e9 
     shuffle(loop(slots, i => i < filled ? randomElement(variants) : undefined))
   ,
   shuffle = (a: any[]) => loop(a.length, () => a.splice(rng(a.length), 1)[0]),
-  objMap = (a: any, f: (v: any, k: string) => any) => Object.fromEntries(Object.entries(a).map(([k, v]) => [k, f(v, k)]))
+  objMap = (a: any, f: (v: any, k: string) => any) => Object.fromEntries(Object.entries(a).map(([k, v]) => [k, f(v, k)])),
+  objAdd = (a: any, b: any, times = 1) => {
+    Object.keys(b).forEach((k) => a[k] = (a[k] ?? 0) + b[k] * times)
+    return a
+  }
+
   ;
 
 

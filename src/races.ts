@@ -13,7 +13,7 @@ export type Race = {
 
 //@ts-ignore
 export const races = {
-  alicorns: {
+  alicorn: {
     job: "alicorning",
     moving: "flying"
   },

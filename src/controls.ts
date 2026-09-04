@@ -1,10 +1,10 @@
 import { clamp, floor, scale, sub, sum, Vec2 } from "./util";
 import { prerenderUniverse, render } from "./renderer";
 import { neighborhood, photoScale, worldCoord, ww } from "./root";
-import { queenCell, select, state, update } from "./state";
+import { agentPointed, pointedCell, queen, queenCell, select, selected, state, update } from "./state";
 import { regenerateUniverse } from "./main";
 import { biomesByNames } from "./biomes";
-import { u } from "./universe";
+import { nextTurn, u } from "./universe";
 import { animate, cancelAnimation } from "./animation";
 
 declare var C: HTMLCanvasElement;
@@ -14,6 +14,15 @@ let buttonsDown: number[] = [];
 export const
 
   enableControls = () => {
+
+    onpointerdown = (e: MouseEvent) => {
+      let f = ({ 
+        TURN: nextTurn, 
+        QUEEN: ()=>select(queen())
+       } as {[button:string]:Function})[(e.target as HTMLButtonElement)?.id]
+      f && f()
+    }
+
     C.onpointerdown = C.onpointermove = C.onpointerup = C.onpointerleave = e => {
       let canvasMousePos = [e.offsetX, e.offsetY] as Vec2;
       let photoMousePos = sub(scale(canvasMousePos, 1 / state.scale), state.topLeftAt);
@@ -34,9 +43,13 @@ export const
       if (e.type == "pointerdown") {
         buttonsDown[e.button] = 1;
         if (e.button == 0) {
-          let a = u.a.find(a=>a.cell.at == state.cellPointed)
-          if(a){
+
+          let a = agentPointed()
+          if (a) {
             select(a)
+          } else if (selected()) {
+            selected().dest = pointedCell()
+            selected()?.go()
           }
         }
       }
@@ -47,9 +60,8 @@ export const
 
       if (e.type == "pointerleave") {
         buttonsDown = []
+        update({cellPointed:undefined})
       }
-
-      render()
     }
 
     C.onwheel = e => {
@@ -83,10 +95,12 @@ onkeydown = e => {
     case "KeyM":
       //testMarket()
       break
+    case "Escape":
+      update({selected:undefined})
+      break
     case "KeyD":
       update({ debug: !state.debug })
       prerenderUniverse()
-      render()
       break
   }
 }

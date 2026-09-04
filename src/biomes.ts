@@ -9,7 +9,11 @@ export type Biome = {
   seaTravel?: number
   habitability: number
   races: string[]
-  sprites: HTMLCanvasElement[];
+  sprites: HTMLCanvasElement[]
+  soil: number
+  trees: number
+  minerals: number
+  water: number
 }
 
 export type BiomeName = keyof typeof biomesByNames;
@@ -57,7 +61,7 @@ export const biomesByNames = {
     habitability: 1,
     races: "deers",
     crop: "moss",
-    soil:1
+    soil: 1
   },
   plains: {
     color: "#2c0",
@@ -142,18 +146,6 @@ export const biomesByNames = {
     water: 1
   },
 } as { [name: string]: Biome };
-
-export const resources = {
-  fish: {
-    biomes: { sea: 2, ocean: 1 },
-    food: 1
-  },
-  wheat: {
-    biomes: { plains: 2, steppe: 1 },
-    food: 1
-  },
-
-}
 
 for (let k in biomesByNames) {
   let b = biomesByNames[k]

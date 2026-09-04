@@ -1,16 +1,25 @@
 import { atlas } from "./main";
 import { ww, photoScale, wh, TWO_PI, worldCoord, photoShift } from "./root";
 import { Biome, biomeMatrix, BiomeName, biomesByNames, HUTS, HUTS2, MESA, WAVES } from "./biomes"
-import { pointedCell, queenCell, selected, state, update } from "./state";
+import { pointedCell, queen, queenCell, selected, state, update } from "./state";
 import { u } from "./universe";
-import { asArray, loop, muls, nof, randomElement, RGBA, rng, round, scale, setSeed, shuffle, sum, vecTween, Vec2 } from "./util";
+import { asArray, loop, muls, nof, randomElement, RGBA, rng, round, scale, setSeed, shuffle, sum, vecTween, Vec2, sub, len, dist, cap1, hexToRgb } from "./util";
 import { Cell } from "./cell";
 import { animate, cancelAnimation, updateAnimations } from "./animation";
+import { Agent } from "./agent";
+import { GoodNumbers } from "./market";
+import { resources } from "./resources";
 
 export const
   layerSickness = 4,
   AtlasSpriteSize = 16,
-  CURSOR = 16,
+  HEXCURSOR = 16,
+  CURSOR = 17,
+  WALK = 100,
+  FLY = 101,
+  SWIM = 102,
+  SAIL = 103,
+  AIR = 104,
   QUEEN = 48,
   SHADOW = 64;
 
@@ -25,9 +34,10 @@ let worldPhoto: HTMLCanvasElement,
   letters: HTMLCanvasElement[],
   filters = new Set(),
   letterWidth = 6,
+  blinkAlpha = 0,
   lastT = Date.now();
 
-declare var DEFS: SVGElement, C: HTMLCanvasElement;
+declare var DEFS: SVGElement, C: HTMLCanvasElement, TURN: HTMLButtonElement;
 
 export const
   calculatePropSlots =
@@ -50,9 +60,13 @@ export const
       cx.restore()
   },
 
-  drawOnCell = (cell: Cell, sprite: HTMLCanvasElement, pos: Vec2 = [0, 0], alpha = 1) => {
+  drawOnCell = (cell: Cell, sprite: HTMLCanvasElement | number, pos: Vec2 = [0, 0], alpha = 1) => {
+    if (!cell)
+      return
+    if (sprite as number >= 0)
+      sprite = sprites[sprite as number]
     let p = photoShift(sum(cell.center(), pos))
-    drawSprite(sprite, p, alpha);
+    drawSprite(sprite as HTMLCanvasElement, p, alpha);
   },
 
   toScreenPos = (pos: Vec2) => {
@@ -60,14 +74,27 @@ export const
   },
 
   drawCentered = (sprite: HTMLCanvasElement, pos: Vec2, alpha = 1) => {
-    drawSprite(sprite, sum(pos, [-sprite.width / 2 / photoScale[0], -sprite.height / 2 / photoScale[1]]), alpha)
+    drawSprite(sprite, sum(pos, [-sprite.width / 2 / photoScale[0], -sprite.height / 2 / photoScale[1] + 5]), alpha)
   },
 
   wobbleFlight = (p: Vec2, amplitude = 6) => sum(p, [0, amplitude * (1 + Math.sin(Date.now() / 500)) / 2]),
 
   render = () => {
-    let dt = Date.now() - lastT;
+    let t = Date.now(),
+      dt = t - lastT;
     lastT += dt;
+
+    blinkAlpha = (2 + Math.sin(t / 100)) / 3;
+
+    TURN.style.transform = `scale(${queen().steps == 0 ? 1 + blinkAlpha / 10 : 1})`
+
+    if (state.targetTLA) {
+      state.topLeftAt = vecTween(state.topLeftAt, state.targetTLA, dt / 100);
+      if (dist(state.topLeftAt, state.targetTLA) < 1) {
+        update({ targetTLA: undefined })
+      }
+    }
+
     cx = ctx;
     cx.imageSmoothingEnabled = false
     cx.clearRect(0, 0, 1e7, 1e7);
@@ -78,34 +105,47 @@ export const
 
     /** Rendering with the current zoom and image position.  */
 
-    if (state.cellPointed != state.queenAt) {
-      drawOnCell(pointedCell(), sprites[CURSOR], [0, layerSickness + 1])
-    }
-
     for (let agent of u.a) {
+      if (agent.anim)
+        continue
       if (selected() == agent) {
-        cx.globalAlpha = (2 + Math.sin(Date.now() / 100)) / 3;
+        cx.globalAlpha = blinkAlpha;
       }
-      drawOnCell(agent.cell, sprites[SHADOW], [0, 2])
-      drawOnCell(agent.cell, sprites[agent.race.sprite])
+      drawOnCell(agent.cell, SHADOW)
+      drawOnCell(agent.cell, spriteOf(agent))
       cx.globalAlpha = 1;
     }
 
-    if (selected()) {
-      let pf = selected().pathfind(15, u.c[state.cellPointed]);
-      let p = u.c[state.cellPointed].pathFrom(pf);
-
-      if (p) {
-        cx.strokeStyle = "#4444";
-        drawPath(p, 1)
-      }
+    if (selected() && !selected().anim) {
+      let a = selected()
+      cx.save()
+      cx.filter = "brightness(.8)"
+      drawPathTo(a, pointedCell())
+      cx.restore()
+      drawPathTo(a, a.dest)
     }
 
+    drawOnCell(pointedCell(), CURSOR)
 
     updateAnimations(dt)
 
     cx.restore()
 
+  },
+  drawPathTo = (a: Agent, target?: Cell) => {
+    if (!target)
+      return;
+    let p = a.pathTo(target);
+    if (p) {
+      p.forEach((step, i) => {
+        i > 0 && drawOnCell(step, a.race.moving == "flying" ? FLY : a.race.moving == "swimming" ? SWIM : WALK, undefined, i > a.steps ? blinkAlpha : 1)
+      })
+    }
+  },
+  centerOn = (cell: Cell) => {
+    let targetTLA = sum(scale(cell.center(), -1), [innerWidth, innerHeight], .5 / state.scale)
+    if (dist(targetTLA, state.topLeftAt) > 50)
+      update({ targetTLA })
   },
   atlasSprite = (id: number, filter?: string) =>
     cutSpriteFromAtlas((id % AtlasSpriteSize) * AtlasSpriteSize, ~~(id / AtlasSpriteSize) * AtlasSpriteSize, AtlasSpriteSize, AtlasSpriteSize, filter)
@@ -250,22 +290,48 @@ export const
         scale(biome.rgba, .3)
       ], i + biome.color)))
   },
-  moveWithAnimation = () => {
-    let pf = queenCell().pathfind("flying", 100, u.c[state.cellPointed]);
-    let p = u.c[state.cellPointed].pathFrom(pf);
-
-    if (p) {
-      cancelAnimation(state.queenAnimation);
-      state.queenAnimation = animate(sprites[QUEEN], p.map(c => c.topLeft()))
-      state.queenAnimation.f = () => delete state.queenAnimation
-      update({ queenAt: state.cellPointed });
-    }
-
-  },
 
 
   drawImageCentered = (image: HTMLCanvasElement, pos: Vec2) => {
     cx.drawImage(image, pos[0] - image.width, pos[1] - image.height)
-  };
+  },
+
+  spriteCache = (ind: number, filter?: string) => {
+    let n = `${ind}@${filter}`;
+    spriteCacheData[n] ??= atlasSprite(ind, filter);
+    return spriteCacheData[n];
+  },
+
+  spriteCopy = (a: HTMLCanvasElement) => {
+    let [sprite, sc] = canvasElementAndContext(a.width, a.height)
+    sc.drawImage(a, 0, 0);
+    return sprite
+  },
+
+  resourceSprite = (name: string) => {
+    let r = resources[name], sprite: HTMLCanvasElement;
+
+    if (r) {
+      r.sc ??= spriteCache(
+        r.sprite,
+        r.color && constructHexFilter(...r.color))
+
+      sprite = spriteCopy(r.sc)
+    } else {
+      debugger
+      sprite = spriteCopy(spriteCache(...name.split("@") as [number, string]))
+    }
+    sprite.style.transform = `scale(${devicePixelRatio * 2})`
+    return sprite
+  },
+
+  constructHexFilter = (...color: string[]) => constructFilter(
+    [hexToRgb(color[0] ?? "#f00"),
+    hexToRgb(color[1] ?? "#0f0"),
+    hexToRgb(color[2] ?? "#00f")],
+    color.join()),
+
+  spriteOf = (a: Agent) => sprites[a.race.sprite]
 
 
+const spriteCacheData: { [id: string]: HTMLCanvasElement } = {}

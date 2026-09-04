@@ -1,5 +1,5 @@
 import { Race } from "./races";
-import { addToKey, bestBy, listSum, numTween, vecTween, worstBy } from "./util";
+import { addToKey, bestBy, listSum, numTween, objAdd, vecTween, worstBy } from "./util";
 
 //import { loop } from "./util";
 const loop = <T>(l: number, f: (i: number) => T) => [...new Array(l)].map((v, i) => f(i))
@@ -80,7 +80,8 @@ export class MarketAgent {
     //console.log(`${this.name} uses recipe ${JSON.stringify(recipe)} ${times} times`);
     let ind = this.recipes.indexOf(recipe)
     this.recipeUsageStats[ind] = (this.recipeUsageStats[ind] ?? 0) + times;
-    return Object.keys(recipe).forEach((good) => this.stock[good] = (this.stock[good] ?? 0) + recipe[good] * times)
+    objAdd(this.stock, recipe, times)
+    //Object.keys(recipe).forEach((good) => this.stock[good] = (this.stock[good] ?? 0) + recipe[good] * times)
   }
 
   /** Maximum recipe multiplier which would not reduce the market stock of anything below zero
