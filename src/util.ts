@@ -4,6 +4,7 @@ export type RGBA = [number, number, number, number]
 
 export let seed = 1;
 
+
 export const rng = (n = 1e9) => ~~(Math.sin(++seed) ** 2 * 1e9 % n) / (n == 1e9 ? n : 1),
   setSeed = (n: number) => { seed = n },
   randomElement = <T>(a: T[], gen = rng) => a[gen(a.length)],
@@ -64,12 +65,16 @@ export const rng = (n = 1e9) => ~~(Math.sin(++seed) ** 2 * 1e9 % n) / (n == 1e9 
   ,
   shuffle = (a: any[]) => loop(a.length, () => a.splice(rng(a.length), 1)[0]),
   objMap = (a: any, f: (v: any, k: string) => any) => Object.fromEntries(Object.entries(a).map(([k, v]) => [k, f(v, k)])),
-  objAdd = (a: any, b: any, times = 1) => {
+  objFilter = (a: any, f: (v: any, k: string) => any) =>
+    Object.fromEntries(Object.entries(a).filter(([k, v]) => f(v, k))),
+  objAdd = (a: any, b: any = {}, times = 1) => {
     Object.keys(b).forEach((k) => a[k] = (a[k] ?? 0) + b[k] * times)
     return a
-  }
-
+  },
+  objScale = (a: any, scale: number) => objMap(a, v => v * scale),
+  stripZeros = (a: any) => objFilter(a, v => v)
   ;
+
 
 
 //console.log(bestBy(["foo", "barr", "bazz", "qu"], s => s.charCodeAt(0)));

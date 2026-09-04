@@ -13,7 +13,7 @@ export type Biome = {
   soil: number
   trees: number
   minerals: number
-  water: number
+  deepwater: number
 }
 
 export type BiomeName = keyof typeof biomesByNames;
@@ -134,7 +134,7 @@ export const biomesByNames = {
     habitability: 0,
     races: "seahorses",
     crop: "fish",
-    water: 1
+    deepwater: 1
   },
   sea: {
     color: "#04c",
@@ -143,7 +143,7 @@ export const biomesByNames = {
     habitability: 0,
     races: "seahorses",
     crop: "fish",
-    water: 1
+    deepwater: 1
   },
 } as { [name: string]: Biome };
 

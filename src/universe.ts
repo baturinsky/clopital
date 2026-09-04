@@ -1,5 +1,5 @@
 import { biomesByNames, biomeMatrix } from "./biomes"
-import { Cell, GROUNDLVL, HILLSLVL, SEALVL } from "./cell"
+import { Cell, GROUNDLVL, HILLSLVL, cellAgentParameters, SEALVL } from "./cell"
 import { Agent } from "./agent"
 import { ws, neighborShift, wh, ww, neighborBy, hexDist, worldCoord } from "./root"
 import { queenCell, select } from "./state"
@@ -157,21 +157,23 @@ export class Universe {
       if (!rng(isCoast || cell.rivers ? 60 : cell.water() ? 200 : 150)) {
         let race = randomElement(cell.biome.races);
         if (race) {
-          new Agent(race, cell);
+          new Agent(cell, race, rng(1000)+100);
         }
       }
       cell.resources = {
         soil: cell.biome.soil ?? 0,
         trees: cell.biome.trees ?? 0,
-        water: (cell.biome.water ?? 0) + (cell.rivers ? 1 : 0),
+        deepwater: (cell.biome.deepwater ?? 0) + (cell.rivers ? 1 : 0),
         minerals: (cell.biome.minerals ?? 0) + (cell.layer == HILLSLVL ? 2 : 1)
       }
 
+      //console.log(cellAgentParameters(cell));
+
     })
 
-    let randomHorse = randomElement(this.a.filter(a => a.race.name == "horses"))
+    let randomHorse = randomElement(this.a.filter(a => a.race?.name == "horses"))
     randomHorse.remove()
-    let queen = new Agent("alicorn", randomHorse.cell);
+    let queen = new Agent(randomHorse.cell, "alicorn");
     queen.name = "Vasilisa";
     select(queen)
 

@@ -1,11 +1,11 @@
 import { animate, cancelAnimation, MovementAnimation } from "./animation";
 import { Cell } from "./cell";
 import { MarketAgent } from "./market";
-import { Race, races } from "./races";
+import { Race, raceAgentParameters, races } from "./races";
 import { spriteOf } from "./renderer";
-import { selected, state, update } from "./state";
+import { nextName, selected, state, update } from "./state";
 import { u } from "./universe";
-import { cap1, japaneseName, objMap, removeFromList } from "./util";
+import { cap1, objMap, removeFromList } from "./util";
 
 const craScale = 10000;
 
@@ -15,21 +15,35 @@ export class Agent extends MarketAgent {
   race!: Race
   cell!: Cell
   dest?: Cell
-  size = 1
   steps = 5
   anim?: MovementAnimation
 
-  constructor(race: string, cell: Cell) {
+  /** We create a herd in this cell, an improvement in  this cell, or the agent for the cell itself */
+  constructor(cell: Cell, race?: string, size = 1) {
     super()
-    if(!cell)
+    if (!cell)
       debugger
-    this.race = races[race];
+    if (race)
+      this.race = races[race];
+    this.size = size
+
+    let params = raceAgentParameters(this.race);
+
     this.cell = cell
-    this.name = cap1(japaneseName())
+    this.name = cap1(nextName())
     u.a.push(this);
+
+    this.minit(params);
+    this.recomp()
   }
 
-  nextTurn(){
+  recomp(){    
+    this.places = this.cell.neighborhood.map(c=>c.getAgent())
+    super.recomp()    
+    debugger
+  }
+
+  nextTurn() {
     this.steps = 3
     this.go();
   }
@@ -52,10 +66,11 @@ export class Agent extends MarketAgent {
   }
 
 
-  visit(c:Cell){
+  visit(c: Cell) {
     this.cell = c;
-    if(c == this.dest)
+    if (c == this.dest)
       delete this.dest;
+    this.recomp()
   }
 
   remove() {
@@ -102,8 +117,8 @@ export class Agent extends MarketAgent {
     return this.cell?.pathfind(this.race.moving, maxDist, destination)
   }
 
-  pathTo(destination?: Cell, maxDist = 15){
-    if(!destination)
+  pathTo(destination?: Cell, maxDist = 15) {
+    if (!destination)
       return
     let pf = this.pathfind(maxDist, destination);
     let p = u.c[destination.at].pathFrom(pf);

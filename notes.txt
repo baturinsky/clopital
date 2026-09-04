@@ -64,3 +64,16 @@ Deposit:
 
 +100% production, split between all herds and improvements in range
 Allows collection without research
+
+
+
+Farming
+
+Soil + Fertilisers + Irrigation => Growth
+Growth + Harvest => Crop
+Hard Work => Harvest
+Crop => Grass
+
+Mining 
+
+Mineral Deposits + Spelunking + Digging => Minerals

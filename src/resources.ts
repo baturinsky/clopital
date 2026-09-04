@@ -7,7 +7,7 @@ export const resources = {
   minerals: { sprite: 83, color: ["#444", , "444"] },
   trees: { sprite: FIR },
   soil: { sprite: 105, color: ["#000"] },
-  water: { sprite: 86, color: ["#08f", "#fff"] }
+  deepwater: { sprite: 86, color: ["#048", "#fff"] }
 } as {
   [key: string]: {
     sprite: number

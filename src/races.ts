@@ -1,5 +1,5 @@
 import { Biome, biomesByNames } from "./biomes"
-import { GoodNumbers } from "./market"
+import { GoodNumbers, MarketAgentParameters } from "./market"
 
 export type Race = {
   name: string
@@ -48,13 +48,14 @@ export const races = {
   }
 } as { [id: string]: Race }
 
-export const recipes = {
-  common: [
+
+
+export const equineRecipes =
+  [
     { horsing: -2, "working hard": 3 },
     { pegasing: -1, rain: 1 },
     { unicorning: -1, magic: 1 },
 
-    { $ing: -1, working: 1 },
     { working: -1, "working hard": 1 },
     { working: -1, magic: -5, "working hard": 3 },
     { working: -1, thinking: 1 },
@@ -63,43 +64,34 @@ export const recipes = {
     { strength: -3, tools: -1, digging: 10 },
     { magic: -1, fertilizer: 1 },
     { rain: -1, irrigation: 1 }
-  ],
+  ]
 
-  farm: [
-    { soil: -1, irrigation: 1 },
-    { soil: -1, fertilizer: 1 },
-    { soil: -1, irrigation: -1, fertilizer: -1, plant: -1, harvest: 1 },
-    { harvest: -1, $fruit: 1 },
-  ],
-
-  mine: [
-    { digging: -5, spelunking: 1 },
-    { spelunking: -1, digging: -1, $mineral: 1 }
-  ],
-
-  forester: [
-    { trees: -1, wood: 1 }
-  ],
-
-  well: []
-}
-
-export const initRaces = () => {
-  let sprite = 48;
-  for (let rn in races) {
-    races[rn].name = rn
-    races[rn].biomes = []
-    races[rn].sprite = sprite++;
-  }
-
-  for (let b of Object.values(biomesByNames)) {
-    for (let r of b.races) {
-      races[r].biomes.push(b.name)
+export const
+  initRaces = () => {
+    let sprite = 48;
+    for (let rn in races) {
+      races[rn].name = rn
+      races[rn].biomes = []
+      races[rn].sprite = sprite++;
     }
-  }
 
-  console.log(races);
-},
+    for (let b of Object.values(biomesByNames)) {
+      for (let r of b.races) {
+        races[r].biomes.push(b.name)
+      }
+    }
+  },
   raceHabitabiliy = (race: Race, biome: Biome) => {
     return biome.habitability + (biome.races.indexOf(race.name) < 0 ? 0 : 1);
+  },
+  raceAgentParameters = (race: Race) => {
+    let ownRecipes = [...equineRecipes,
+    { [race.job]: -1, working: 1 },
+    ]
+
+    return {
+      ownRecipes,
+      income: { ...race.income, [race.job]: 1 }
+    } as MarketAgentParameters
   }
+

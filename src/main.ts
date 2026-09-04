@@ -4,10 +4,8 @@ import './imported.css'
 import { enableControls } from "./controls";
 import { initRenderer, prerenderUniverse, render } from "./renderer";
 import { state, saveAndUpdateTip, load } from "./state";
-import { tip } from "./ui";
 import { Universe } from './universe';
 import { initRaces } from './races';
-import { testMarket } from './tests';
 
 
 export const

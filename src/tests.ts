@@ -105,7 +105,7 @@ export function testMarket() {
   allAgents.forEach(agent => {
     agent.reportRecipeStats()
     console.log(agent.name + " stock:");
-    console.table(Object.fromEntries(Object.keys(agent.stock).map(k => [k, { stock: agent.stock[k], mu: agent.marginalUtility(k) }])));
+    console.table(Object.fromEntries(Object.keys(agent.stock).map(k => [k, { stock: agent.stock[k], mu: agent.mu(k) }])));
     console.log(agent.name + " consumed:");
     console.table(
       Object.fromEntries(

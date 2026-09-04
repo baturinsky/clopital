@@ -60,8 +60,8 @@ export const
       cx.restore()
   },
 
-  drawOnCell = (cell: Cell, sprite: HTMLCanvasElement | number, pos: Vec2 = [0, 0], alpha = 1) => {
-    if (!cell)
+  drawOnCell = (cell: Cell, sprite?: HTMLCanvasElement | number, pos: Vec2 = [0, 0], alpha = 1) => {
+    if (!cell || !sprite)
       return
     if (sprite as number >= 0)
       sprite = sprites[sprite as number]
@@ -112,7 +112,7 @@ export const
         cx.globalAlpha = blinkAlpha;
       }
       drawOnCell(agent.cell, SHADOW)
-      drawOnCell(agent.cell, spriteOf(agent))
+      drawOnCell(agent.cell, agent.race?.sprite)
       cx.globalAlpha = 1;
     }
 
@@ -318,7 +318,6 @@ export const
 
       sprite = spriteCopy(r.sc)
     } else {
-      debugger
       sprite = spriteCopy(spriteCache(...name.split("@") as [number, string]))
     }
     sprite.style.transform = `scale(${devicePixelRatio * 2})`
@@ -331,7 +330,7 @@ export const
     hexToRgb(color[2] ?? "#00f")],
     color.join()),
 
-  spriteOf = (a: Agent) => sprites[a.race.sprite]
+  spriteOf = (a: Agent) => sprites[a.race?.sprite]
 
 
 const spriteCacheData: { [id: string]: HTMLCanvasElement } = {}

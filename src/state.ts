@@ -1,12 +1,11 @@
 import { type Agent } from "./agent";
-import { MovementAnimation } from "./animation";
 import { Cell } from "./cell";
 import { regenerateUniverse } from "./main";
-import { centerOn, constructHexFilter, drawIcons } from "./renderer";
+import { centerOn } from "./renderer";
 import { hexDist, photoScale, wh, ww } from "./root";
 import { asList, asTable, tip } from "./ui";
 import { u } from "./universe";
-import { clamp, debounce, fixed, Vec2 } from "./util";
+import { clamp, debounce, fixed, japaneseName, loop, Vec2 } from "./util";
 
 export let state = {
   scale: 1,
@@ -16,12 +15,13 @@ export let state = {
   cellPointed: 0 as number,
   debug: false,
   selected: 0,
-  turn: 0
+  turn: 0,
+  namesLeft: 1e12
 }
 
 export type State = typeof state;
 
-let lastCell: Cell|undefined;
+let lastCell: Cell | undefined;
 
 export const
   update = (d: Partial<State> = {}) => {
@@ -46,14 +46,20 @@ export const
     debouncedUpdate()
   },
   saveAndUpdateTip = (slot = "a") => {
+    state.namesLeft = namePool.length
     localStorage["CLP." + slot] = JSON.stringify(state)
   },
   debouncedUpdate = debounce(saveAndUpdateTip),
   load = (slot = "a") => {
     let data = localStorage["CLP." + slot]
-    if (data)
+    if (data) {
       Object.assign(state, JSON.parse(data))
+      state.namesLeft && namePool.splice(state.namesLeft)
+    }
     regenerateUniverse()
+
+    setTimeout(() => select(queen()), 100);
+
     return true;
   },
   pointedCell = () => u.c[state.cellPointed],
@@ -61,10 +67,18 @@ export const
   select = (a: Agent) => {
     update({ selected: u.a.indexOf(a) })
     centerOn(a.cell)
+    console.log(a);
   },
   agentPointed = () => u.a.find(a => a.cell.at == state.cellPointed) as Agent,
   queen = () => u.a.find(a => a.race.name == "alicorn") as Agent,
-  queenCell = () => queen()?.cell
+  queenCell = () => queen()?.cell,
+  namePool = [...new Set<string>(loop(1e5, japaneseName))],
+  nextName = () => {
+    return namePool.pop() as string
+  }
+
+
+
 
 
 
