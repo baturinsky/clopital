@@ -1,3 +1,4 @@
+import { Agent } from "./agent";
 import { Race } from "./races";
 import { addToKey, bestBy, listSum, numTween, objAdd, vecTween, worstBy } from "./util";
 
@@ -12,12 +13,28 @@ const utilityBase = 0.97, utilityBaseLog = Math.log(utilityBase)
 
 const marginalUtilityLookup = loop(100000, n => 1e6 * Math.pow(utilityBase, n))
 
-export function marginalUtility(amount: number) {
-  return amount > 100000 ? 0 : marginalUtilityLookup[amount]
-}
+export const
+  marginalUtility = (amount: number) =>
+    amount > 100000 ? 0 : marginalUtilityLookup[amount],
+  totalUtility = (amount: number) =>
+    (utilityBase ** amount - 1) / utilityBaseLog,
+  totalStockUtility = (agent: MarketAgent) =>
+    listSum(Object.keys(agent.stock).map(k => totalGoodUtility(agent, k))),
+  totalGoodUtility = (agent: MarketAgent, good: string) =>
+    totalUtility(~~((agent.stock[good] ?? 0) / agent.scale)),
+  reportRecipeStats = (a: Agent) => {
+    console.log(`${a.name} used recipes:\n`);
+    console.table(Object.fromEntries(a.recipes.map((r, i) =>
+      [JSON.stringify(r.recipe),
+      [r.uses, a.recipeUtility(a.recipes[i])]])))
+  }
 
-export function totalUtility(amount: number) {
-  return (utilityBase ** amount - 1) / utilityBaseLog;
+
+
+type RecipeX = {
+  place: MarketAgent,
+  uses: number,
+  recipe: GoodNumbers
 }
 
 
@@ -32,7 +49,9 @@ export class MarketAgent {
   name!: string
 
   /** Ways of convert one goods into the others */
-  recipes: GoodNumbers[] = []
+  //recipes: GoodNumbers[] = []
+
+  recipes: RecipeX[] = []
 
   /** How much of this good market receives (or loses) per turn */
   income: GoodNumbers = {}
@@ -43,7 +62,6 @@ export class MarketAgent {
   /** How much of this good market currently has */
   stock: GoodNumbers = {}
 
-  recipeUsageStats: number[]
   tradeStats = {} as any;
 
   consumeStats = {} as any;
@@ -54,55 +72,76 @@ export class MarketAgent {
 
   constructor(init: Partial<MarketAgent> & { sellList?: string[], buyList?: string[] } = {}) {
     Object.assign(this, init)
-    this.recipeUsageStats = new Array(this.recipes.length).fill(0);
     if (init.sellList)
       this.sells = new Set(init.sellList);
     if (init.buyList)
       this.buys = new Set(init.buyList);
   }
 
-  /** The perceived utility of the one unit of this good*/
-  marginalUtility(good: string) {
-    return marginalUtility(~~((this.stock[good] ?? 0) / this.scale))
+  /** The perceived utility of the one unit of this good
+   * If working in worlplace, use the sum of stock
+  */
+  marginalUtility(good: string, place?: MarketAgent) {
+    return marginalUtility(~~(this.commonStock(good, place) / this.scale))
   }
 
-  totalUtility(good: string) {
-    return totalUtility(~~((this.stock[good] ?? 0) / this.scale))
-  }
 
   /** How much the market utility will change when using the recipe without multiplier */
-  recipeUtility(recipe: GoodNumbers) {
-    return listSum(Object.keys(recipe), good => this.marginalUtility(good) * recipe[good])
+  recipeUtility(recipe: RecipeX) {
+    return listSum(Object.keys(recipe), good => this.marginalUtility(good, recipe.place) * recipe.recipe[good])
   }
 
   /** Applies the recipe with the given multiplier */
-  useRecipe(recipe: GoodNumbers, times: number) {
-    //console.log(`${this.name} uses recipe ${JSON.stringify(recipe)} ${times} times`);
-    let ind = this.recipes.indexOf(recipe)
-    this.recipeUsageStats[ind] = (this.recipeUsageStats[ind] ?? 0) + times;
-    objAdd(this.stock, recipe, times)
-    //Object.keys(recipe).forEach((good) => this.stock[good] = (this.stock[good] ?? 0) + recipe[good] * times)
+  useRecipe(recipe: RecipeX, times: number) {
+    if (recipe.place == this) {
+      objAdd(recipe.place.stock, recipe.recipe, times)
+      return
+    }
+
+    Object.keys(recipe.recipe).forEach((k) => {
+      let amount = recipe.recipe[k] * times;
+      if (amount < 0) {
+        if (recipe.place.stock[k])
+          recipe.place.stock[k] += amount;
+        else
+          this.stock[k] += amount;
+      } else {
+        if (recipe.place.keeps(k))
+          recipe.place.stock[k] += amount;
+        else
+          this.stock[k] += amount;
+      }
+    })
+
   }
+
+  /** Whether proxy agent keeps the product, or transfers it to the worker */
+  keeps(good: string) {
+    return false
+  }
+
 
   /** Maximum recipe multiplier which would not reduce the market stock of anything below zero
    * Would only check goods with negative amount in recipe, i.e. would nor prevent increasing the already negative good
    */
-  recipeMax(recipe: GoodNumbers) {
+  recipeMax(recipe: RecipeX) {
     let bb = worstBy(Object.keys(recipe), good => {
-      let v = recipe[good] > 0 ? Number.MAX_VALUE : (this.stock[good] ?? 0) / -recipe[good];
+      let amount = this.commonStock(good, recipe.place)
+      let v = amount > 0 ? Number.MAX_VALUE : (this.stock[good] ?? 0) / -amount;
       return v
     }
     )[1]
     return bb
   }
 
+  commonStock(good: string, place?: MarketAgent) {
+    return (this.stock[good] ?? 0) + (place?.stock[good] ?? 0)
+  }
+
   get utilities() {
     return Object.fromEntries(Object.keys(this.stock).map(k => [k, this.marginalUtility(k)]));
   }
 
-  totalStockUtility() {
-    return listSum(Object.keys(this.stock).map(k => this.totalUtility(k)))
-  }
 
   bestSeller(buyer: MarketAgent, minimalStock = 40) {
     let soldables = this.goodsSoldableTo(buyer);
@@ -194,6 +233,12 @@ export class MarketAgent {
   }
 
   iterate() {
+    this.gainIncome()
+
+    this.useRecipes()
+  }
+
+  gainIncome() {
     for (let good in this.income) {
       let v = this.income[good] * 10
       if (v < 0) {
@@ -207,22 +252,23 @@ export class MarketAgent {
       this.stock[good] = Math.max(0, this.stock[good])
       this.stock["friendship"] = Math.min(100, this.stock["friendship"] ?? 0);
     }
+  }
 
+  useRecipes() {
     let recipeUsed = 0;
-    this.recipes.forEach((recipe, i) => {
-      if (this.recipeUtility(recipe) > 0) {
-        let maxUses = this.recipeMax(recipe);
-        if (maxUses < 1)
-          return
-        this.useRecipe(recipe, Math.ceil(maxUses / 4))
-        recipeUsed++;
-      }
-    })
+    do {
+      this.recipes.forEach((recipe, i) => {
+        if (this.recipeUtility(recipe) > 0) {
+          let maxUses = this.recipeMax(recipe);
+          if (maxUses < 1)
+            return
+          this.useRecipe(recipe, Math.ceil(maxUses / 4))
+          recipeUsed++;
+        }
+      })
+    } while (recipeUsed)
+
   }
 
-  reportRecipeStats() {
-    console.log(`${this.name} used recipes:\n`);
-    console.table(Object.fromEntries(this.recipeUsageStats.map((v, i) => [JSON.stringify(this.recipes[i]), [v, this.recipeUtility(this.recipes[i])]])))
-  }
 
 };
