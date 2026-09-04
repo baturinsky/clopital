@@ -1,5 +1,5 @@
 import { biomesByNames, biomeMatrix } from "./biomes"
-import { Cell, GROUNDLVL, HILLSLVL, cellAgentParameters, SEALVL } from "./cell"
+import { Cell, GROUNDLVL, HILLSLVL, SEALVL } from "./cell"
 import { Agent } from "./agent"
 import { ws, neighborShift, wh, ww, neighborBy, hexDist, worldCoord } from "./root"
 import { queenCell, select } from "./state"
@@ -154,17 +154,18 @@ export class Universe {
 
       let isCoast = !cell.water() && cell.neighbors.find(c => c.water());
 
-      if (!rng(isCoast || cell.rivers ? 60 : cell.water() ? 200 : 150)) {
-        let race = randomElement(cell.biome.races);
-        if (race) {
-          new Agent(cell, race, rng(1000)+100);
-        }
-      }
       cell.resources = {
         soil: cell.biome.soil ?? 0,
         trees: cell.biome.trees ?? 0,
         deepwater: (cell.biome.deepwater ?? 0) + (cell.rivers ? 1 : 0),
         minerals: (cell.biome.minerals ?? 0) + (cell.layer == HILLSLVL ? 2 : 1)
+      }
+
+      if (!rng(isCoast || cell.rivers ? 60 : cell.water() ? 200 : 150)) {
+        let race = randomElement(cell.biome.races);
+        if (race) {
+          new Agent(cell, race, rng(1000)+100);
+        }
       }
 
       //console.log(cellAgentParameters(cell));

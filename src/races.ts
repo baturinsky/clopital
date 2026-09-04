@@ -56,6 +56,9 @@ export const equineRecipes =
     { pegasing: -1, rain: 1 },
     { unicorning: -1, magic: 1 },
 
+    {grass: -3, food: 1},
+    {seaweed: -3, food: 1},
+
     { working: -1, "working hard": 1 },
     { working: -1, magic: -5, "working hard": 3 },
     { working: -1, thinking: 1 },

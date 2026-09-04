@@ -98,10 +98,10 @@ onkeydown = e => {
     case "Escape":
       update({selected:undefined})
       break
-    case "KeyD":
+    /*case "KeyD":
       update({ debug: !state.debug })
       prerenderUniverse()
-      break
+      break*/
   }
 }
 

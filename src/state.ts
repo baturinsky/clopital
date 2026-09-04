@@ -5,7 +5,7 @@ import { centerOn } from "./renderer";
 import { hexDist, photoScale, wh, ww } from "./root";
 import { asList, asTable, tip } from "./ui";
 import { u } from "./universe";
-import { clamp, debounce, fixed, japaneseName, loop, Vec2 } from "./util";
+import { cap1, clamp, debounce, fixed, japaneseName, loop, Vec2 } from "./util";
 
 export let state = {
   scale: 1,
@@ -13,10 +13,10 @@ export let state = {
   topLeftAt: [0, 0] as Vec2,
   targetTLA: [0, 0] as Vec2,
   cellPointed: 0 as number,
-  debug: false,
   selected: 0,
   turn: 0,
-  namesLeft: 1e12
+  namesLeft: 1e12,
+  lastId: 0
 }
 
 export type State = typeof state;
@@ -54,7 +54,7 @@ export const
     let data = localStorage["CLP." + slot]
     if (data) {
       Object.assign(state, JSON.parse(data))
-      state.namesLeft && namePool.splice(state.namesLeft)
+      //state.namesLeft && namePool.splice(state.namesLeft)
     }
     regenerateUniverse()
 
@@ -73,13 +73,4 @@ export const
   queen = () => u.a.find(a => a.race.name == "alicorn") as Agent,
   queenCell = () => queen()?.cell,
   namePool = [...new Set<string>(loop(1e5, japaneseName))],
-  nextName = () => {
-    return namePool.pop() as string
-  }
-
-
-
-
-
-
-
+  nameById = (id:number)=>cap1(namePool[id % namePool.length])

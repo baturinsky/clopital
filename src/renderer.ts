@@ -239,12 +239,12 @@ export const
         drawProps(cell, i1)
       }
 
-      if (state.debug) {
+      /*if (state.debug) {
         cx.fillStyle = "#00f";
         cx.fillRect(...sum(cell.topLeft(), [5, 10]), 1, -cell.hum);
         cx.fillStyle = "#f00";
         cx.fillRect(...sum(cell.topLeft(), [6, 10]), 1, -cell.t * 10);
-      }
+      }*/
 
     })
 

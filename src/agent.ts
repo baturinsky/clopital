@@ -3,7 +3,7 @@ import { Cell } from "./cell";
 import { MarketAgent } from "./market";
 import { Race, raceAgentParameters, races } from "./races";
 import { spriteOf } from "./renderer";
-import { nextName, selected, state, update } from "./state";
+import { nameById, namePool, selected, state, update } from "./state";
 import { u } from "./universe";
 import { cap1, objMap, removeFromList } from "./util";
 
@@ -16,7 +16,7 @@ export class Agent extends MarketAgent {
   cell!: Cell
   dest?: Cell
   steps = 5
-  anim?: MovementAnimation
+  anim?: MovementAnimation  
 
   /** We create a herd in this cell, an improvement in  this cell, or the agent for the cell itself */
   constructor(cell: Cell, race?: string, size = 1) {
@@ -30,17 +30,18 @@ export class Agent extends MarketAgent {
     let params = raceAgentParameters(this.race);
 
     this.cell = cell
-    this.name = cap1(nextName())
+    this.name = nameById(this.id)
     u.a.push(this);
 
     this.minit(params);
     this.recomp()
   }
 
-  recomp(){    
-    this.places = this.cell.neighborhood.map(c=>c.getAgent())
-    super.recomp()    
-    debugger
+  recomp() {
+    this.places = this.cell.neighborhood.map(c => c.getAgent())
+    super.recomp()
+
+    this.iterate()
   }
 
   nextTurn() {

@@ -1,6 +1,7 @@
 import { Agent } from "./agent";
 import { Race } from "./races";
-import { addToKey, bestBy, clamp, listSum, numTween, objAdd, vecTween, worstBy } from "./util";
+import { state } from "./state";
+import { addToKey, bestBy, clamp, listSum, numTween, objAdd, objScale, vecTween, worstBy } from "./util";
 
 //import { loop } from "./util";
 const loop = <T>(l: number, f: (i: number) => T) => [...new Array(l)].map((v, i) => f(i))
@@ -23,15 +24,15 @@ export const
     listSum(Object.keys(agent.stock).map(k => totalGoodUtility(agent, k))),
   totalGoodUtility = (agent: MarketAgent, good: string) =>
     totalUtility(~~((agent.stock[good] ?? 0) / agent.size)),
-  recipeXName = (r: RecipeX) => `${r.place.name}@${JSON.stringify(r.recipe)}`,
+  recipeXName = (r: RecipeX) => `${r.place.id ?? ""}@${JSON.stringify(r.recipe)}`,
   reportRecipeStats = (a: Agent) => {
     console.log(`${a.name} used recipes:\n`);
     console.table(Object.fromEntries(a.recipes.map((r, i) =>
       [JSON.stringify(r.recipe),
-      [a.uses[recipeXName(r)], a.ru(a.recipes[i])]])))
+      [a.uses[recipeXName(r)], a.utl(a.recipes[i])]])))
   },
   utilities = (a: MarketAgent) =>
-    Object.fromEntries(Object.keys(a.stock).map(k => [k, a.mu(k)]));
+    Object.fromEntries(Object.keys(a.stock).map(k => [k, a.mutl(k)]));
 
 
 type RecipeX = {
@@ -84,10 +85,13 @@ export class MarketAgent {
 
   /** Consume rolling average */
   cra = {} as any
+  id: number
 
   constructor(params: MarketAgentParameters = {}) {
+    this.id = params.id ?? ++state.lastId
     this.minit(params)
   }
+
 
   minit(params: MarketAgentParameters = {}) {
     Object.assign(this, params)
@@ -99,7 +103,7 @@ export class MarketAgent {
     let out: GoodNumbers = {}
     for (let r of this.ownRecipes) {
       for (let k in r) {
-        out[k] = Math.min(out[k] ?? 0, r[k])
+        out[k] = Math.min(out[k] ?? 1, r[k])
       }
     }
     this.out = new Set(Object.keys(out).filter(k => out[k] > 0))
@@ -116,15 +120,17 @@ export class MarketAgent {
    * The perceived utility of the one unit of this good
    * If working in worlplace, use the sum of stock
   */
-  mu(good: string, place?: MarketAgent) {
-    return marginalUtility(~~(this.weHave(good, place) / this.size))
+  mutl(good: string, place?: MarketAgent) {
+    return marginalUtility(~~(this.common(good, place) / this.size))
   }
 
 
   /** Recipe utility
    * How much the market utility will change when using the recipe without multiplier */
-  ru(recipe: RecipeX) {
-    return listSum(Object.keys(recipe), good => this.mu(good, recipe.place) * recipe.recipe[good])
+  utl(recipe: RecipeX) {
+    return listSum(Object.keys(recipe.recipe), good => {
+      return this.mutl(good, recipe.place) * recipe.recipe[good]
+    })
   }
 
   /** Applies the recipe with the given multiplier and proxies */
@@ -141,18 +147,12 @@ export class MarketAgent {
 
     Object.keys(recipe.recipe).forEach((k) => {
       let amount = recipe.recipe[k] * times;
-      if (amount < 0) {
-        if (recipe.place.stock[k])
-          recipe.place.stock[k] += amount;
-        else
-          this.stock[k] += amount;
-      } else {
-        if (recipe.place.out.has(k))
-          this.stock[k] += amount;
-        else
-          recipe.place.stock[k] += amount;
-      }
+      /** If the good is given/taken to/from local. Otherwise, proxy.*/
+      let local = amount < 0 ? this.stock[k] : recipe.place.out.has(k);
+      (local ? this : recipe.place).gain(k, amount)
     })
+
+    console.log(objScale(recipe.recipe, times));
 
   }
 
@@ -162,9 +162,10 @@ export class MarketAgent {
    * Would only check goods with negative amount in recipe, i.e. would nor prevent increasing the already negative good
    */
   max(recipe: RecipeX) {
-    let bb = worstBy(Object.keys(recipe), good => {
-      let amount = this.weHave(good, recipe.place)
-      let v = amount > 0 ? Number.MAX_VALUE : (this.stock[good] ?? 0) / -amount;
+    let bb = worstBy(Object.keys(recipe.recipe), good => {
+      let have = this.common(good, recipe.place)
+      let makes = recipe.recipe[good];
+      let v = makes > 0 ? Number.MAX_VALUE : (have ?? 0) / -makes;
       return v
     }
     )[1]
@@ -172,14 +173,15 @@ export class MarketAgent {
   }
 
 
-  weHave(good: string, place?: MarketAgent) {
+  /** Common amount of res between this and place */
+  common(good: string, place?: MarketAgent) {
     return (this.stock[good] ?? 0) + (place?.stock[good] ?? 0)
   }
 
 
   bestSeller(buyer: MarketAgent, minimalStock = 40) {
     let soldables = this.soldableTo(buyer);
-    let [good, v] = bestBy([...soldables], k => this.stock[k] > minimalStock ? buyer.mu(k) / this.mu(k) : 0);
+    let [good, v] = bestBy([...soldables], k => this.stock[k] > minimalStock ? buyer.mutl(k) / this.mutl(k) : 0);
 
     return v > 0 ? good : undefined;
   }
@@ -210,8 +212,8 @@ export class MarketAgent {
     }*/
 
     /** Calculating the exchange rate - how many of their good for one our good */
-    let theirBreakEvenPrice = their.mu(myBestSeller) / their.mu(theirBestSeller);
-    let ourBreakEvenPrice = this.mu(myBestSeller) / this.mu(theirBestSeller);
+    let theirBreakEvenPrice = their.mutl(myBestSeller) / their.mutl(theirBestSeller);
+    let ourBreakEvenPrice = this.mutl(myBestSeller) / this.mutl(theirBestSeller);
 
     if (Math.abs(theirBreakEvenPrice - ourBreakEvenPrice) < .2)
       return false;
@@ -292,7 +294,7 @@ export class MarketAgent {
     let recipeUsed = 0;
     do {
       this.recipes.forEach((recipe, i) => {
-        if (this.ru(recipe) > 0) {
+        if (this.utl(recipe) > 0) {
           let maxUses = this.max(recipe);
           if (maxUses < 1)
             return
@@ -300,7 +302,7 @@ export class MarketAgent {
           recipeUsed++;
         }
       })
-    } while (recipeUsed)
+    } while (false)
 
   }
 

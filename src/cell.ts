@@ -4,7 +4,7 @@ import { GoodNumbers, MarketAgent, MarketAgentParameters } from "./market"
 import { races } from "./races"
 import { layerSickness } from "./renderer"
 import { photoScale, worldCoord, toXY, wh, ws, ww } from "./root"
-import { nextName } from "./state"
+import { nameById } from "./state"
 import { Universe } from "./universe"
 import { cap1, clamp, loop, min, muls, objAdd, objScale, randomElement, rng, round, setSeed, stripZeros, sum, Vec2 } from "./util"
 
@@ -49,8 +49,9 @@ export class Cell {
   agent?: MarketAgent
 
   getAgent() {
-    if (!this.agent)
+    if (!this.agent) {
       this.agent = new MarketAgent(cellAgentParameters(this))
+    }
     return this.agent
   }
 
@@ -64,7 +65,7 @@ export class Cell {
 
   constructor(public u: Universe, public at: number) {
     setSeed(at)
-    this.name = cap1(nextName())
+    this.name = nameById(this.at)
     let coord = worldCoord(at)
     this.bedrock = coord[0] < 1 || coord[0] > ww - 2 || coord[1] < 1 || coord[1] > wh - 2;
   }
@@ -189,10 +190,11 @@ export const
     cap = objScale(income, 10);
 
     return {
+      id: c.at,
       income,
       ownRecipes,
       cap,
-      stock: {...cap}
+      stock: { ...cap }
     } as MarketAgentParameters
   }
 
@@ -220,7 +222,7 @@ const
     ],
     trees: [
       { trees: -1, lumber: 1 },
-      { trees: -1, berries: 1 }
+      { trees: -3, berries: 1 }
     ],
     minerals: [
       { deposits: -1, digging: -1, spelunking: -1, ore: 1 },
