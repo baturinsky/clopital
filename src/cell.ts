@@ -2,11 +2,11 @@ import { Agent } from "./agent"
 import { Biome, biomesByNames, HILLS } from "./biomes"
 import { GoodNumbers, MarketAgent, MarketAgentParameters } from "./market"
 import { layerSickness } from "./renderer"
-import { photoScale, worldCoord, toXY, wh, ws, ww } from "./root"
+import { photoScale, worldCoord, toXY, wh, ws, ww, neighborhood } from "./root"
 import { biomeToAgent, races } from "./setting"
 import { nameById } from "./state"
 import { Universe } from "./universe"
-import { cap1, clamp, loop, min, muls, objAdd, objScale, randomElement, rng, round, setSeed, stripZeros, sum, Vec2 } from "./util"
+import { cap1, clamp, loop, min, muls, objAdd, objScale, randomElement, rng, round, setSeed, objStripFalsy, sum, Vec2 } from "./util"
 
 export type PathPoint = { c: Cell, d: number, from: Cell }
 
@@ -40,13 +40,17 @@ export class Cell {
   /** neighbors and itself*/
   neighborhood!: Cell[]
 
-  landTravelCost = 1
+  seen?: boolean
 
   settlement?: MarketAgent
 
   resources!: GoodNumbers
 
   agent?: MarketAgent
+
+  neighborhoodR(d:number){
+    return neighborhood[d].map(v => this.u.c[v + this.at]).filter(v=>v);
+  }
 
   getAgent() {
     if (!this.agent) {
@@ -96,9 +100,9 @@ export class Cell {
     return flowTo.erode(path)
   }
 
-  neighborhoodResources() {
+  /*neighborhoodResources() {
     return this.neighborhood.map(c => c.resources).reduce(objAdd, {})
-  }
+  }*/
 
   /** todo: traverse queue in correct order */
   pathfind(moveMode: string, maxDist: number, destination?: Cell) {
@@ -168,7 +172,8 @@ export const
         case "swimming":
           return b.water() || a.water() || a.rivers || b.rivers ? 1 : UNPPASSABLE;
         default:
-          let cost = ((b.roads ? .1 : b.biome.travel) ?? 1e9)
+          //let cost = ((b.roads ? .1 : b.biome.travel) ?? 1e9)
+          let cost = b.biome.travel ?? 1e9
           if (races[moveMode] && b.biome.races.includes(moveMode)) {
             cost /= 2;
           }
@@ -186,7 +191,7 @@ export const
       }
     }
 
-    income = objScale(stripZeros(income), 1000);
+    income = objScale(objStripFalsy(income), 1000);
     cap = objScale(income, 10);
 
     return {

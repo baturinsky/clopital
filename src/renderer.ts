@@ -12,6 +12,7 @@ import { resources } from "./resources";
 
 export const
   layerSickness = 4,
+  mapRevealDuration = 700,
   AtlasSpriteSize = 16,
   HEXCURSOR = 16,
   CURSOR = 17,
@@ -24,6 +25,7 @@ export const
   SHADOW = 64;
 
 let worldPhoto: HTMLCanvasElement,
+  previousWorldPhoto: HTMLCanvasElement | undefined,
   /** Main canvas context */
   ctx: CanvasRenderingContext2D,
   /** Currently active context (ctx unless it's prerender)*/
@@ -33,6 +35,7 @@ let worldPhoto: HTMLCanvasElement,
   outlined: HTMLCanvasElement[],
   letters: HTMLCanvasElement[],
   filters = new Set(),
+  revealingMap = 0,
   letterWidth = 6,
   blinkAlpha = 0,
   lastT = Date.now();
@@ -101,12 +104,25 @@ export const
     cx.save();
     cx.scale(state.scale, state.scale)
     cx.translate(...state.topLeftAt);
-    cx.drawImage(worldPhoto, 0, 0);
+
+    if (previousWorldPhoto) {
+      cx.drawImage(previousWorldPhoto, 0, 0);
+      cx.globalAlpha = 1 - revealingMap / mapRevealDuration;
+      cx.drawImage(worldPhoto, 0, /*revealingMap / mapRevealDuration*20*/0);
+      cx.globalAlpha = 1
+      revealingMap -= dt;
+      if (revealingMap <= 0)
+        previousWorldPhoto = undefined;
+    } else {
+      cx.drawImage(worldPhoto, 0, 0);
+    }
 
     /** Rendering with the current zoom and image position.  */
 
+    updateAnimations(dt)
+
     for (let agent of u.a) {
-      if (agent.anim)
+      if (agent.anim || !agent.cell.seen)
         continue
       if (selected() == agent) {
         cx.globalAlpha = blinkAlpha;
@@ -126,8 +142,6 @@ export const
     }
 
     drawOnCell(pointedCell(), CURSOR)
-
-    updateAnimations(dt)
 
     cx.restore()
 
@@ -189,8 +203,15 @@ export const
     }
 
     cx.lineWidth = lw;
-    drawCurve(coords);
-    cx.stroke()
+
+    coords.slice(1).forEach((v, i) => {
+      if (path[i].seen || path[i + 1].seen) {
+        cx.beginPath()
+        cx.moveTo(...coords[i])
+        cx.lineTo(...v)
+        cx.stroke()
+      }
+    })
 
   },
 
@@ -201,7 +222,12 @@ export const
   },
 
   prerenderUniverse = () => {
+    previousWorldPhoto = worldPhoto;
+    revealingMap = mapRevealDuration;
+
     [worldPhoto, cx] = canvasElementAndContext((ww + .5) * photoScale[0], wh * photoScale[1])
+
+    u.drawOrder = loop(wh, row => loop(ww, col => row * ww + (col + ww - ~~(row / 2)) % ww)).flat().map(at => u.c[at]).filter(c => c.seen)
 
     loop(3, drawingLayer => {
       u.drawOrder.forEach(cell => {
@@ -309,16 +335,19 @@ export const
   },
 
   resourceSprite = (name: string) => {
-    let r = resources[name], sprite: HTMLCanvasElement;
+    let sprite: HTMLCanvasElement;
 
-    if (r) {
+    if (name.indexOf("@") != -1){
+      sprite = spriteCopy(spriteCache(...name.split("@") as [number, string]))
+    } else {
+      if(!resources[name])
+        console.log("!"+name);
+      let r = resources[name] ?? resources["working"];
       r.sc ??= spriteCache(
         r.sprite,
         r.color && constructHexFilter(...r.color))
 
       sprite = spriteCopy(r.sc)
-    } else {
-      sprite = spriteCopy(spriteCache(...name.split("@") as [number, string]))
     }
     sprite.style.transform = `scale(${devicePixelRatio * 2})`
     return sprite

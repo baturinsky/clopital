@@ -34,9 +34,9 @@ export const
   },
   raceAgentParameters = (race: Race) => {
     let ownRecipes = [...commonRecipes,
-    ...race.recipes??[],
+    ...race.recipes ?? [],
     { [race.job]: -1, working: 1 },
-    { [race.job]: -1, [race.moving]: 1 },
+    { [race.job]: -1, [race.moving]: race.moving == "swimming" ? 2 : 1 },
     ]
 
     return {

@@ -11,21 +11,21 @@ export type MovementAnimation = {
   /** Waypoints */
   wp: Vec2[],
   /** speed, ms per waypoint */
-  s?: number
+  s: number
   /** Callback on completion */
   f?: Function
   pc?: (p:Vec2)=>Vec2
 }
 
-export const animate = (sprite: HTMLCanvasElement, waypoints: Vec2[]) => {
-  let a = { i: sprite, wp: waypoints, t: 0 };
+export const animate = (sprite: HTMLCanvasElement, waypoints: Vec2[], s=200) => {
+  let a = { i: sprite, wp: waypoints, t: 0, s };
   animations.push(a)
   return a;
 }, cancelAnimation = (a?: MovementAnimation) => {
   removeFromList(animations, a)
 }, updateAnimations = (dt: number) => {
   animations = animations.filter(a => {
-    a.t += dt / (a.s ?? 150);
+    a.t += dt / a.s;
     let t = ~~(a.t);
     if (!a.wp[t + 1]) {
       a.f && a.f();

@@ -30,7 +30,9 @@ export const
       worldMousePos[0] -= floor(worldMousePos[1]) / 2;
       let tilePointed = floor(worldMousePos[0]) + floor(worldMousePos[1] - .1) * ww + (floor(worldMousePos[0]) < 0 ? ww : 0)
 
-      if (u.c[tilePointed])
+
+
+      if (u.c[tilePointed]?.seen)
         update({ cellPointed: tilePointed })
 
       if (e.type == "pointermove") {
@@ -88,13 +90,16 @@ export const
 
 onkeydown = e => {
   switch (e.code) {
-    case "KeyG":
+    /*case "KeyG":
       update({ seed: ~~(Math.random() * 1e9) })
       regenerateUniverse()
       break
     case "KeyM":
       //testMarket()
-      break
+      break*/
+    case "Space":
+      nextTurn()
+      break;
     case "Escape":
       update({selected:undefined})
       break

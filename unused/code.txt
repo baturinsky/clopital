@@ -140,3 +140,13 @@ triPoints = [[0, -.5], [.5, .5], [-.5, .5]] as Vec2[],*/
     temp ${fixed(cell.t)}  wet ${fixed(cell.hum)}<br/>
     elev ${fixed(cell.elev - u.SeaElev)}  hab ${fixed(cell.habitability)}<br/>
     scale ${state.scale}
+
+
+      <span data-icon="107"></span>${asList(cell.resources)}</br>
+      <span data-icon="106"></span>${asList(cell.neighborhoodResources())}
+
+
+<filter id=OUTL>
+<feColorMatrix type=matrix values=".7 0 0 .5 0  0 .7 0 .5 0  0 0 .7 .5 0  0 0 0 1 0"/>
+<feOffset dy="-1" dx="1"/><feBlend in2="SourceGraphic" mode=overlay />
+</filter>

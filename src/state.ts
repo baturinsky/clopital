@@ -1,7 +1,7 @@
 import { type Agent } from "./agent";
 import { Cell } from "./cell";
 import { regenerateUniverse } from "./main";
-import { centerOn } from "./renderer";
+import { centerOn, prerenderUniverse } from "./renderer";
 import { hexDist, photoScale, wh, ww } from "./root";
 import { asList, asTable, tip } from "./ui";
 import { u } from "./universe";
@@ -38,8 +38,7 @@ export const
       tip(`
       ${agentPointed() ? `<h4>${agentPointed().name} ${agentPointed().race.name}</h4>` : ''}
       <h4>${cell.name} ${cell.settlement ? "town" : cell.biome.name}</h4>
-      <span data-icon="107"></span>${asList(cell.resources)}</br>
-      <span data-icon="106"></span>${asList(cell.neighborhoodResources())}
+      ${asList(cell.resources)}</br>
     `)
     }
 
@@ -50,11 +49,11 @@ export const
     localStorage["CLP." + slot] = JSON.stringify(state)
   },
   debouncedUpdate = debounce(saveAndUpdateTip),
+  debouncedPrerender = debounce(()=>prerenderUniverse()),
   load = (slot = "a") => {
     let data = localStorage["CLP." + slot]
     if (data) {
       Object.assign(state, JSON.parse(data))
-      //state.namesLeft && namePool.splice(state.namesLeft)
     }
     regenerateUniverse()
 

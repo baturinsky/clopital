@@ -72,7 +72,7 @@ export const rng = (n = 1e9) => ~~(Math.sin(++seed) ** 2 * 1e9 % n) / (n == 1e9 
     return a
   },
   objScale = (a: any, scale: number) => objMap(a, v => v * scale),
-  stripZeros = (a: any) => objFilter(a, v => v)
+  objStripFalsy = <T>(a: T[]) => objFilter(a, v => v)
   ;
 
 

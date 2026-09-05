@@ -1,26 +1,5 @@
-<html>
-
-<head>
-  <meta charset="UTF-8">
-  <script type="module" src="src/main.ts"></script>
-</head>
-
-<body>
-  <canvas id=C oncontextmenu="return false"></canvas>
-  <svg>
-    <defs id=DEFS>
-      <filter id=OUTL>
-        <feColorMatrix type=matrix values=".7 0 0 .5 0  0 .7 0 .5 0  0 0 .7 .5 0  0 0 0 1 0"/>
-        <feOffset dy="-1" dx="1"/>
-        <feBlend in2="SourceGraphic" mode=overlay />
-      </filter>
-    </defs>
-  </svg>
-  <div id=BTN>
-    <button id=QUEEN>Her Majesty</button>
-    <button id=TURN>Next Turn</button>
-  </div>
-  <div id=TIP>TIP</div>
-</body>
-
-</html>
+<canvas id=C oncontextmenu="return false"></canvas>
+<svg><defs id=DEFS></defs></svg>
+<div id=BTN><button id=QUEEN>Her Majesty</button><button id=TURN>Next Turn</button></div>
+<div id=TIP>TIP</div>
+<script type=module src=src/main.ts></script>

@@ -1,9 +1,9 @@
 import { biomesByNames, biomeMatrix } from "./biomes"
 import { Cell, GROUNDLVL, HILLSLVL, SEALVL } from "./cell"
 import { Agent } from "./agent"
-import { ws, neighborShift, wh, ww, neighborBy, hexDist, worldCoord } from "./root"
+import { ws, neighborShift, wh, ww, neighborBy, hexDist, worldCoord, neighborhood } from "./root"
 import { queenCell, select } from "./state"
-import { rng, loop, randomElement, clamp, setSeed, seed, sum, listSum } from "./util"
+import { rng, loop, randomElement, clamp, setSeed, seed, sum, listSum, dist } from "./util"
 
 export let u: Universe
 
@@ -21,17 +21,13 @@ export class Universe {
 
   /** All rivers*/
   rivers!: Cell[][]
-  roads: Cell[][] = []
+  //roads: Cell[][] = []
 
   a: Agent[] = []
 
   constructor(public seed: number) {
     u = this;
     this.generate()
-  }
-
-  dist(a: number, b: number) {
-    return
   }
 
   anyCell() {
@@ -135,8 +131,6 @@ export class Universe {
 
 
       cell.biome = b;
-      if (!b)
-        debugger
       cell.layer = cell.water() ? SEALVL : cell.elev < this.HighlandElev ? GROUNDLVL : HILLSLVL
     })
 
@@ -164,7 +158,7 @@ export class Universe {
       if (!rng(isCoast || cell.rivers ? 60 : cell.water() ? 200 : 150)) {
         let race = randomElement(cell.biome.races);
         if (race) {
-          new Agent(cell, race, rng(1000)+100);
+          new Agent(cell, race, rng(1000) + 100);
         }
       }
 
@@ -178,9 +172,10 @@ export class Universe {
     queen.name = "Vasilisa";
     select(queen)
 
+    queen.see();
+
     //addRoads()
 
-    this.drawOrder = loop(wh, row => loop(ww, col => row * ww + (col + ww - ~~(row / 2)) % ww)).flat().map(at => this.c[at])
 
 
   }

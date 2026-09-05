@@ -7,6 +7,7 @@ import { addToKey, bestBy, clamp, listSum, numTween, objAdd, objScale, vecTween,
 const loop = <T>(l: number, f: (i: number) => T) => [...new Array(l)].map((v, i) => f(i))
 
 export type GoodNumbers = { [id in string]: number };
+export type Transfer = [MarketAgent, string, number]
 
 export const tradeable = new Set(["horsing", "unicorning", "food", "housing", "tool"])
 
@@ -64,7 +65,7 @@ export class MarketAgent {
   ownRecipes: GoodNumbers[] = []
   places: MarketAgent[] = []
 
-  transfers = [] as [MarketAgent, string, number][]
+  transfers = [] as Transfer[]
 
   /** How much of this good market receives (or loses) per turn */
   income: GoodNumbers = {}

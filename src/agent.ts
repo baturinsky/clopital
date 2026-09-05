@@ -1,12 +1,12 @@
 import { animate, cancelAnimation, MovementAnimation } from "./animation";
 import { Cell } from "./cell";
-import { MarketAgent } from "./market";
+import { MarketAgent, Transfer } from "./market";
 import { Race, raceAgentParameters } from "./races";
 import { resourceSprite, spriteOf } from "./renderer";
 import { races } from "./setting";
-import { nameById, namePool, selected, state, update } from "./state";
+import { debouncedPrerender, nameById, namePool, selected, state, update } from "./state";
 import { u } from "./universe";
-import { cap1, loop, objMap, randomElement, removeFromList, Vec2 } from "./util";
+import { cap1, loop, objMap, randomElement, removeFromList, rng, sum, Vec2 } from "./util";
 
 const craScale = 10000;
 
@@ -43,27 +43,43 @@ export class Agent extends MarketAgent {
     this.recomp()
 
     loop(5, () => this.iterate())
+
     if (this.transfers.length) {
-      console.log(this.race.name, this.transfers, this.uses);
+      //console.log(this.race.name, this.transfers, this.uses);
       setInterval(() => {
         let transfer = randomElement(this.transfers);
-        let locs = [agentLocation(this), agentLocation(transfer[0])];
-        if (transfer[2] > 0)
-          locs = [locs[1], locs[0]];
-        console.log(transfer);
-        animate(resourceSprite(transfer[1]), locs.map(cell => cell.topLeft()))
-      }, 2000)
+        if (!transfer)
+          return
+        /*let transfers = this.transfers.filter(t=>t[0]==transfer[0])
+        setTimeout(()=> transfers.forEach(t=>this.anit(t)), rng(500));*/
+        let reverse = this.transfers.filter(t => t[0] == transfer[0] && t[2] * transfer[2] < 0)
+        let backTransfer = randomElement(reverse);
+        if (backTransfer) {
+          this.anit(backTransfer);
+        }
+      }, 500)
     }
+  }
+
+  anit(transfer: Transfer) {
+
+    let locs = [agentLocation(this), agentLocation(transfer[0])];
+    let points = locs.map(cell => cell.topLeft())
+    points[1] = sum(points[1], [rng(5) - 2, -rng(5) - 2])
+    if (transfer[2] > 0)
+      points = [points[1], points[0]];
+    animate(resourceSprite(transfer[1]), points, 500)
   }
 
   recomp() {
     this.places = this.cell.neighborhood.map(c => c.getAgent())
     super.recomp()
-
   }
 
   nextTurn() {
     this.steps = 3
+    this.transfers = []
+    loop(5, () => this.iterate())
     this.go();
   }
 
@@ -84,12 +100,17 @@ export class Agent extends MarketAgent {
 
   }
 
+  see() {
+    this.cell.neighborhoodR(3).forEach(c => c.seen = true);
+    debouncedPrerender()
+  }
 
   visit(c: Cell) {
     this.cell = c;
     if (c == this.dest)
       delete this.dest;
     this.recomp()
+    this.see();
   }
 
   remove() {
@@ -147,3 +168,4 @@ export class Agent extends MarketAgent {
 
 
 }
+

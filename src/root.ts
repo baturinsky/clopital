@@ -3,7 +3,6 @@
 
 import { loop, scale, sub, sum, Vec2 } from "./util";
 
-
 //const hexPoints = [[0, 1], [.9, .5], [.9, -.5], [0, -1], [-.9, -.5], [-.9, -.5]]
 
 export const
@@ -20,15 +19,16 @@ export const
   //neighborsBelow = [ww, ww - 1],
   photoScale = [16, 12] as Vec2,
   minusHalfPhotoScale = scale(photoScale, -.5),
-  photoShift = (v: Vec2) => sum(sum(v, minusHalfPhotoScale),[0,5]),
+  photoShift = (v: Vec2) => sum(sum(v, minusHalfPhotoScale), [0, 5]),
   inside = (n: number) => n >= 0 && n < ws,
   neighborBy = (at: number, n: number) =>
     at + n + (n % ww > ww + n ? -ww : 0)
   ,
   neighborhood = loop(100, (radius: number) =>
-    neighborShift.map((ns, nsi) => loop(radius,
+    neighborShift.map((ns, nsi) => [0, ...loop(radius,
       r => loop(r + 1, x => ns * (r + 1) + neighborShift[(nsi + 2) % 6] * x)
-    )).flat(2)),
+    )]).flat(2)),
+  cellNeighborhood = (at: number, d: number) => neighborhood[d].map(v => v + at),
   toXY = (ind: number) => [ind % ww, ~~(ind / ww)] as Vec2,
   worldCoord = (at: number) => {
     let [x, y] = toXY(at);
