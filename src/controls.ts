@@ -1,11 +1,7 @@
 import { clamp, floor, scale, sub, sum, Vec2 } from "./util";
-import { prerenderUniverse, render } from "./renderer";
 import { neighborhood, photoScale, worldCoord, ww } from "./root";
 import { agentPointed, pointedCell, queen, queenCell, select, selected, state, update } from "./state";
-import { regenerateUniverse } from "./main";
-import { biomesByNames } from "./biomes";
 import { nextTurn, u } from "./universe";
-import { animate, cancelAnimation } from "./animation";
 
 declare var C: HTMLCanvasElement;
 
@@ -90,23 +86,12 @@ export const
 
 onkeydown = e => {
   switch (e.code) {
-    /*case "KeyG":
-      update({ seed: ~~(Math.random() * 1e9) })
-      regenerateUniverse()
-      break
-    case "KeyM":
-      //testMarket()
-      break*/
     case "Space":
       nextTurn()
       break;
     case "Escape":
       update({selected:undefined})
       break
-    /*case "KeyD":
-      update({ debug: !state.debug })
-      prerenderUniverse()
-      break*/
   }
 }
 

@@ -11,7 +11,7 @@ export const
         fertilisers: .2
       },
       ownRecipes: [
-        { soil: -1, irrigation: -1, fertilisers: -1, sowing: -1, crops: 1 },
+        { soil: -1, irrigation: -1, fertilisers: -1, sowing: -1, crops: 4 },
         { crops: -1, grass: 1 }
       ]
     },
@@ -34,7 +34,8 @@ export const
       income: { deepwater: 1 },
       ownRecipes: [
         { deepwater: -5, swimming: -1, seaweeds: 1 },
-        { deepwater: -5, transport: -1, water: 1 }
+        { deepwater: -5, swimming: -1, water: 2 },
+        { deepwater: -5, walking: -1, water: 1 }
       ]
     }
   } as {
@@ -45,9 +46,7 @@ export const
   },
 
   commonRecipes =
-    [      
-          
-
+    [
       { grass: -3, food: 1 },
       { seaweed: -3, food: 1 },
 
@@ -56,7 +55,7 @@ export const
       { workingHard: -1, digging: 1 },
       { workingHard: -1, transport: 1 },
 
-      { working: -1, workingHard: 1 },
+      { working: -2, workingHard: 1 },
       { working: -1, magic: -5, workingHard: 3 },
       { working: -1, thinking: 1 },
       { thinking: -1, spelunking: 1 },
@@ -70,30 +69,32 @@ export const
   races = {
     alicorn: {
       job: "alicorning",
-      moving: "flying",      
-      recipes:[
+      moving: "flying",
+      recipes: [
         { alicorning: -1, magic: 100 },
         { alicorning: -1, working: 10 },
+        { alicorning: -1, thinking: 100 },
       ]
     },
     horses: {
       job: "horsing",
       recipes: [
-        { horsing: -2, workingHard: 3 }
+        { horsing: -1, workingHard: 1 }
       ]
     },
     unicorns: {
       job: "unicorning",
       income: { gems: -1 },
-      recipes:[
+      recipes: [
         { unicorning: -1, magic: 1 },
+        { unicorning: -3, thinking: 2 },
       ]
     },
     pegasi: {
       job: "pegasing",
       income: { fabric: -1 },
       moving: "flying",
-      recipes:[
+      recipes: [
         { pegasing: -1, rain: 1 }
       ],
     },

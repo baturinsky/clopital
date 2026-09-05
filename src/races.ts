@@ -1,5 +1,6 @@
 import { Biome, biomesByNames } from "./biomes"
 import { GoodNumbers, MarketAgentParameters } from "./market"
+import { convertResources, resources } from "./resources"
 import { commonRecipes, races } from "./setting"
 
 export type Race = {
@@ -20,6 +21,7 @@ export const
       race.name = rn
       race.biomes = []
       race.moving ??= "walking"
+      resources[race.job] = convertResources(sprite);
       race.sprite = sprite++;
     }
 

@@ -40,7 +40,7 @@ export class Cell {
   /** neighbors and itself*/
   neighborhood!: Cell[]
 
-  seen?: boolean
+  seen?:boolean
 
   settlement?: MarketAgent
 
@@ -159,8 +159,6 @@ export class Cell {
     return this.topLeft(sum(shift, photoScale, .5), fixedLayer)
   }
 
-
-
 }
 
 export const
@@ -172,7 +170,6 @@ export const
         case "swimming":
           return b.water() || a.water() || a.rivers || b.rivers ? 1 : UNPPASSABLE;
         default:
-          //let cost = ((b.roads ? .1 : b.biome.travel) ?? 1e9)
           let cost = b.biome.travel ?? 1e9
           if (races[moveMode] && b.biome.races.includes(moveMode)) {
             cost /= 2;

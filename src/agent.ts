@@ -1,6 +1,6 @@
 import { animate, cancelAnimation, MovementAnimation } from "./animation";
 import { Cell } from "./cell";
-import { MarketAgent, Transfer } from "./market";
+import { MarketAgent, RecipeX, Transfer } from "./market";
 import { Race, raceAgentParameters } from "./races";
 import { resourceSprite, spriteOf } from "./renderer";
 import { races } from "./setting";
@@ -21,7 +21,7 @@ export class Agent extends MarketAgent {
   race!: Race
   cell!: Cell
   dest?: Cell
-  steps = 5
+  steps = 0
   anim?: MovementAnimation
 
   /** We create a herd in this cell, an improvement in  this cell, or the agent for the cell itself */
@@ -42,33 +42,19 @@ export class Agent extends MarketAgent {
     this.minit(params);
     this.recomp()
 
-    loop(5, () => this.iterate())
+    this.nextTurn()
 
-    if (this.transfers.length) {
-      //console.log(this.race.name, this.transfers, this.uses);
-      setInterval(() => {
-        let transfer = randomElement(this.transfers);
-        if (!transfer)
-          return
-        /*let transfers = this.transfers.filter(t=>t[0]==transfer[0])
-        setTimeout(()=> transfers.forEach(t=>this.anit(t)), rng(500));*/
-        let reverse = this.transfers.filter(t => t[0] == transfer[0] && t[2] * transfer[2] < 0)
-        let backTransfer = randomElement(reverse);
-        if (backTransfer) {
-          this.anit(backTransfer);
-        }
-      }, 500)
-    }
   }
 
-  anit(transfer: Transfer) {
-
-    let locs = [agentLocation(this), agentLocation(transfer[0])];
-    let points = locs.map(cell => cell.topLeft())
-    points[1] = sum(points[1], [rng(5) - 2, -rng(5) - 2])
-    if (transfer[2] > 0)
-      points = [points[1], points[0]];
-    animate(resourceSprite(transfer[1]), points, 500)
+  /** Animate transfers */
+  anit(transfer: RecipeX) {
+    let locs = [agentLocation(this), agentLocation(transfer.place)];
+    Object.entries(transfer.recipe).forEach(([good, v]) => {
+      let points = locs.map(cell => cell.topLeft())
+      points[1] = sum(points[1], [rng(5) - 2, -rng(5) - 2])
+      if (v > 0)        points = [points[1], points[0]];
+      animate(resourceSprite(good), points, 500)
+    })
   }
 
   recomp() {
@@ -78,8 +64,10 @@ export class Agent extends MarketAgent {
 
   nextTurn() {
     this.steps = 3
-    this.transfers = []
+    //this.transfers = []
     loop(5, () => this.iterate())
+    //if(this.race.name =="alicorn")      debugger
+
     this.go();
   }
 

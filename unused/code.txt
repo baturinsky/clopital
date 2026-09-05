@@ -150,3 +150,43 @@ triPoints = [[0, -.5], [.5, .5], [-.5, .5]] as Vec2[],*/
 <feColorMatrix type=matrix values=".7 0 0 .5 0  0 .7 0 .5 0  0 0 .7 .5 0  0 0 0 1 0"/>
 <feOffset dy="-1" dx="1"/><feBlend in2="SourceGraphic" mode=overlay />
 </filter>
+
+function addRoads() {
+  for (let a of u.a) {
+    let aroads = 0;
+    for (let b of u.a) {
+      if (hexDist(a.at, b.at) < 15 && (!rng(aroads + 1))) {
+        let pf = a.pathfind(15, b.cell)
+        let path = b.cell.pathFrom(pf);
+        if (path) {
+          path.forEach(c => c.roads++)
+          u.roads.push(path)
+          aroads++;
+        }
+      }
+    }
+  }
+
+}
+
+
+
+  switch (e.code) {
+    /*case "KeyG":
+      update({ seed: ~~(Math.random() * 1e9) })
+      regenerateUniverse()
+      break
+    case "KeyM":
+      //testMarket()
+      break*/
+    case "Space":
+      nextTurn()
+      break;
+    case "Escape":
+      update({selected:undefined})
+      break
+    /*case "KeyD":
+      update({ debug: !state.debug })
+      prerenderUniverse()
+      break*/
+  }

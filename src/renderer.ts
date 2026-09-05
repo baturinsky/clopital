@@ -38,6 +38,7 @@ let worldPhoto: HTMLCanvasElement,
   revealingMap = 0,
   letterWidth = 6,
   blinkAlpha = 0,
+  dt = 1,
   lastT = Date.now();
 
 declare var DEFS: SVGElement, C: HTMLCanvasElement, TURN: HTMLButtonElement;
@@ -83,8 +84,8 @@ export const
   wobbleFlight = (p: Vec2, amplitude = 6) => sum(p, [0, amplitude * (1 + Math.sin(Date.now() / 500)) / 2]),
 
   render = () => {
-    let t = Date.now(),
-      dt = t - lastT;
+    let t = Date.now();
+    dt = t - lastT;
     lastT += dt;
 
     blinkAlpha = (2 + Math.sin(t / 100)) / 3;
@@ -130,6 +131,8 @@ export const
       drawOnCell(agent.cell, SHADOW)
       drawOnCell(agent.cell, agent.race?.sprite)
       cx.globalAlpha = 1;
+
+      showAgentTransfers(agent)
     }
 
     if (selected() && !selected().anim) {
@@ -146,6 +149,14 @@ export const
     cx.restore()
 
   },
+
+  showAgentTransfers = (a: Agent) => {
+    if (a.transfers.length && dt + 1 > rng(300)) {
+      let transfer = randomElement(a.transfers);
+      a.anit(transfer);
+    }
+  },
+
   drawPathTo = (a: Agent, target?: Cell) => {
     if (!target)
       return;
@@ -293,7 +304,8 @@ export const
       }
     })
   },
-  constructFilter = (rgbReplace: RGBA[], name: string) => {
+  constructFilter = (rgbReplace: RGBA[]) => {
+    let name = JSON.stringify(rgbReplace)
     if (!filters.has(name)) {
       let f = `<filter id="f${name}"><feColorMatrix type=matrix 
       values="${[0, 1, 2, 3].map(i =>
@@ -314,7 +326,7 @@ export const
         scale(biome.rgba, 1.3 - .05 * i - (i > 2 ? .2 : 0)),
         scale(biome.rgba, .5),
         scale(biome.rgba, .3)
-      ], i + biome.color)))
+      ])))
   },
 
 
@@ -323,6 +335,7 @@ export const
   },
 
   spriteCache = (ind: number, filter?: string) => {
+    //console.log(ind, filter);
     let n = `${ind}@${filter}`;
     spriteCacheData[n] ??= atlasSprite(ind, filter);
     return spriteCacheData[n];
@@ -334,14 +347,17 @@ export const
     return sprite
   },
 
+  /** If name is resource name, returns resource icon. 
+   * If it is number, returns numbered sprite
+   * If it is number @ text, returns filtered sprite */
   resourceSprite = (name: string) => {
-    let sprite: HTMLCanvasElement;
+    let sprite: HTMLCanvasElement, split = name.split("@") as [number, string];
 
-    if (name.indexOf("@") != -1){
-      sprite = spriteCopy(spriteCache(...name.split("@") as [number, string]))
+    if (split[0] * 0 == 0) {
+      sprite = spriteCopy(spriteCache(...split))
     } else {
-      if(!resources[name])
-        console.log("!"+name);
+      if (!resources[name])
+        console.log("!" + name);
       let r = resources[name] ?? resources["working"];
       r.sc ??= spriteCache(
         r.sprite,
@@ -356,8 +372,7 @@ export const
   constructHexFilter = (...color: string[]) => constructFilter(
     [hexToRgb(color[0] ?? "#f00"),
     hexToRgb(color[1] ?? "#0f0"),
-    hexToRgb(color[2] ?? "#00f")],
-    color.join()),
+    hexToRgb(color[2] ?? "#00f")]),
 
   spriteOf = (a: Agent) => sprites[a.race?.sprite]
 

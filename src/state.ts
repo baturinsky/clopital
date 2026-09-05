@@ -3,7 +3,7 @@ import { Cell } from "./cell";
 import { regenerateUniverse } from "./main";
 import { centerOn, prerenderUniverse } from "./renderer";
 import { hexDist, photoScale, wh, ww } from "./root";
-import { asList, asTable, tip } from "./ui";
+import { agentInfo, asList, asTable, info, tip } from "./ui";
 import { u } from "./universe";
 import { cap1, clamp, debounce, fixed, japaneseName, loop, Vec2 } from "./util";
 
@@ -35,11 +35,12 @@ export const
 
     if (cell && cell != lastCell) {
       lastCell = cell;
-      tip(`
-      ${agentPointed() ? `<h4>${agentPointed().name} ${agentPointed().race.name}</h4>` : ''}
-      <h4>${cell.name} ${cell.settlement ? "town" : cell.biome.name}</h4>
-      ${asList(cell.resources)}</br>
-    `)
+      console.log(cell);
+      tip(
+        agentPointed() && `${agentPointed().name} ${agentPointed().race.name}`,
+        `${cell.name} ${cell.settlement ? "town" : cell.biome.name}`,
+        asList(cell.resources)
+      )
     }
 
     debouncedUpdate()
@@ -49,7 +50,7 @@ export const
     localStorage["CLP." + slot] = JSON.stringify(state)
   },
   debouncedUpdate = debounce(saveAndUpdateTip),
-  debouncedPrerender = debounce(()=>prerenderUniverse()),
+  debouncedPrerender = debounce(() => prerenderUniverse()),
   load = (slot = "a") => {
     let data = localStorage["CLP." + slot]
     if (data) {
@@ -67,9 +68,10 @@ export const
     update({ selected: u.a.indexOf(a) })
     centerOn(a.cell)
     console.log(a);
+    info(...agentInfo(a))
   },
   agentPointed = () => u.a.find(a => a.cell.at == state.cellPointed) as Agent,
   queen = () => u.a.find(a => a.race.name == "alicorn") as Agent,
   queenCell = () => queen()?.cell,
   namePool = [...new Set<string>(loop(1e5, japaneseName))],
-  nameById = (id:number)=>cap1(namePool[id % namePool.length])
+  nameById = (id: number) => cap1(namePool[id % namePool.length])

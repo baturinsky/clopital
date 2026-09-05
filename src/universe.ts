@@ -193,21 +193,3 @@ export function nextTurn() {
 }
 
 
-function addRoads() {
-  for (let a of u.a) {
-    let aroads = 0;
-    for (let b of u.a) {
-      if (hexDist(a.at, b.at) < 15 && (!rng(aroads + 1))) {
-        let pf = a.pathfind(15, b.cell)
-        let path = b.cell.pathFrom(pf);
-        if (path) {
-          path.forEach(c => c.roads++)
-          u.roads.push(path)
-          aroads++;
-        }
-      }
-    }
-  }
-
-}
-

@@ -30,13 +30,14 @@ export const
     console.log(`${a.name} used recipes:\n`);
     console.table(Object.fromEntries(a.recipes.map((r, i) =>
       [JSON.stringify(r.recipe),
-      [a.uses[recipeXName(r)], a.utl(a.recipes[i])]])))
+      [a.uses[recipeXName(r)], a.utl(a.recipes[i])]
+    ])))
   },
   utilities = (a: MarketAgent) =>
     Object.fromEntries(Object.keys(a.stock).map(k => [k, a.mutl(k)]));
 
 
-type RecipeX = {
+export type RecipeX = {
   place: MarketAgent,
   recipe: GoodNumbers
 }
@@ -65,7 +66,7 @@ export class MarketAgent {
   ownRecipes: GoodNumbers[] = []
   places: MarketAgent[] = []
 
-  transfers = [] as Transfer[]
+  transfers = [] as RecipeX[]
 
   /** How much of this good market receives (or loses) per turn */
   income: GoodNumbers = {}
@@ -143,7 +144,8 @@ export class MarketAgent {
   /** Applies the recipe with the given multiplier and proxies */
   use(recipe: RecipeX, times: number) {
 
-    let rn = recipeXName(recipe);
+    //let rn = recipeXName(recipe);
+    let rn = JSON.stringify(recipe.recipe)
     objAdd(this.uses, { [rn]: times })
 
     /** Not proxied - give and receive oneself */
@@ -152,19 +154,27 @@ export class MarketAgent {
       return
     }
 
-    console.log(recipeXName(recipe), times);
+    //console.log(recipeXName(recipe), times);
+
+    let transfer: RecipeX | undefined;
 
     Object.keys(recipe.recipe).forEach((k) => {
       let amount = recipe.recipe[k] * times;
-      /** If the good is given/taken to/from local. Otherwise, proxy.*/
+
+      /** Means that the good is given/taken to/from local. Otherwise, proxy.*/
       let local = amount < 0 ? this.stock[k] : recipe.place.out.has(k);
+
       (local ? this : recipe.place).gain(k, amount)
 
-      local && this.transfers.push([recipe.place, k, amount])
-
+      if ((amount < 0) == local) {
+        transfer = this.transfers.find(t => t.place == recipe.place)
+        if (!transfer) {
+          transfer = { place: recipe.place, recipe: {} }
+          this.transfers.push(transfer);
+        }
+        addToKey(transfer.recipe, k, amount);
+      }
     })
-
-    //console.log(objScale(recipe.recipe, times));
 
   }
 

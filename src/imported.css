@@ -7,14 +7,30 @@ body {
   border: 0;
   margin: 0;
   font-family: Georgia;
+  font-size: 18px;
+  color: #400;
+}
+
+#TIP,
+#INFO {
+  position: fixed;
+  top: 10px;
+}
+
+#TIP>*,
+#INFO>* {
+  background: #fff8;
+  padding: 5px;
+  margin: 5px;
+  border: #4004 solid;
+  border-width: 2px 4px;
 }
 
 #TIP {
-  position: fixed;
-  background: #fff8;
-  border: 3px solid #4444;
-  padding: 5px;
-  top: 10px;
+  right: 10px;
+}
+
+#INFO {
   left: 10px;
 }
 
@@ -24,11 +40,11 @@ body {
   right: 10px;
   width: 100vw;
   text-align: right;
-
 }
 
 #TURN {
   padding: 10px;
+  margin: 20px;
 }
 
 button {
@@ -41,12 +57,7 @@ button:hover {
   border-color: #fff;
 }
 
-td {
-  text-align: right;
-  min-width: 20px;
-}
-
 *[data-icon] canvas {
   image-rendering: pixelated;
-  margin: 0 4px 0 8px;
+  margin: 0 8px 0 4px;
 }

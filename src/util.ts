@@ -65,14 +65,14 @@ export const rng = (n = 1e9) => ~~(Math.sin(++seed) ** 2 * 1e9 % n) / (n == 1e9 
   ,
   shuffle = (a: any[]) => loop(a.length, () => a.splice(rng(a.length), 1)[0]),
   objMap = (a: any, f: (v: any, k: string) => any) => Object.fromEntries(Object.entries(a).map(([k, v]) => [k, f(v, k)])),
-  objFilter = (a: any, f: (v: any, k: string) => any) =>
-    Object.fromEntries(Object.entries(a).filter(([k, v]) => f(v, k))),
+  objFilter = <T>(a: T, f: (v: any, k: string) => any) =>
+    Object.fromEntries(Object.entries(a as any).filter(([k, v]) => f(v, k))) as T,
   objAdd = (a: any, b: any = {}, times = 1) => {
     Object.keys(b).forEach((k) => a[k] = (a[k] ?? 0) + b[k] * times)
     return a
   },
   objScale = (a: any, scale: number) => objMap(a, v => v * scale),
-  objStripFalsy = <T>(a: T[]) => objFilter(a, v => v)
+  objStripFalsy = <T>(a: T):T => objFilter(a, v => v)
   ;
 
 
