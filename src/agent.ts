@@ -1,13 +1,19 @@
 import { animate, cancelAnimation, MovementAnimation } from "./animation";
 import { Cell } from "./cell";
 import { MarketAgent } from "./market";
-import { Race, raceAgentParameters, races } from "./races";
-import { spriteOf } from "./renderer";
+import { Race, raceAgentParameters } from "./races";
+import { resourceSprite, spriteOf } from "./renderer";
+import { races } from "./setting";
 import { nameById, namePool, selected, state, update } from "./state";
 import { u } from "./universe";
-import { cap1, objMap, removeFromList } from "./util";
+import { cap1, loop, objMap, randomElement, removeFromList, Vec2 } from "./util";
 
 const craScale = 10000;
+
+export const agentLocation = (a: MarketAgent) => {
+  let c = (a as Agent).cell ?? u.c[a.id]
+  return c
+}
 
 type SaveFormat = ReturnType<Agent["save"]>
 export class Agent extends MarketAgent {
@@ -16,7 +22,7 @@ export class Agent extends MarketAgent {
   cell!: Cell
   dest?: Cell
   steps = 5
-  anim?: MovementAnimation  
+  anim?: MovementAnimation
 
   /** We create a herd in this cell, an improvement in  this cell, or the agent for the cell itself */
   constructor(cell: Cell, race?: string, size = 1) {
@@ -35,13 +41,25 @@ export class Agent extends MarketAgent {
 
     this.minit(params);
     this.recomp()
+
+    loop(5, () => this.iterate())
+    if (this.transfers.length) {
+      console.log(this.race.name, this.transfers, this.uses);
+      setInterval(() => {
+        let transfer = randomElement(this.transfers);
+        let locs = [agentLocation(this), agentLocation(transfer[0])];
+        if (transfer[2] > 0)
+          locs = [locs[1], locs[0]];
+        console.log(transfer);
+        animate(resourceSprite(transfer[1]), locs.map(cell => cell.topLeft()))
+      }, 2000)
+    }
   }
 
   recomp() {
     this.places = this.cell.neighborhood.map(c => c.getAgent())
     super.recomp()
 
-    this.iterate()
   }
 
   nextTurn() {

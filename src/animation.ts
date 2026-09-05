@@ -1,4 +1,4 @@
-import { cx, drawCentered, drawSprite, wobbleFlight as verticalWobble } from "./renderer";
+import { drawCentered, drawSprite, wobbleFlight as verticalWobble } from "./renderer";
 import { removeFromList, vecTween, Vec2 } from "./util";
 
 let animations: MovementAnimation[] = [];

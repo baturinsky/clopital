@@ -64,6 +64,8 @@ export class MarketAgent {
   ownRecipes: GoodNumbers[] = []
   places: MarketAgent[] = []
 
+  transfers = [] as [MarketAgent, string, number][]
+
   /** How much of this good market receives (or loses) per turn */
   income: GoodNumbers = {}
 
@@ -133,6 +135,10 @@ export class MarketAgent {
     })
   }
 
+  /*onTransfer(proxy: MarketAgent, good: string, amount: number) {
+    console.log(amount < 0 ? "give" : "take", good);
+  }*/
+
   /** Applies the recipe with the given multiplier and proxies */
   use(recipe: RecipeX, times: number) {
 
@@ -145,14 +151,19 @@ export class MarketAgent {
       return
     }
 
+    console.log(recipeXName(recipe), times);
+
     Object.keys(recipe.recipe).forEach((k) => {
       let amount = recipe.recipe[k] * times;
       /** If the good is given/taken to/from local. Otherwise, proxy.*/
       let local = amount < 0 ? this.stock[k] : recipe.place.out.has(k);
       (local ? this : recipe.place).gain(k, amount)
+
+      local && this.transfers.push([recipe.place, k, amount])
+
     })
 
-    console.log(objScale(recipe.recipe, times));
+    //console.log(objScale(recipe.recipe, times));
 
   }
 
@@ -291,7 +302,7 @@ export class MarketAgent {
   }
 
   useRecipes() {
-    let recipeUsed = 0;
+    let recipeUsed = 0, limit = 10;
     do {
       this.recipes.forEach((recipe, i) => {
         if (this.utl(recipe) > 0) {
@@ -302,7 +313,7 @@ export class MarketAgent {
           recipeUsed++;
         }
       })
-    } while (false)
+    } while (recipeUsed && --limit)
 
   }
 

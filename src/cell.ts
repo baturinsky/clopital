@@ -1,9 +1,9 @@
 import { Agent } from "./agent"
 import { Biome, biomesByNames, HILLS } from "./biomes"
 import { GoodNumbers, MarketAgent, MarketAgentParameters } from "./market"
-import { races } from "./races"
 import { layerSickness } from "./renderer"
 import { photoScale, worldCoord, toXY, wh, ws, ww } from "./root"
+import { biomeToAgent, races } from "./setting"
 import { nameById } from "./state"
 import { Universe } from "./universe"
 import { cap1, clamp, loop, min, muls, objAdd, objScale, randomElement, rng, round, setSeed, stripZeros, sum, Vec2 } from "./util"
@@ -181,8 +181,8 @@ export const
 
     for (let k in c.resources) {
       if (c.resources[k]) {
-        objAdd(income, resourceToIncome[k], c.resources[k])
-        ownRecipes = [...ownRecipes, ...resourceToRecipes[k]];
+        objAdd(income, biomeToAgent[k].income, c.resources[k])
+        ownRecipes = [...ownRecipes, ...biomeToAgent[k].ownRecipes];
       }
     }
 
@@ -198,40 +198,3 @@ export const
     } as MarketAgentParameters
   }
 
-const
-  resourceToIncome = {
-    soil: {
-      soil: 1,
-      irrigation: .2,
-      fertilisers: .2
-    },
-    trees: {
-      trees: 1
-    },
-    minerals: {
-      deposits: 1,
-    },
-    deepwater: {
-      deepwater: 1
-    }
-  } as { [id: string]: GoodNumbers },
-  resourceToRecipes = {
-    soil: [
-      { soil: -1, irrigation: -1, fertilisers: -1, crops: 1 },
-      { crops: -1, grass: 1 }
-    ],
-    trees: [
-      { trees: -1, lumber: 1 },
-      { trees: -3, berries: 1 }
-    ],
-    minerals: [
-      { deposits: -1, digging: -1, spelunking: -1, ore: 1 },
-      { digging: -4, spelunking: 1 },
-      { ore: -1, stone: 1 }
-    ],
-    deepwater: [
-      { deepwater: -1, seaweeds: 1 },
-      { deepwater: -1, water: 1 }
-    ]
-
-  } as { [id: string]: GoodNumbers[] }
