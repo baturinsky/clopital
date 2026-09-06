@@ -1,23 +1,33 @@
-import { clamp, floor, scale, sub, sum, Vec2 } from "./util";
+import { clamp, debounce, floor, scale, sub, sum, Vec2 } from "./util";
 import { neighborhood, photoScale, worldCoord, ww } from "./root";
 import { agentPointed, pointedCell, queen, queenCell, select, selected, state, update } from "./state";
-import { nextTurn, u } from "./universe";
+import { u } from "./universe";
+import { nextTurn } from "./main";
+import { tabs, updateTip } from "./ui";
 
 declare var C: HTMLCanvasElement;
 
-let buttonsDown: number[] = [];
+let buttonsDown: number[] = [], pme = [] as any[];
 
 export const
 
   enableControls = () => {
 
     onpointerdown = (e: MouseEvent) => {
-      let f = ({ 
-        TURN: nextTurn, 
-        QUEEN: ()=>select(queen())
-       } as {[button:string]:Function})[(e.target as HTMLButtonElement)?.id]
+      let f = ({
+        TURN: nextTurn,
+        QUEEN: () => select(queen())
+      } as { [button: string]: Function })[(e.target as HTMLButtonElement)?.id]
       f && f()
+
+      console.log(e.target?.id);
+      if (tabs.includes(e.target?.id)) {
+        state.tab = e.target.id;
+        select(selected())
+      }
+
     }
+
 
     C.onpointerdown = C.onpointermove = C.onpointerup = C.onpointerleave = e => {
       let canvasMousePos = [e.offsetX, e.offsetY] as Vec2;
@@ -28,17 +38,22 @@ export const
 
 
 
-      if (u.c[tilePointed]?.seen)
-        update({ cellPointed: tilePointed })
-
       if (e.type == "pointermove") {
         if (buttonsDown[1] || buttonsDown[2]) {
           let delta = [e.movementX, e.movementY] as Vec2;
           shiftViewBy(delta);
+        } else {
+          if (u.c[tilePointed]?.seen) {
+            let last = state.cellPointed;
+            update({ cellPointed: tilePointed })
+            if (last != state.cellPointed)
+              updateTip()
+          }
         }
       }
 
       if (e.type == "pointerdown") {
+
         buttonsDown[e.button] = 1;
         if (e.button == 0) {
 
@@ -50,6 +65,11 @@ export const
             selected()?.go()
           }
         }
+
+        if (e.button == 2) {
+          console.log(pointedCell());
+        }
+
       }
 
       if (e.type == "pointerup") {
@@ -58,7 +78,7 @@ export const
 
       if (e.type == "pointerleave") {
         buttonsDown = []
-        update({cellPointed:undefined})
+        update({ cellPointed: undefined })
       }
     }
 
@@ -90,7 +110,7 @@ onkeydown = e => {
       nextTurn()
       break;
     case "Escape":
-      update({selected:undefined})
+      update({ selected: undefined })
       break
   }
 }

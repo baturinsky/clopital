@@ -5,7 +5,8 @@ export type RGBA = [number, number, number, number]
 export let seed = 1;
 
 
-export const rng = (n = 1e9) => ~~(Math.sin(++seed) ** 2 * 1e9 % n) / (n == 1e9 ? n : 1),
+export const 
+  rng = (n = 1e9) => ~~(Math.sin(++seed) ** 2 * 1e9 % n) / (n == 1e9 ? n : 1),
   setSeed = (n: number) => { seed = n },
   randomElement = <T>(a: T[], gen = rng) => a[gen(a.length)],
   clamp = (min: number, v: number, max: number) => v < min ? min : v > max ? max : v,
@@ -18,7 +19,7 @@ export const rng = (n = 1e9) => ~~(Math.sin(++seed) ** 2 * 1e9 % n) / (n == 1e9 
   listSum = <T>(a: T[], f = (a: any) => a) => a.reduce((q, p) => q + f(p), 0),
   sum = (a: Vec2, b: Vec2, m = 1) => [a[0] + b[0] * m, a[1] + b[1] * m] as Vec2,
   sub = (a: Vec2, b: Vec2) => [a[0] - b[0], a[1] - b[1]] as Vec2,
-  dist = (a: Vec2, b: Vec2) => len(sub(a, b)),
+  dist = (a: Vec2, b: Vec2) => a && b && len(sub(a, b)),
   scale = <T extends number[]>(a: T, m: number) => a.map(v => v * m) as T,
   muls = (a: Vec2, b: Vec2) => [a[0] * b[0], a[1] * b[1]] as Vec2,
   vecTween = (a: Vec2, b: Vec2, m: number) => [a[0] * (1 - m) + b[0] * m, a[1] * (1 - m) + b[1] * m] as Vec2,
@@ -72,9 +73,10 @@ export const rng = (n = 1e9) => ~~(Math.sin(++seed) ** 2 * 1e9 % n) / (n == 1e9 
     return a
   },
   objScale = (a: any, scale: number) => objMap(a, v => v * scale),
-  objStripFalsy = <T>(a: T):T => objFilter(a, v => v)
+  objStripFalsy = <T>(a: T): T => objFilter(a, v => v),
+  rotateList = (a: any[], d: number) => [...a.slice(a.length - d - 2), ...a.slice(0, d)]
   ;
 
 
 
-//console.log(bestBy(["foo", "barr", "bazz", "qu"], s => s.charCodeAt(0)));
+//console.log(rotateList([1, 2, 3], 1));

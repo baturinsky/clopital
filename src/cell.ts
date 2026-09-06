@@ -3,7 +3,7 @@ import { Biome, biomesByNames, HILLS } from "./biomes"
 import { GoodNumbers, MarketAgent, MarketAgentParameters } from "./market"
 import { layerSickness } from "./renderer"
 import { photoScale, worldCoord, toXY, wh, ws, ww, neighborhood } from "./root"
-import { biomeToAgent, races } from "./setting"
+import { iterationsPerTurn, biomeToAgent, races, cellCapPerIncome, incomePerResource } from "./setting"
 import { nameById } from "./state"
 import { Universe } from "./universe"
 import { cap1, clamp, loop, min, muls, objAdd, objScale, randomElement, rng, round, setSeed, objStripFalsy, sum, Vec2 } from "./util"
@@ -40,7 +40,7 @@ export class Cell {
   /** neighbors and itself*/
   neighborhood!: Cell[]
 
-  seen?:boolean
+  seen?: boolean = true
 
   settlement?: MarketAgent
 
@@ -48,8 +48,8 @@ export class Cell {
 
   agent?: MarketAgent
 
-  neighborhoodR(d:number){
-    return neighborhood[d].map(v => this.u.c[v + this.at]).filter(v=>v);
+  neighborhoodR(d: number) {
+    return neighborhood[d].map(v => this.u.c[v + this.at]).filter(v => v);
   }
 
   getAgent() {
@@ -159,6 +159,11 @@ export class Cell {
     return this.topLeft(sum(shift, photoScale, .5), fixedLayer)
   }
 
+  nextTurn() {
+    if (this.agent)
+      () => this.agent?.gainIncome(iterationsPerTurn)
+  }
+
 }
 
 export const
@@ -188,8 +193,8 @@ export const
       }
     }
 
-    income = objScale(objStripFalsy(income), 1000);
-    cap = objScale(income, 10);
+    income = objScale(objStripFalsy(income), incomePerResource);
+    cap = objScale(income, cellCapPerIncome);
 
     return {
       id: c.at,

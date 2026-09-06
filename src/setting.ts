@@ -2,6 +2,10 @@ import { GoodNumbers } from "./market"
 import { Race } from "./races"
 
 export const
+  iterationsPerTurn = 7,
+  cellCapPerIncome = 10,
+  incomePerResource = 100,
+
   /** How biome resources translate to cell agent income */
   biomeToAgent = {
     soil: {
@@ -22,12 +26,13 @@ export const
         { trees: -3, sowing: -1, berries: 1 }
       ]
     },
-    minerals: {
+    deposits: {
       income: { deposits: 1 },
       ownRecipes: [
         { deposits: -1, digging: -1, spelunking: -1, ore: 1 },
         { digging: -4, spelunking: 1 },
-        { ore: -1, stone: 1 }
+        //{ thinking: -1, spelunking: 1 },
+        { ore: -1, stone: 1 },
       ]
     },
     deepwater: {
@@ -47,21 +52,19 @@ export const
 
   commonRecipes =
     [
-      { grass: -3, food: 1 },
-      { seaweed: -3, food: 1 },
+      { grass: -1, food: 1 },
+      { seaweed: -1, food: 1 },
 
       { workingHard: -1, sowing: 1 },
       { workingHard: -1, axing: 1 },
       { workingHard: -1, digging: 1 },
-      { workingHard: -1, transport: 1 },
 
       { working: -2, workingHard: 1 },
       { working: -1, magic: -5, workingHard: 3 },
       { working: -1, thinking: 1 },
-      { thinking: -1, spelunking: 1 },
       { strength: -1, digging: 1 },
       { strength: -3, tools: -1, digging: 10 },
-      { magic: -1, fertilizer: 1 },
+      { magic: -1, fertilisers: 1 },
       { rain: -1, irrigation: 1 }
     ],
 
@@ -112,7 +115,7 @@ export const
     },
     seahorses: {
       job: "seahorsing",
-      income: { wood: -1 },
+      income: { lumber: -1 },
       moving: "swimming"
     }
   } as { [id: string]: Race }

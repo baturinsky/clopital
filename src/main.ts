@@ -3,9 +3,10 @@ import './imported.css'
 
 import { enableControls } from "./controls";
 import { initRenderer, prerenderUniverse, render } from "./renderer";
-import { state, saveAndUpdateTip, load } from "./state";
+import { state, saveAndUpdateTip, load, select, selected } from "./state";
 import { u, Universe } from './universe';
 import { initRaces } from './races';
+import { updateTip } from './ui';
 
 
 export const
@@ -13,6 +14,7 @@ export const
   regenerateUniverse = () => {
     new Universe(state.seed)
     state.lastId = u.c.length
+    nextTurn()
     prerenderUniverse()
     saveAndUpdateTip()
   };
@@ -29,9 +31,18 @@ const init = () => {
 
   enableControls()
 
-  load()
+  load()  
 
-  setInterval(render, 16)
+  setInterval(render, 32)
 }
 
 //testMarket()
+
+
+export function nextTurn() {
+  u.a.forEach(a=>a.nextTurn())
+  u.c.forEach(c=>c.nextTurn())
+
+  select(selected())
+  updateTip()
+}

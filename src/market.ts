@@ -1,6 +1,6 @@
 import { Agent } from "./agent";
 import { Race } from "./races";
-import { state } from "./state";
+import { queen, state } from "./state";
 import { addToKey, bestBy, clamp, listSum, numTween, objAdd, objScale, vecTween, worstBy } from "./util";
 
 //import { loop } from "./util";
@@ -30,8 +30,8 @@ export const
     console.log(`${a.name} used recipes:\n`);
     console.table(Object.fromEntries(a.recipes.map((r, i) =>
       [JSON.stringify(r.recipe),
-      [a.uses[recipeXName(r)], a.utl(a.recipes[i])]
-    ])))
+      [a.uses[JSON.stringify(r.recipe)], a.utl(a.recipes[i])]
+      ])))
   },
   utilities = (a: MarketAgent) =>
     Object.fromEntries(Object.keys(a.stock).map(k => [k, a.mutl(k)]));
@@ -52,6 +52,7 @@ export class MarketAgent {
   uses: GoodNumbers = {}
 
   size = 1
+  iterations = 0
 
   /** over how many turns we calculate rolling average */
   ravg = 100
@@ -115,7 +116,7 @@ export class MarketAgent {
 
   /**Compile recipes from places. For Agent, automatically pick up the places from cells */
   recomp() {
-    this.recipes = [this, ...this.places].map(place =>
+    this.recipes = [this, this.places[this.iterations % this.places.length]].map(place =>
       place.ownRecipes?.map(recipe => ({ place, recipe } as RecipeX))
     ).flat(1) as RecipeX[]
   }
@@ -137,10 +138,6 @@ export class MarketAgent {
     })
   }
 
-  /*onTransfer(proxy: MarketAgent, good: string, amount: number) {
-    console.log(amount < 0 ? "give" : "take", good);
-  }*/
-
   /** Applies the recipe with the given multiplier and proxies */
   use(recipe: RecipeX, times: number) {
 
@@ -148,15 +145,18 @@ export class MarketAgent {
     let rn = JSON.stringify(recipe.recipe)
     objAdd(this.uses, { [rn]: times })
 
+    if (recipe.place != this) {
+      objAdd(recipe.place.uses, { [rn]: times })
+    }
+
     /** Not proxied - give and receive oneself */
     if (recipe.place == this) {
       objAdd(recipe.place.stock, recipe.recipe, times)
       return
     }
 
-    //console.log(recipeXName(recipe), times);
-
     let transfer: RecipeX | undefined;
+
 
     Object.keys(recipe.recipe).forEach((k) => {
       let amount = recipe.recipe[k] * times;
@@ -220,7 +220,6 @@ export class MarketAgent {
 
     //if (myBestSeller && theirBestSeller == undefined)       this.give(their, myBestSeller, Math.min(1, this.stock[myBestSeller]))
 
-
     if (!myBestSeller || !theirBestSeller)
       return false
 
@@ -260,21 +259,12 @@ export class MarketAgent {
     if (!(weGive > 0))
       return false;
 
-    //console.log(`${this.name} trades ${weGive} of ${myBestSeller} for ${theyGive} of ${theirBestSeller} with ${their.name}`);
-
     addToKey(this.tradeStats, `${myBestSeller} to ${their.name}`, weGive)
     addToKey(this.tradeStats, `${theirBestSeller} from ${their.name}`, theyGive)
-
-    //console.log("tv0", this.totalValue(), their.totalValue());
-    //console.log("tts0 them us", their.totalStockUtility(), this.totalStockUtility());
 
     this.give(their, myBestSeller, weGive)
     their.give(this, theirBestSeller, theyGive)
 
-
-    //console.log("tts1", their.totalStockUtility(), this.totalStockUtility(), this.utilities);
-    //console.log("tv1", this.totalValue(), their.totalValue());
-    //console.log(this.stock, their.stock);
     return true
   }
 
@@ -292,13 +282,13 @@ export class MarketAgent {
 
   iterate() {
     this.gainIncome()
-
     this.useRecipes()
+    this.iterations++
   }
 
-  gainIncome() {
+  gainIncome(multiplier = 1) {
     for (let good in this.income) {
-      let v = this.income[good] * this.size
+      let v = this.income[good] * this.size * multiplier
       if (v < 0) {
         let factual = Math.min(-v, this.stock[good] ?? 0)
         addToKey(this.consumeStats, good, factual);
@@ -312,7 +302,7 @@ export class MarketAgent {
     }
   }
 
-  useRecipes() {
+  /*_useRecipes() {
     let recipeUsed = 0, limit = 10;
     do {
       this.recipes.forEach((recipe, i) => {
@@ -320,12 +310,25 @@ export class MarketAgent {
           let maxUses = this.max(recipe);
           if (maxUses < 1)
             return
-          this.use(recipe, Math.ceil(maxUses / 4))
+          this.use(recipe, Math.ceil(maxUses / 8))
           recipeUsed++;
         }
       })
     } while (recipeUsed && --limit)
 
+  }*/
+
+  useRecipes() {
+    let limit = 10;
+    while (limit--) {
+      let [recipe, v] = bestBy(this.recipes, (recipe) =>
+        this.utl(recipe) * this.max(recipe)
+      )
+      if (v > 0)
+        this.use(recipe, Math.ceil(this.max(recipe) / 4))
+      else
+        break
+    }
   }
 
 

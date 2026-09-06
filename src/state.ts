@@ -1,11 +1,12 @@
 import { type Agent } from "./agent";
 import { Cell } from "./cell";
 import { regenerateUniverse } from "./main";
+import { reportRecipeStats } from "./market";
 import { centerOn, prerenderUniverse } from "./renderer";
 import { hexDist, photoScale, wh, ww } from "./root";
-import { agentInfo, asList, asTable, info, tip } from "./ui";
+import { agentInfo, asList,  Info,  Tip,  updateDiv, updateTip } from "./ui";
 import { u } from "./universe";
-import { cap1, clamp, debounce, fixed, japaneseName, loop, Vec2 } from "./util";
+import { cap1, clamp, debounce, fixed, japaneseName, loop, objStripFalsy, Vec2 } from "./util";
 
 export let state = {
   scale: 1,
@@ -16,7 +17,8 @@ export let state = {
   selected: 0,
   turn: 0,
   namesLeft: 1e12,
-  lastId: 0
+  lastId: 0,
+  tab: "jobs"
 }
 
 export type State = typeof state;
@@ -24,6 +26,7 @@ export type State = typeof state;
 let lastCell: Cell | undefined;
 
 export const
+
   update = (d: Partial<State> = {}) => {
     Object.assign(state, d);
     let tl = state.topLeftAt;
@@ -31,22 +34,11 @@ export const
     tl[1] = clamp(-wh * .5 * photoScale[1] * state.scale, tl[1], wh * 1.8 * photoScale[1] * state.scale);
     state.topLeftAt = tl;
 
-    let cell = u.c[state.cellPointed];
-
-    if (cell && cell != lastCell) {
-      lastCell = cell;
-      console.log(cell);
-      tip(
-        agentPointed() && `${agentPointed().name} ${agentPointed().race.name}`,
-        `${cell.name} ${cell.settlement ? "town" : cell.biome.name}`,
-        asList(cell.resources)
-      )
-    }
-
     debouncedUpdate()
   },
   saveAndUpdateTip = (slot = "a") => {
     state.namesLeft = namePool.length
+    updateTip()
     localStorage["CLP." + slot] = JSON.stringify(state)
   },
   debouncedUpdate = debounce(saveAndUpdateTip),
@@ -68,7 +60,9 @@ export const
     update({ selected: u.a.indexOf(a) })
     centerOn(a.cell)
     console.log(a);
-    info(...agentInfo(a))
+    //reportRecipeStats(a);
+     
+    updateDiv(Info, ...agentInfo(a))
   },
   agentPointed = () => u.a.find(a => a.cell.at == state.cellPointed) as Agent,
   queen = () => u.a.find(a => a.race.name == "alicorn") as Agent,

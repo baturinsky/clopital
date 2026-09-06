@@ -12,7 +12,7 @@ export type Biome = {
   sprites: HTMLCanvasElement[]
   soil: number
   trees: number
-  minerals: number
+  deposits: number
   deepwater: number
 }
 
@@ -46,7 +46,8 @@ export const biomesByNames = {
     habitability: 0,
     races: "goats",
     crop: "moss",
-    minerals: 3
+    deposits: 3,
+    soil:1
   },
   snowfield: {
     color: "#fff",
@@ -61,7 +62,7 @@ export const biomesByNames = {
     habitability: 1,
     races: "deers",
     crop: "moss",
-    soil: 1
+    soil: 2
   },
   plains: {
     color: "#2c0",
@@ -70,14 +71,14 @@ export const biomesByNames = {
     habitability: 2,
     races: "horses",
     crop: "wheat",
-    soil: 4
+    soil: 6
   },
   swamp: {
     color: "#0aa",
     prop: GRASS,
     travel: 4,
     habitability: 1,
-    soil: 2
+    soil: 3
   },
   desert: {
     color: "#f80",
@@ -86,7 +87,7 @@ export const biomesByNames = {
     habitability: 1,
     races: "zebras",
     crop: "cactus",
-    soil: 1
+    soil: 2
   },
   steppe: {
     color: "#af2",
@@ -95,7 +96,7 @@ export const biomesByNames = {
     habitability: 2,
     races: ["zebras", "horses"],
     crop: "cotton",
-    soil: 3
+    soil: 4
   },
   rainforest: {
     color: "#060",
@@ -104,7 +105,7 @@ export const biomesByNames = {
     habitability: 1,
     races: "zebras",
     mine: "gems",
-    soil: 2,
+    soil: 3,
     trees: 4
   },
   forest: {
@@ -114,7 +115,7 @@ export const biomesByNames = {
     habitability: 2,
     races: ["deers", "horses"],
     crop: "apples",
-    soil: 2,
+    soil: 3,
     trees: 3
   },
   taiga: {

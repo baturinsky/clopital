@@ -6,7 +6,7 @@ body {
 * {
   border: 0;
   margin: 0;
-  font-family: Georgia;
+  font-family: monospace;
   font-size: 18px;
   color: #400;
 }
@@ -17,13 +17,19 @@ body {
   top: 10px;
 }
 
-#TIP>*,
-#INFO>* {
+.pnl {
   background: #fff8;
-  padding: 5px;
+  padding: 7px;
   margin: 5px;
   border: #4004 solid;
   border-width: 2px 4px;
+}
+
+.ptl {
+  margin-bottom: -20px;
+  font-size: 80%;
+  text-align: right;
+  padding: 0 10px;
 }
 
 #TIP {
@@ -40,7 +46,14 @@ body {
   right: 10px;
   width: 100vw;
   text-align: right;
+  pointer-events: none;
 }
+
+#BTN button {
+  padding: 5px;
+  font-size: 200%;
+}
+
 
 #TURN {
   padding: 10px;
@@ -48,16 +61,43 @@ body {
 }
 
 button {
-  padding: 5px;
   border: 3px solid;
-  font-size: 200%;
+  pointer-events: all;
 }
 
-button:hover {
+button:hover, button.h {
   border-color: #fff;
 }
 
 *[data-icon] canvas {
-  image-rendering: pixelated;
-  margin: 0 8px 0 4px;
+  margin: 0 4px 0 0;
+  transform: scale(1.5) translateY(1px);
 }
+
+*[data-icon]:hover .ttx {
+  visibility: visible;
+}
+
+.ttx {
+  visibility: hidden;
+  position: absolute;
+  transform: translateY(-30px);
+  z-index: 1;
+  padding: 5px;
+  background: #fff8;
+}
+
+.stock {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 20vw;
+}
+
+.aaa {
+  white-space: nowrap;
+}
+
+.abtn{
+  text-align: center;
+}
+

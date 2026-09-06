@@ -190,3 +190,8 @@ function addRoads() {
       prerenderUniverse()
       break*/
   }
+
+    asTable = (a: GoodNumbers) =>
+    `<table>${Object.entries(a).map(([k, v]) =>
+      `<tr><td>${cap1(k)}</td><td data-icon="${k}"></td><td>${v}</td></tr>`).join('')}</table>`
+  ,

@@ -2,7 +2,7 @@ import { biomesByNames, biomeMatrix } from "./biomes"
 import { Cell, GROUNDLVL, HILLSLVL, SEALVL } from "./cell"
 import { Agent } from "./agent"
 import { ws, neighborShift, wh, ww, neighborBy, hexDist, worldCoord, neighborhood } from "./root"
-import { queenCell, select } from "./state"
+import { queenCell, select, selected } from "./state"
 import { rng, loop, randomElement, clamp, setSeed, seed, sum, listSum, dist } from "./util"
 
 export let u: Universe
@@ -146,25 +146,26 @@ export class Universe {
 
       cell.habitability = score * (coast ? 2 : 1);
 
-      let isCoast = !cell.water() && cell.neighbors.find(c => c.water());
-
       cell.resources = {
         soil: cell.biome.soil ?? 0,
         trees: cell.biome.trees ?? 0,
         deepwater: (cell.biome.deepwater ?? 0) + (cell.rivers ? 1 : 0),
-        minerals: (cell.biome.minerals ?? 0) + (cell.layer == HILLSLVL ? 2 : 1)
+        deposits: (cell.biome.deposits ?? 0) + (cell.layer == HILLSLVL ? 2 : 1)
       }
+      //console.log(cellAgentParameters(cell));
 
+    })
+
+    this.c.forEach(cell => {
+      let isCoast = !cell.water() && cell.neighbors.find(c => c.water());
       if (!rng(isCoast || cell.rivers ? 60 : cell.water() ? 200 : 150)) {
         let race = randomElement(cell.biome.races);
         if (race) {
           new Agent(cell, race, rng(1000) + 100);
         }
       }
-
-      //console.log(cellAgentParameters(cell));
-
     })
+
 
     let randomHorse = randomElement(this.a.filter(a => a.race?.name == "horses"))
     randomHorse.remove()
@@ -174,9 +175,8 @@ export class Universe {
 
     queen.see();
 
+
     //addRoads()
-
-
 
   }
 
@@ -186,10 +186,5 @@ export class Universe {
 
 }
 
-export function nextTurn() {
-  for (let a of u.a) {
-    a.nextTurn()
-  }
-}
 
 

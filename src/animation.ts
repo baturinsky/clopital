@@ -20,7 +20,7 @@ export type MovementAnimation = {
 export const animate = (sprite: HTMLCanvasElement, waypoints: Vec2[], s=200) => {
   let a = { i: sprite, wp: waypoints, t: 0, s };
   animations.push(a)
-  return a;
+  return a as MovementAnimation;
 }, cancelAnimation = (a?: MovementAnimation) => {
   removeFromList(animations, a)
 }, updateAnimations = (dt: number) => {

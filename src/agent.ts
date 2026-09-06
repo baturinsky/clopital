@@ -2,12 +2,13 @@ import { animate, cancelAnimation, MovementAnimation } from "./animation";
 import { Cell } from "./cell";
 import { MarketAgent, RecipeX, Transfer } from "./market";
 import { Race, raceAgentParameters } from "./races";
-import { resourceSprite, spriteOf } from "./renderer";
-import { races } from "./setting";
-import { debouncedPrerender, nameById, namePool, selected, state, update } from "./state";
+import { resourceIcon, spriteOf } from "./renderer";
+import { iterationsPerTurn, races } from "./setting";
+import { debouncedPrerender, nameById, namePool, pointedCell, selected, state, update } from "./state";
 import { u } from "./universe";
-import { cap1, loop, objMap, randomElement, removeFromList, rng, sum, Vec2 } from "./util";
+import { cap1, dist, loop, objMap, randomElement, removeFromList, rng, sum, Vec2 } from "./util";
 
+/** Scale when saving Consume rolling average */
 const craScale = 10000;
 
 export const agentLocation = (a: MarketAgent) => {
@@ -16,6 +17,8 @@ export const agentLocation = (a: MarketAgent) => {
 }
 
 type SaveFormat = ReturnType<Agent["save"]>
+
+let resAnimations = 0
 export class Agent extends MarketAgent {
   kind!: string
   race!: Race
@@ -42,8 +45,6 @@ export class Agent extends MarketAgent {
     this.minit(params);
     this.recomp()
 
-    this.nextTurn()
-
   }
 
   /** Animate transfers */
@@ -52,8 +53,11 @@ export class Agent extends MarketAgent {
     Object.entries(transfer.recipe).forEach(([good, v]) => {
       let points = locs.map(cell => cell.topLeft())
       points[1] = sum(points[1], [rng(5) - 2, -rng(5) - 2])
-      if (v > 0)        points = [points[1], points[0]];
-      animate(resourceSprite(good), points, 500)
+      if (v > 0)
+        points = [points[1], points[0]];
+      let anim = animate(resourceIcon(good), points, 500)
+      resAnimations++
+      anim.f = () => resAnimations--
     })
   }
 
@@ -64,8 +68,9 @@ export class Agent extends MarketAgent {
 
   nextTurn() {
     this.steps = 3
-    //this.transfers = []
-    loop(5, () => this.iterate())
+    this.transfers = []
+    loop(iterationsPerTurn, () => this.iterate())
+
     //if(this.race.name =="alicorn")      debugger
 
     this.go();
@@ -89,8 +94,15 @@ export class Agent extends MarketAgent {
   }
 
   see() {
-    this.cell.neighborhoodR(3).forEach(c => c.seen = true);
-    debouncedPrerender()
+    let newSeen = 0;
+    this.cell.neighborhoodR(3).forEach(c => {
+      if(!c.seen){
+        newSeen++
+        c.seen = true
+      }
+    });
+    if(newSeen)
+      debouncedPrerender()
   }
 
   visit(c: Cell) {

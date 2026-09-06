@@ -14,7 +14,7 @@ export const
   layerSickness = 4,
   mapRevealDuration = 700,
   AtlasSpriteSize = 16,
-  HEXCURSOR = 16,
+  BIGCURSOR = 16,
   CURSOR = 17,
   WALK = 100,
   FLY = 101,
@@ -126,21 +126,22 @@ export const
       if (agent.anim || !agent.cell.seen)
         continue
       if (selected() == agent) {
-        cx.globalAlpha = blinkAlpha;
+        drawOnCell(agent.cell, BIGCURSOR)
       }
       drawOnCell(agent.cell, SHADOW)
       drawOnCell(agent.cell, agent.race?.sprite)
-      cx.globalAlpha = 1;
 
-      showAgentTransfers(agent)
+      if (agent.transfers?.length && dt > rng(300) && dist(agent.cell.center(), pointedCell()?.center()) < 30) {
+        let transfer = randomElement(agent.transfers);
+        agent.anit(transfer);
+      }
     }
 
     if (selected() && !selected().anim) {
       let a = selected()
-      cx.save()
-      cx.filter = "brightness(.8)"
+      cx.globalAlpha = .7
       drawPathTo(a, pointedCell())
-      cx.restore()
+      cx.globalAlpha = 1
       drawPathTo(a, a.dest)
     }
 
@@ -150,12 +151,6 @@ export const
 
   },
 
-  showAgentTransfers = (a: Agent) => {
-    if (a.transfers.length && dt + 1 > rng(300)) {
-      let transfer = randomElement(a.transfers);
-      a.anit(transfer);
-    }
-  },
 
   drawPathTo = (a: Agent, target?: Cell) => {
     if (!target)
@@ -163,7 +158,9 @@ export const
     let p = a.pathTo(target);
     if (p) {
       p.forEach((step, i) => {
-        i > 0 && drawOnCell(step, a.race.moving == "flying" ? FLY : a.race.moving == "swimming" ? SWIM : WALK, undefined, i > a.steps ? blinkAlpha : 1)
+        i > 0 && drawOnCell(
+          step,
+          resourceIcon(a.race.moving + (i > a.steps || true ? "Far" : "")))
       })
     }
   },
@@ -350,7 +347,7 @@ export const
   /** If name is resource name, returns resource icon. 
    * If it is number, returns numbered sprite
    * If it is number @ text, returns filtered sprite */
-  resourceSprite = (name: string) => {
+  resourceIcon = (name: string) => {
     let sprite: HTMLCanvasElement, split = name.split("@") as [number, string];
 
     if (split[0] * 0 == 0) {
@@ -358,14 +355,14 @@ export const
     } else {
       if (!resources[name])
         console.log("!" + name);
-      let r = resources[name] ?? resources["working"];
+      let r = resources[name] ?? resources["unknown"];
       r.sc ??= spriteCache(
         r.sprite,
         r.color && constructHexFilter(...r.color))
 
       sprite = spriteCopy(r.sc)
     }
-    sprite.style.transform = `scale(${devicePixelRatio * 2})`
+    //sprite.style.transform = `scale(${devicePixelRatio * 2})`
     return sprite
   },
 
