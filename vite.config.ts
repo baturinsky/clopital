@@ -26,7 +26,7 @@ const hardTerse = {
     drop_debugger: true,
     dead_code: true,
   },
-  mangle: false && {
+  mangle:  false && {
     // Mangle variables at the highest scope level
     toplevel: true,
 
@@ -41,7 +41,7 @@ const hardTerse = {
 
       undeclared: true,
 
-      reserved: ["C", "DEFS", "TIP", "biomesByNames"]
+      reserved: ["C", "DEFS", "TIP", "biomesByNames", "races", "biomes"]
     }
   },
   format: {
@@ -49,7 +49,7 @@ const hardTerse = {
     comments: false,
   },
   // Target modern JS to avoid ES5 bloat wrapper code
-  ecma: 2020,
+  ecma: 2024,
 }
 
 export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
@@ -68,7 +68,7 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
 
     build: {
       minify: mode == "min" ? 'terser' : false,
-      terserOptions: hardTerse,
+      //terserOptions: hardTerse,
       cssMinify: mode == "min",
       modulePreload: { polyfill: false },
       emptyOutDir: true,

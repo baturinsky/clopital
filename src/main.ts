@@ -33,7 +33,8 @@ const init = () => {
 
   load()  
 
-  setInterval(render, 32)
+  //setInterval(render, 32)
+  render()
 }
 
 //testMarket()

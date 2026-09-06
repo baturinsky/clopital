@@ -48,6 +48,9 @@ export class Cell {
 
   agent?: MarketAgent
 
+  special?:string
+  specialx?:number
+
   neighborhoodR(d: number) {
     return neighborhood[d].map(v => this.u.c[v + this.at]).filter(v => v);
   }
@@ -72,32 +75,6 @@ export class Cell {
     this.name = nameById(this.at)
     let coord = worldCoord(at)
     this.bedrock = coord[0] < 1 || coord[0] > ww - 2 || coord[1] < 1 || coord[1] > wh - 2;
-  }
-
-  erode(path: Cell[] = []): Cell[] | undefined {
-    if (this.bedrock)
-      return
-
-    path.push(this);
-    if (this.elev < this.u.SeaElev)
-      return path;
-
-    let flowTo = min(this.neighbors, c => c.elev)
-
-    if (!flowTo)
-      return
-
-    let d = this.elev - flowTo.elev;
-
-    if (!(d > 0))
-      return;
-
-    if (!this.u.rivers) {
-      this.elev -= d / 2;
-      flowTo.elev += d / 3;
-    }
-
-    return flowTo.erode(path)
   }
 
   /*neighborhoodResources() {
@@ -205,3 +182,28 @@ export const
     } as MarketAgentParameters
   }
 
+export const erode = (cell:Cell, path: Cell[] = []): Cell[] | undefined => {
+  if (cell.bedrock)
+    return
+
+  path.push(cell);
+  if (cell.elev < cell.u.SeaElev)
+    return path;
+
+  let flowTo = min(cell.neighbors, c => c.elev)
+
+  if (!flowTo)
+    return
+
+  let d = cell.elev - flowTo.elev;
+
+  if (!(d > 0))
+    return;
+
+  if (!cell.u.rivers) {
+    cell.elev -= d / 2;
+    flowTo.elev += d / 3;
+  }
+
+  return erode(flowTo, path)
+}

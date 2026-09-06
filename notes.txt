@@ -86,3 +86,9 @@ Authority
 Improvement
 Saves
 Research
+
+
+
+Anywhere=>Iron
+Mountains=>Gems
+Sea=>Pearls

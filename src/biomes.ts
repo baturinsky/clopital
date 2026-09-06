@@ -14,6 +14,8 @@ export type Biome = {
   trees: number
   deposits: number
   deepwater: number
+  special?: string
+  specialx?: number
 }
 
 export type BiomeName = keyof typeof biomesByNames;
@@ -23,7 +25,7 @@ export type BiomeName = keyof typeof biomesByNames;
  *   arid
  */
 export const biomeMatrix = [
-  ["rainforest", "swamp", "taiga", "snowfield"],
+  ["jungles", "swamp", "taiga", "snowfield"],
   ["plains", "forest", "taiga", "snowfield"],
   ["desert", "steppe", "tundra", "snowfield"],
 ] as BiomeName[][];
@@ -45,15 +47,16 @@ export const biomesByNames = {
     travel: 2,
     habitability: 0,
     races: "goats",
-    crop: "moss",
+    special: "gems",
     deposits: 3,
-    soil:1
+    soil: 1
   },
   snowfield: {
     color: "#fff",
     travel: 2,
     habitability: 0,
-    races: "deers"
+    races: "deers",
+    special: "oil",
   },
   tundra: {
     color: "#8fa",
@@ -61,7 +64,7 @@ export const biomesByNames = {
     travel: 2,
     habitability: 1,
     races: "deers",
-    crop: "moss",
+    special: "moss",
     soil: 2
   },
   plains: {
@@ -70,7 +73,8 @@ export const biomesByNames = {
     travel: 1,
     habitability: 2,
     races: "horses",
-    crop: "wheat",
+    special: "wheat",
+    specialx: 10,
     soil: 6
   },
   swamp: {
@@ -78,7 +82,8 @@ export const biomesByNames = {
     prop: GRASS,
     travel: 4,
     habitability: 1,
-    soil: 3
+    soil: 3,
+    special: "gas",
   },
   desert: {
     color: "#f80",
@@ -86,7 +91,7 @@ export const biomesByNames = {
     travel: 2,
     habitability: 1,
     races: "zebras",
-    crop: "cactus",
+    special: "oil",
     soil: 2
   },
   steppe: {
@@ -95,16 +100,16 @@ export const biomesByNames = {
     travel: 1,
     habitability: 2,
     races: ["zebras", "horses"],
-    crop: "cotton",
+    special: "cotton",
     soil: 4
   },
-  rainforest: {
+  jungles: {
     color: "#060",
     prop: PALM,
     travel: 4,
     habitability: 1,
     races: "zebras",
-    mine: "gems",
+    special: "gems",
     soil: 3,
     trees: 4
   },
@@ -114,7 +119,7 @@ export const biomesByNames = {
     travel: 2,
     habitability: 2,
     races: ["deers", "horses"],
-    crop: "apples",
+    special: "apples",
     soil: 3,
     trees: 3
   },
@@ -124,7 +129,7 @@ export const biomesByNames = {
     travel: 3,
     habitability: 1,
     races: "deers",
-    crop: "honey",
+    special: "honey",
     soil: 2,
     trees: 2
   },
@@ -134,7 +139,7 @@ export const biomesByNames = {
     seaTravel: 2,
     habitability: 0,
     races: "seahorses",
-    crop: "fish",
+    special: "pearls",
     deepwater: 1
   },
   sea: {
@@ -143,7 +148,7 @@ export const biomesByNames = {
     seaTravel: 1,
     habitability: 0,
     races: "seahorses",
-    crop: "fish",
+    special: "oil",
     deepwater: 1
   },
 } as { [name: string]: Biome };

@@ -30,8 +30,8 @@ export const
   update = (d: Partial<State> = {}) => {
     Object.assign(state, d);
     let tl = state.topLeftAt;
-    tl[0] = clamp(-ww * .5 * photoScale[0] * state.scale, tl[0], ww * 1.8 * photoScale[0] * state.scale);
-    tl[1] = clamp(-wh * .5 * photoScale[1] * state.scale, tl[1], wh * 1.8 * photoScale[1] * state.scale);
+    //tl[0] = clamp(-ww * .5 * photoScale[0] * state.scale, tl[0], ww * 1.8 * photoScale[0] * state.scale);
+    //  tl[1] = clamp(-wh * .5 * photoScale[1] * state.scale, tl[1], wh * 1.8 * photoScale[1] * state.scale);
     state.topLeftAt = tl;
 
     debouncedUpdate()
@@ -50,7 +50,7 @@ export const
     }
     regenerateUniverse()
 
-    setTimeout(() => select(queen()), 100);
+    select(queen());
 
     return true;
   },

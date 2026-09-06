@@ -2,7 +2,7 @@ import { atlas } from "./main";
 import { ww, photoScale, wh, TWO_PI, worldCoord, photoShift } from "./root";
 import { Biome, biomeMatrix, BiomeName, biomesByNames, HUTS, HUTS2, MESA, WAVES } from "./biomes"
 import { agentPointed, pointedCell, queen, queenCell, selected, state, update } from "./state";
-import { u } from "./universe";
+import { HAVERIVERS, u } from "./universe";
 import { asArray, loop, muls, nof, randomElement, RGBA, rng, round, scale, setSeed, shuffle, sum, vecTween, Vec2, sub, len, dist, cap1, hexToRgb } from "./util";
 import { Cell } from "./cell";
 import { animate, cancelAnimation, updateAnimations } from "./animation";
@@ -93,8 +93,9 @@ export const
     TURN.style.transform = `scale(${queen().steps == 0 ? 1 + blinkAlpha / 10 : 1})`
 
     if (state.targetTLA) {
-      state.topLeftAt = vecTween(state.topLeftAt, state.targetTLA, dt / 100);
-      if (dist(state.topLeftAt, state.targetTLA) < 1) {
+      //console.log(state.topLeftAt, state.targetTLA, dt);
+      state.topLeftAt = vecTween(state.topLeftAt, state.targetTLA, Math.min(.3, dt / 100));
+      if (dist(state.topLeftAt, state.targetTLA) < 3) {
         update({ targetTLA: undefined })
       }
     }
@@ -152,6 +153,7 @@ export const
 
     cx.restore()
 
+    requestAnimationFrame(render)
   },
 
 
@@ -249,20 +251,22 @@ export const
       })
     })
 
-    cx.lineCap = "round"
+    if (HAVERIVERS) {
+      cx.lineCap = "round"
 
-    for (let riverLayer of [0, 1]) {
-      cx.strokeStyle = ["#4444", "#0093F0"][riverLayer];
-      u.rivers.forEach(river => drawLine(
-        river,
-        4,
-        (v: Vec2, i) => sum(v, [0,
-          (i == river.length - 1 && riverLayer == 0 ? 1 : 0) +
-          [1, 2][riverLayer]
-        ] as Vec2
-        ),
-        1
-      ))
+      for (let riverLayer of [0, 1]) {
+        cx.strokeStyle = ["#4444", "#0093F0"][riverLayer];
+        u.rivers.forEach(river => drawLine(
+          river,
+          4,
+          (v: Vec2, i) => sum(v, [0,
+            (i == river.length - 1 && riverLayer == 0 ? 1 : 0) +
+            [1, 2][riverLayer]
+          ] as Vec2
+          ),
+          1
+        ))
+      }
     }
 
     u.drawOrder.forEach(cell => {
@@ -275,6 +279,9 @@ export const
         let i1 = nof(props.map(p => sprites[p]), 6, pnum);
         drawProps(cell, i1)
       }
+
+      
+      cell.special && drawOnCell(cell, resourceIcon(cell.special))
 
       /*if (state.debug) {
         cx.fillStyle = "#00f";

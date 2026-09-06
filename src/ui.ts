@@ -3,7 +3,6 @@ import { GoodNumbers, marginalUtility, MarketAgent } from "./market";
 import { resourceIcon } from "./renderer";
 import { iterationsPerTurn } from "./setting";
 import { state, agentPointed, pointedCell, queen } from "./state";
-import { u } from "./universe";
 import { cap1, dist, objFilter, objMap, objScale, objStripFalsy, removeDuplicates } from "./util";
 
 declare var TIP: HTMLDivElement, INFO: HTMLDivElement;
@@ -114,26 +113,24 @@ export const ARROW = 65, Tip = 0, Info = 1, Tt = 2,
     let res = removeDuplicates([...Object.keys(queen().stock), ...Object.keys(agent.stock)])
 
 
-    return `
-    Authority: ${agent.queen() ? "∞" : agent.authority}
-    <table>
-    <td>${icon("alicorning")}</td>
-    <td>give</td>
-    <td></td>
-    <td>take</td>
-    <td>${icon(agent.race.job)}</td>
-    
-    ${res.map(name => {
-      let [give, take] = [agent.queenTrade(name, true), agent.queenTrade(name, false)];
-      if(!give[1] && !take[1])
-        return ""
-      return `<tr>
-    <td>${queen().stock[name] ?? 0}</td>
-    <td>${queen().stock[name] && give[1] ? `<button data-give="${name}">${give[0]}</button>` : ""}</td>
-    <td>${icon(name)}</td>
-    <td>${agent.stock[name] && take[1] && agent.authority>1 ? `<button data-take="${name}">${-take[0]}</button>` : ""}</td>
-    <td>${agent.stock[name] ?? 0}</td>
-    </tr>`
+    return `Authority: ${agent.queen() ? "∞" : agent.authority}
+<table>
+<td>${icon("alicorning")}</td>
+<td>give</td>
+<td></td>
+<td>take</td>
+<td>${icon(agent.race.job)}</td>
+${res.map(name => {
+  let [give, take] = [agent.queenTrade(name, true), agent.queenTrade(name, false)];
+  if(!give[1] && !take[1])
+    return ""
+  return `<tr>
+<td>${queen().stock[name] ?? 0}</td>
+<td>${queen().stock[name] && give[1] ? `<button data-give="${name}">${give[0]}</button>` : ""}</td>
+<td>${icon(name)}</td>
+<td>${agent.stock[name] && take[1] && agent.authority>1 ? `<button data-take="${name}">${-take[0]}</button>` : ""}</td>
+<td>${agent.stock[name] ?? 0}</td>
+</tr>`
     }).join('')}
   </table>
   `

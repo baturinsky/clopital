@@ -145,7 +145,7 @@ export class Agent extends MarketAgent {
       steps: v.steps,
       cell: u.c[v.cell],
       dest: u.c[v.dest as any],
-      race: races[v.race],
+      race: races[v.race],      
       cra: objMap(this.cra, v => v / craScale)
     } as Partial<Agent>)
   }

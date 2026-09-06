@@ -26,6 +26,17 @@ export const
     flying: [101, "#fff"],
     swimming: [102, "#fff"],
 
+    gems: [85, "#f08,#fff"],
+    oil: [93, "#000,,#222"],
+    honey: [96, "#f80,#fff,#aaf"],
+    moss: [105, "#4a4,#aa4"],
+    wheat: [113, "#fe0"],
+    gas: [93, "#88f,,#fff"],
+    cotton: [82, "#fff"],
+    apples: [99, "#f00,,#fff"],
+    pearls: [114, "#aaa,,#fff"],
+
+
     walkingFar: [100, "#f80"],
     flyingFar: [101, "#f80"],
     swimmingFar: [102, "#f80"],
@@ -41,8 +52,7 @@ export const
     fertilisers: [89, "#620,#220"],
     thinking: [91, "#fca"],
     spelunking: [91, "#006"],
-    digging: 110,
-    transport: 100
+    digging: 110
   }, convertResources) as {
     [key: string]: {
       sprite: number

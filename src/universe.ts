@@ -1,11 +1,13 @@
 import { biomesByNames, biomeMatrix } from "./biomes"
-import { Cell, GROUNDLVL, HILLSLVL, SEALVL } from "./cell"
+import { Cell, erode, GROUNDLVL, HILLSLVL, SEALVL } from "./cell"
 import { Agent } from "./agent"
 import { ws, neighborShift, wh, ww, neighborBy, hexDist, worldCoord, neighborhood } from "./root"
 import { queenCell, select, selected } from "./state"
 import { rng, loop, randomElement, clamp, setSeed, seed, sum, listSum, dist } from "./util"
 
 export let u: Universe
+
+export const HAVERIVERS = false;
 
 const East = 1, West = 4, SE = 3, SW = 4;
 
@@ -71,18 +73,20 @@ export class Universe {
     this.HighlandElev = this.quantile(.82)
     this.PeaksElev = this.quantile(.97)
 
-    loop(10000, () => this.anyCell().erode())
+    if (HAVERIVERS) {
 
+      loop(10000, () => erode(this.anyCell()))
 
-    this.rivers = []
+      this.rivers = []
 
-    loop(500, () => {
-      let path = this.anyCell().erode();
-      if (path && path.length > 1) {
-        this.rivers.push(path)
-        path.forEach(cell => cell.rivers++);
-      }
-    })
+      loop(500, () => {
+        let path = erode(this.anyCell());
+        if (path && path.length > 1) {
+          this.rivers.push(path)
+          path.forEach(cell => cell.rivers++);
+        }
+      })
+    }
 
     this.c.forEach(c => {
       c.t = 1.6 - c.latitude() * 1.2 - (c.elev - this.SeaElev) / 2
@@ -145,6 +149,9 @@ export class Universe {
       score += cell.rivers ? 10 : 0;
 
       cell.habitability = score * (coast ? 2 : 1);
+
+      if (rng(100) < (cell.specialx ?? 1))
+        cell.special = cell.biome.special;
 
       cell.resources = {
         soil: cell.biome.soil ?? 0,
