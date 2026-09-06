@@ -39,7 +39,7 @@ export const
     let ownRecipes = [...commonRecipes,
     ...race.recipes ?? [],
     { [race.job]: -1, working: 1 },
-    { [race.job]: -1, [race.moving]: race.moving == "swimming" ? 20 : 10 },
+    { [race.job]: -1, [race.moving]: race.moving == "swimming" ? 2 : 1 },
     ]
 
     return {

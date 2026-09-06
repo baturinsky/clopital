@@ -1,7 +1,7 @@
 import { atlas } from "./main";
 import { ww, photoScale, wh, TWO_PI, worldCoord, photoShift } from "./root";
 import { Biome, biomeMatrix, BiomeName, biomesByNames, HUTS, HUTS2, MESA, WAVES } from "./biomes"
-import { pointedCell, queen, queenCell, selected, state, update } from "./state";
+import { agentPointed, pointedCell, queen, queenCell, selected, state, update } from "./state";
 import { u } from "./universe";
 import { asArray, loop, muls, nof, randomElement, RGBA, rng, round, scale, setSeed, shuffle, sum, vecTween, Vec2, sub, len, dist, cap1, hexToRgb } from "./util";
 import { Cell } from "./cell";
@@ -139,10 +139,13 @@ export const
 
     if (selected() && !selected().anim) {
       let a = selected()
-      cx.globalAlpha = .7
-      drawPathTo(a, pointedCell())
-      cx.globalAlpha = 1
-      drawPathTo(a, a.dest)
+
+      if (!agentPointed()) {
+        cx.globalAlpha = .7
+        drawStepsTo(a, pointedCell())
+        cx.globalAlpha = 1
+      }
+      drawStepsTo(a, a.dest)
     }
 
     drawOnCell(pointedCell(), CURSOR)
@@ -152,7 +155,7 @@ export const
   },
 
 
-  drawPathTo = (a: Agent, target?: Cell) => {
+  drawStepsTo = (a: Agent, target?: Cell) => {
     if (!target)
       return;
     let p = a.pathTo(target);
@@ -198,7 +201,7 @@ export const
     return [c, cx] as [HTMLCanvasElement, CanvasRenderingContext2D]
   },
 
-  drawPath = (path: Cell[], lw: number, transform: (v: Vec2, i: number) => Vec2 = a => a, riverEnd = 0) => {
+  drawLine = (path: Cell[], lw: number, transform: (v: Vec2, i: number) => Vec2 = a => a, riverEnd = 0) => {
 
     let coords = path.map((cell, i) => transform(sum(cell.center(), [0, layerSickness + 2]), i));
 
@@ -250,7 +253,7 @@ export const
 
     for (let riverLayer of [0, 1]) {
       cx.strokeStyle = ["#4444", "#0093F0"][riverLayer];
-      u.rivers.forEach(river => drawPath(
+      u.rivers.forEach(river => drawLine(
         river,
         4,
         (v: Vec2, i) => sum(v, [0,

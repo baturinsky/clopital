@@ -60,6 +60,7 @@ export const
     if (i != -1)
       list.splice(i, 1)
   },
+  removeDuplicates = (a:any[])=>[...new Set(a)],
   /** return *slots* elements, of which *filled* is filled with random variants, while the rest us undefined */
   nof = (variants: any[], slots: number, filled: number) =>
     shuffle(loop(slots, i => i < filled ? randomElement(variants) : undefined))

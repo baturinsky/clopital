@@ -20,11 +20,18 @@ export const
       } as { [button: string]: Function })[(e.target as HTMLButtonElement)?.id]
       f && f()
 
-      console.log(e.target?.id);
-      if (tabs.includes(e.target?.id)) {
-        state.tab = e.target.id;
-        select(selected())
+      let element = e.target as HTMLElement;
+
+      if (tabs.includes(element.id)) {
+        state.tab = element.id;
+        select()
       }
+
+      if (element.dataset.give) 
+        selected().queenTradeApply(element.dataset.give, true)
+      
+      if (element.dataset.take) 
+        selected().queenTradeApply(element.dataset.take, false)
 
     }
 

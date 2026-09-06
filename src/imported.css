@@ -14,11 +14,11 @@ body {
 #TIP,
 #INFO {
   position: fixed;
-  top: 10px;
+  top: -10px;
 }
 
 .pnl {
-  background: #fff8;
+  background: #fffa;
   padding: 7px;
   margin: 5px;
   border: #4004 solid;
@@ -33,11 +33,11 @@ body {
 }
 
 #TIP {
-  right: 10px;
+  right: 0;
 }
 
 #INFO {
-  left: 10px;
+  left: 0;
 }
 
 #BTN {
@@ -61,17 +61,19 @@ body {
 }
 
 button {
-  border: 3px solid;
+  border: 3px solid #aaa;
   pointer-events: all;
 }
 
-button:hover, button.h {
+button:hover,
+button.h {
   border-color: #fff;
 }
 
 *[data-icon] canvas {
   margin: 0 4px 0 0;
   transform: scale(1.5) translateY(1px);
+  filter: drop-shadow(1px 1px)
 }
 
 *[data-icon]:hover .ttx {
@@ -84,7 +86,7 @@ button:hover, button.h {
   transform: translateY(-30px);
   z-index: 1;
   padding: 5px;
-  background: #fff8;
+  background: #fff;
 }
 
 .stock {
@@ -97,7 +99,22 @@ button:hover, button.h {
   white-space: nowrap;
 }
 
-.abtn{
+.abtn {
   text-align: center;
 }
 
+.tc {
+  columns: 2;
+}
+
+table {
+  margin: auto;
+}
+
+td {
+  text-align: center;
+}
+
+td button {
+  width: 80px;
+}

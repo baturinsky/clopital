@@ -1,10 +1,10 @@
 import { animate, cancelAnimation, MovementAnimation } from "./animation";
 import { Cell } from "./cell";
-import { MarketAgent, RecipeX, Transfer } from "./market";
+import { marginalUtility, MarketAgent, RecipeX, Transfer } from "./market";
 import { Race, raceAgentParameters } from "./races";
 import { resourceIcon, spriteOf } from "./renderer";
 import { iterationsPerTurn, races } from "./setting";
-import { debouncedPrerender, nameById, namePool, pointedCell, selected, state, update } from "./state";
+import { debouncedPrerender, nameById, namePool, pointedCell, queen, select, selected, state, update } from "./state";
 import { u } from "./universe";
 import { cap1, dist, loop, objMap, randomElement, removeFromList, rng, sum, Vec2 } from "./util";
 
@@ -26,6 +26,7 @@ export class Agent extends MarketAgent {
   dest?: Cell
   steps = 0
   anim?: MovementAnimation
+  authority = 0
 
   /** We create a herd in this cell, an improvement in  this cell, or the agent for the cell itself */
   constructor(cell: Cell, race?: string, size = 1) {
@@ -96,12 +97,12 @@ export class Agent extends MarketAgent {
   see() {
     let newSeen = 0;
     this.cell.neighborhoodR(3).forEach(c => {
-      if(!c.seen){
+      if (!c.seen) {
         newSeen++
         c.seen = true
       }
     });
-    if(newSeen)
+    if (newSeen)
       debouncedPrerender()
   }
 
@@ -165,7 +166,28 @@ export class Agent extends MarketAgent {
     return p
   }
 
+  queen() {
+    return this.race == races.alicorn
+  }
 
+  queenTrade(good: string, give: boolean) {
+    let giver = give ? queen() : this;
+    let mu = marginalUtility(this.stock[good] ?? 0)
+    let amount = Math.ceil(giver.stock[good] / 10);
+    let value = ~~(mu * amount * (give ? .9 : 1.1)/1e6);
+    if(!give)
+      value++;
+    if(!value)
+      amount = 0;
+    return [amount, value].map(v => v * (give ? 1 : -1))
+  }
+
+  queenTradeApply(good: string, give: boolean) {
+    let [amount, value] = this.queenTrade(good, give);
+    queen().give(this, good, amount);
+    this.authority += value
+    select()
+  }
 
 }
 

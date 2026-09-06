@@ -56,7 +56,7 @@ export const
   },
   pointedCell = () => u.c[state.cellPointed],
   selected = () => u.a[state.selected],
-  select = (a: Agent) => {
+  select = (a: Agent = selected()) => {
     update({ selected: u.a.indexOf(a) })
     centerOn(a.cell)
     console.log(a);
@@ -65,7 +65,7 @@ export const
     updateDiv(Info, ...agentInfo(a))
   },
   agentPointed = () => u.a.find(a => a.cell.at == state.cellPointed) as Agent,
-  queen = () => u.a.find(a => a.race.name == "alicorn") as Agent,
+  queen = () => u.a.find(a => a.queen()) as Agent,
   queenCell = () => queen()?.cell,
   namePool = [...new Set<string>(loop(1e5, japaneseName))],
   nameById = (id: number) => cap1(namePool[id % namePool.length])
