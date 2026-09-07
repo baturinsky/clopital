@@ -44,7 +44,7 @@ export const
 
     return {
       ownRecipes,
-      income: { [race.job]: 1, food:-1, ...race.income }
+      income: { [race.job]: 1, food:-1, fertilisers:.5, ...race.income }
     } as MarketAgentParameters
   }
 

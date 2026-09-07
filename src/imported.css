@@ -53,10 +53,11 @@ body {
 #BTN button {
   padding: 5px;
   font-size: 200%;
+  margin: 3px;
 }
 
 
-#TURN {
+button#TURN {
   padding: 10px;
   margin: 20px;
 }
@@ -72,7 +73,7 @@ button.h {
 }
 
 *[data-icon] canvas {
-  margin: 0 4px 0 0;
+  margin: 0 5px 0 -1px;
   transform: scale(1.5) translateY(1px);
   filter: drop-shadow(1px 1px);
   pointer-events: all;
@@ -94,7 +95,7 @@ button.h {
 .stock {
   display: flex;
   flex-wrap: wrap;
-  max-width: 20vw;
+  max-width: 250px;
 }
 
 .aaa {
@@ -119,4 +120,21 @@ td {
 
 td button {
   width: 80px;
+}
+
+#MID{
+  position: fixed; 
+  top: 0; 
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#X {
+  position: absolute;
+  right:0;
+  top:0;
+}
+
+.w1{
+  width:200px;
 }

@@ -1,5 +1,7 @@
 import { Agent } from "./agent";
 import { Race } from "./races";
+import { tradeables } from "./resources";
+import { neighborBy } from "./root";
 import { queen, state } from "./state";
 import { addToKey, bestBy, clamp, listSum, numTween, objAdd, objScale, vecTween, worstBy } from "./util";
 
@@ -8,8 +10,6 @@ const loop = <T>(l: number, f: (i: number) => T) => [...new Array(l)].map((v, i)
 
 export type GoodNumbers = { [id in string]: number };
 export type Transfer = [MarketAgent, string, number]
-
-export const tradeable = new Set(["horsing", "unicorning", "food", "housing", "tool"])
 
 const utilityBase = 0.97, utilityBaseLog = Math.log(utilityBase), DEFAULT_STOCK_CAP = 1e24
 
@@ -79,14 +79,14 @@ export class MarketAgent {
   stock: GoodNumbers = {}
   cap: GoodNumbers = {}
 
-  tradeStats = {} as any;
+  trades = {} as any;
 
   consumeStats = {} as any;
   potentialConsumeStats = {} as any;
 
   /** Resources which agent does not use themselves, 
    * so they will be given to worker if this agent is proxied */
-  out!: Set<string>
+  //out!: Set<string>
 
   /** Consume rolling average */
   cra = {} as any
@@ -104,13 +104,13 @@ export class MarketAgent {
     if (params.buyList)
       this.buys = new Set(params.buyList);
 
-    let out: GoodNumbers = {}
+    /*let out: GoodNumbers = {}
     for (let r of this.ownRecipes) {
       for (let k in r) {
         out[k] = Math.min(out[k] ?? 1, r[k])
       }
     }
-    this.out = new Set(Object.keys(out).filter(k => out[k] > 0))
+    this.out = new Set(Object.keys(out).filter(k => out[k] > 0))*/
   }
 
   /**Compile recipes from places. For Agent, automatically pick up the places from cells */
@@ -162,7 +162,7 @@ export class MarketAgent {
       let amount = recipe.recipe[k] * times;
 
       /** Means that the good is given/taken to/from local. Otherwise, proxy.*/
-      let local = amount < 0 ? this.stock[k] : recipe.place.out.has(k);
+      let local = amount < 0 ? this.stock[k] : tradeables.has(k);
 
       (local ? this : recipe.place).gain(k, amount)
 
@@ -210,7 +210,7 @@ export class MarketAgent {
   soldableTo(buyer: MarketAgent) {
     if (this.sells && buyer.buys)
       return this.sells.intersection(buyer.buys)
-    return this.sells ?? buyer.buys ?? tradeable
+    return this.sells ?? buyer.buys ?? tradeables
   }
 
   barter(their: MarketAgent) {
@@ -245,8 +245,7 @@ export class MarketAgent {
     //let finalExchangeRate = ourBreakEvenPrice;
 
     finalExchangeRate = finalExchangeRate * 100;
-    if (finalExchangeRate == 0)
-      debugger
+    //if (finalExchangeRate == 0)      debugger
 
     let maxAmountOfMyGood = Math.min(this.stock[myBestSeller], their.stock[theirBestSeller] * finalExchangeRate);
 
@@ -258,9 +257,9 @@ export class MarketAgent {
     if (!(weGive > 0))
       return false;
 
-    addToKey(this.tradeStats, `${myBestSeller} to ${their.name}`, weGive)
-    addToKey(this.tradeStats, `${theirBestSeller} from ${their.name}`, theyGive)
-
+    addToKey(this.trades, `${myBestSeller}>${their.name}`, weGive)
+    addToKey(this.trades, `${theirBestSeller}>${their.name}`, -theyGive)
+    
     this.give(their, myBestSeller, weGive)
     their.give(this, theirBestSeller, theyGive)
 
@@ -283,7 +282,12 @@ export class MarketAgent {
     this.recomp()
     this.gainIncome()
     this.useRecipes()
+    this.trade()
     this.iterations++
+  }
+
+  trade(){
+
   }
 
   gainIncome(multiplier = 1) {

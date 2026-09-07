@@ -11,9 +11,13 @@ export const
 
   moving = ["walking", "flying", "swimming"],
 
-  food = ["apples", "honey", "coffee", "wheat", "sugarcane", "seaweed", "bread", "jam", "pie"],
+  food = ["grass", "seaweed", "apples", "honey", "coffee", "wheat", "sugarcane", "bread", "jam", "pie"],
 
-  items = ["gems", "tools", "lumber", "cotton", "engine", "wagon", "fabric", "clothes", "iron", "gold", "beds"],
+  plant = ["cotton", "rubber"],
+
+  items = ["gems", "tools", "lumber", "engine", "wagon", "fabric", "clothes", "iron", "gold", "beds", "fertilisers"],
+
+  tradeables = new Set([...food, ...items]),
 
   resources = objMap({
     unknown: 106,
@@ -38,6 +42,7 @@ export const
 
     gems: [85, "#f08,#fff"],
     oil: [93, "#000,,#222"],
+    rubber: [86, "#840,,#222"],
     honey: [96, "#f80,#fff,#aaf"],
     coffee: [96, "#000,#fff,#aaf"],
     moss: [105, "#4a4,#aa4"],

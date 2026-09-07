@@ -18,7 +18,7 @@ export let state = {
   turn: 0,
   namesLeft: 1e12,
   lastId: 0,
-  tab: "jobs"
+  tab: "jobs",
 }
 
 export type State = typeof state;
@@ -26,7 +26,8 @@ export type State = typeof state;
 let lastCell: Cell | undefined;
 
 export const
-
+  savePrefix = "CLP:",
+  saveTitlePrefix = "CLP!",
   update = (d: Partial<State> = {}) => {
     Object.assign(state, d);
     let tl = state.topLeftAt;
@@ -36,15 +37,16 @@ export const
 
     debouncedUpdate()
   },
-  saveAndUpdateTip = (slot = "a") => {
+  saveAndUpdateTip = (slot = 0) => {
     state.namesLeft = namePool.length
     updateTip()
-    localStorage["CLP." + slot] = JSON.stringify(state)
+    localStorage[savePrefix + slot] = JSON.stringify(state)
+    localStorage[saveTitlePrefix + slot] = new Date().toISOString()
   },
   debouncedUpdate = debounce(saveAndUpdateTip),
   debouncedPrerender = debounce(() => prerenderUniverse()),
-  load = (slot = "a") => {
-    let data = localStorage["CLP." + slot]
+  load = (slot = 0) => {
+    let data = localStorage[savePrefix + slot]
     if (data) {
       Object.assign(state, JSON.parse(data))
     }

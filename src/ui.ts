@@ -1,19 +1,21 @@
-import { Agent } from "./agent";
+import { Agent, craScale } from "./agent";
 import { GoodNumbers, marginalUtility, MarketAgent } from "./market";
 import { resourceIcon } from "./renderer";
 import { iterationsPerTurn } from "./setting";
-import { state, agentPointed, pointedCell, queen } from "./state";
+import { state, agentPointed, pointedCell, queen, saveTitlePrefix } from "./state";
 import { u } from "./universe";
 import { cap1, dist, objFilter, objMap, objScale, objStripFalsy, removeDuplicates } from "./util";
 
-declare var TIP: HTMLDivElement, INFO: HTMLDivElement;
+declare var TIP: HTMLDivElement, INFO: HTMLDivElement, MID: HTMLDivElement;
 
-export const ARROW = 65, Tip = 0, Info = 1, Tt = 2,
+export let menuOn = false;
+
+export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
 
   tabs = ["gifts", "jobs", "recipes", "income", "trades"],
 
   updateDiv = (slot: number, ...text: (string | undefined)[]) => {
-    [TIP, INFO][slot].innerHTML = text.filter(v => v).map(t =>
+    [TIP, INFO, MID][slot].innerHTML = text.filter(v => v).map(t =>
       t == "btn" ? agentButtons() :
         t?.charAt(0) == "!" ? `<div class=ptl>${t?.substring(1)}</div>` :
           `<div class=pnl>${t}</div>`
@@ -51,7 +53,7 @@ export const ARROW = 65, Tip = 0, Info = 1, Tt = 2,
     }
   },
 
-  agenTitle = (agent: Agent) => `<h4>${icon(agent.race.job)}${agent.name} - ${agent.size>1?agent.size:""} ${agent.race.name}</h4>`,
+  agenTitle = (agent: Agent) => `<h4>${icon(agent.race.job)}${agent.name} - ${agent.size > 1 ? agent.size : ""} ${agent.race.name}</h4>`,
 
   updateTip = () => {
     let cell = pointedCell()
@@ -59,7 +61,7 @@ export const ARROW = 65, Tip = 0, Info = 1, Tt = 2,
     let lines = []
 
     if (cell) {
-      lines.push(`<h4>${cell.name} ${cell.biome.name} ${cell.special?`with ${cell.special}`:''}</h4>${cell.agent ? `<div class=stock>${asList(objStripFalsy(cell.agent?.stock))}</div>` : ''}`)
+      lines.push(`<h4>${cell.name} ${cell.biome.name} ${cell.special ? `with ${cell.special}` : ''}</h4>${cell.agent ? `<div class=stock>${asList(objStripFalsy(cell.agent?.stock))}</div>` : ''}`)
 
       u.a.forEach(a => a.cell == cell && lines.push(agenTitle(a)))
 
@@ -93,7 +95,7 @@ export const ARROW = 65, Tip = 0, Info = 1, Tt = 2,
     //"!Authority:∞",
     `${agenTitle(agent)}<div class=stock>${asList(objStripFalsy(agent.stock))}</div>`,
     "!needs covered",
-    `${asList(agent.cra)}`,
+    `${asList(objScale(agent.cra, 1/craScale))}`,
 
     //`<div class=stock>${asList(objMap(a.stock, v => ~~(marginalUtility(v) / 1000)))}</div>`,
     "btn",
@@ -112,11 +114,11 @@ export const ARROW = 65, Tip = 0, Info = 1, Tt = 2,
           ]
   ],
 
-  authority = (agent:Agent)=>`Authority: ${agent.queen() ? "∞" : agent.authority}`,
+  authority = (agent: Agent) => `Authority: ${agent.queen() ? "∞" : agent.authority}`,
 
   tradeTable = (agent: Agent) => {
     if (agent.queen() || !agent.cell.neighbors.includes(queen().cell))
-      return `${authority(agent)}<br/>Approach other herd to trade` 
+      return `${authority(agent)}<br/>Approach other herd to trade`
 
     let res = removeDuplicates([...Object.keys(queen().stock), ...Object.keys(agent.stock)])
 
@@ -141,4 +143,28 @@ ${res.map(name => {
     }).join('')}
   </table>
   `
+  },
+
+  hideMenu = () => {
+    menuOn = false;
+    updateDiv(Mid, "")
+  },
+
+  showSavesMenu = () => {
+    menuOn = true;
+    let s = ["<button id=X>X</button>"]
+    for (let i = 0; i < 20; i++) {
+      let title = localStorage[saveTitlePrefix + i]
+      s.push(`${i||'a'} <button data-load=${i}>load</button> <button data-save=${i}>save</button> ${title || "new"}`)
+      if (!title)
+        break
+    }
+    updateDiv(Mid, s.join("</br>"))
+  },
+
+
+  showResearchMenu = (on = true) => {
+    menuOn = true;
+    updateDiv(Mid, "Research<button id=X>X</button>")
   }
+

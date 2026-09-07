@@ -110,7 +110,7 @@ export const biomesByNames = {
     travel: 4,
     habitability: 1,
     races: "zebras",
-    special: { gems: 1 },
+    special: { rubber: 3 },
     soil: 3,
     trees: 4
   },

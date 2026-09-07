@@ -1,11 +1,12 @@
 import { clamp, debounce, floor, objMap, scale, sub, sum, Vec2 } from "./util";
 import { neighborhood, photoScale, worldCoord, ww } from "./root";
-import { agentPointed, pointedCell, queen, queenCell, select, selected, state, update } from "./state";
+import { agentPointed, pointedCell, queen, queenCell, saveAndUpdateTip, select, selected, state, update } from "./state";
 import { u } from "./universe";
 import { nextTurn, nexTurnAndShowResults } from "./main";
-import { tabs, updateTip } from "./ui";
+import { hideMenu, menuOn, showResearchMenu, showSavesMenu, tabs, updateTip } from "./ui";
 import { animate, animations } from "./animation";
 import { layerSickness as layerThickness } from "./renderer";
+import { playSound } from "./sound";
 
 declare var C: HTMLCanvasElement;
 
@@ -18,7 +19,10 @@ export const
     onpointerdown = (e: MouseEvent) => {
       let f = ({
         TURN: nexTurnAndShowResults,
-        QUEEN: () => select(queen())
+        QUEEN: () => select(queen()),
+        SAVES: () => menuOn ? hideMenu() : showSavesMenu(),
+        RS: () => menuOn ? hideMenu() : showResearchMenu(),
+        X: hideMenu
       } as { [button: string]: Function })[(e.target as HTMLButtonElement)?.id]
       f && f()
 
@@ -34,6 +38,16 @@ export const
 
       if (element.dataset.take)
         selected().queenTradeApply(element.dataset.take, false)
+
+      if (element.dataset.save) {
+        saveAndUpdateTip(element.dataset.save)
+        showSavesMenu()
+      }
+
+      if (element.dataset.load) {
+        saveAndUpdateTip(element.dataset.load)
+        showSavesMenu()
+      }
 
     }
 

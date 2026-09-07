@@ -15,7 +15,7 @@ export const
         fertilisers: .2
       },
       ownRecipes: [
-        { soil: -1, irrigation: -1, fertilisers: -1, sowing: -1, crops: 4 },
+        { soil: -1, irrigation: -1, fertilisers: -2, sowing: -1, crops: 4 },
         { crops: -1, grass: 1 }
       ]
     },

@@ -3,13 +3,14 @@ import { Cell } from "./cell";
 import { marginalUtility, MarketAgent, RecipeX, Transfer } from "./market";
 import { Race, raceAgentParameters } from "./races";
 import { resourceIcon, spriteOf } from "./renderer";
+import { cellNeighborhood } from "./root";
 import { iterationsPerTurn, races } from "./setting";
 import { debouncedPrerender, nameById, namePool, pointedCell, queen, select, selected, state, update } from "./state";
 import { u } from "./universe";
 import { cap1, dist, loop, objMap, randomElement, removeFromList, rng, sum, Vec2 } from "./util";
 
 /** Scale when saving Consume rolling average */
-const craScale = 10000;
+export const craScale = 10000;
 
 export const agentLocation = (a: MarketAgent) => {
   let c = (a as Agent).cell ?? u.c[a.id]
@@ -65,6 +66,13 @@ export class Agent extends MarketAgent {
   recomp() {
     this.places = this.cell.neighborhood.map(c => c.getAgent())
     super.recomp()
+  }
+
+  trade() {
+    let
+      nb = new Set(this.cell.neighborhoodR(20)),
+      partners = u.a.filter(a => nb.has(a.cell));
+    partners.forEach(p => this.barter(p));
   }
 
   nextTurn() {
@@ -145,7 +153,7 @@ export class Agent extends MarketAgent {
       steps: v.steps,
       cell: u.c[v.cell],
       dest: u.c[v.dest as any],
-      race: races[v.race],      
+      race: races[v.race],
       cra: objMap(this.cra, v => v / craScale)
     } as Partial<Agent>)
   }
@@ -174,10 +182,10 @@ export class Agent extends MarketAgent {
     let giver = give ? queen() : this;
     let mu = marginalUtility(this.stock[good] ?? 0)
     let amount = Math.ceil(giver.stock[good] / 10);
-    let value = ~~(mu * amount * (give ? .9 : 1.1)/1e6);
-    if(!give)
+    let value = ~~(mu * amount * (give ? .9 : 1.1) / 1e6);
+    if (!give)
       value++;
-    if(!value)
+    if (!value)
       amount = 0;
     return [amount, value].map(v => v * (give ? 1 : -1))
   }

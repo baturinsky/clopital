@@ -67,7 +67,7 @@ export class Universe {
 
     this.byElev = [...this.c].sort((a, b) => a.elev - b.elev)
 
-    this.elev = [.4, .55, .82, .97].map(h => this.quantile(h))
+    this.elev = [.4, .5, .82, .97].map(h => this.quantile(h))
 
     if (HAVERIVERS) {
 
@@ -85,7 +85,7 @@ export class Universe {
     }
 
     this.c.forEach(c => {
-      c.t = 1.6 - c.latitude() * 1.2 - (c.elev - this.elev[ESea]) / 2
+      c.t = 1.6 - c.latitude() * 1 - (c.elev - this.elev[ESea]) / 2
     })
 
     loop(12, i =>
@@ -95,7 +95,7 @@ export class Universe {
           (Math.cos(cell.at / ws * 12.5) + 1 + rng() / 3);
 
         while (clouds > 0) {
-          [cell, ...cell.neighbors].forEach(nb => nb.hum += clouds / 50)
+          [cell, ...cell.neighbors].forEach(nb => nb.hum += clouds / 25)
 
           cell = cell.neighbors[i] ?? cell.neighbors[cell.at < ws * .3 || cell.at > ws * .7 ? East : West];
 
