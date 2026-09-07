@@ -97,7 +97,6 @@ export class MarketAgent {
     this.minit(params)
   }
 
-
   minit(params: MarketAgentParameters = {}) {
     Object.assign(this, params)
     if (params.sellList)
@@ -126,15 +125,17 @@ export class MarketAgent {
    * If working in worlplace, use the sum of stock
   */
   mutl(good: string, place?: MarketAgent) {
-    return marginalUtility(~~(this.common(good, place) / this.size))
+    let v = marginalUtility(~~(this.common(good, place) / this.size))
+    return v
   }
-
 
   /** Recipe utility
    * How much the market utility will change when using the recipe without multiplier */
   utl(recipe: RecipeX) {
     return listSum(Object.keys(recipe.recipe), good => {
-      return this.mutl(good, recipe.place) * recipe.recipe[good]
+      //if(recipe.recipe.seaweed>0)        debugger
+      let v = this.mutl(good, recipe.place) * recipe.recipe[good]
+      return v
     })
   }
 
@@ -156,7 +157,6 @@ export class MarketAgent {
     }
 
     let transfer: RecipeX | undefined;
-
 
     Object.keys(recipe.recipe).forEach((k) => {
       let amount = recipe.recipe[k] * times;
@@ -194,10 +194,9 @@ export class MarketAgent {
     return bb
   }
 
-
   /** Common amount of res between this and place */
   common(good: string, place?: MarketAgent) {
-    return (this.stock[good] ?? 0) + (place?.stock[good] ?? 0)
+    return (this.stock[good] ?? 0) + (place == this ? 0 : place?.stock[good] ?? 0)
   }
 
 
@@ -281,6 +280,7 @@ export class MarketAgent {
   }
 
   iterate() {
+    this.recomp()
     this.gainIncome()
     this.useRecipes()
     this.iterations++
@@ -319,7 +319,7 @@ export class MarketAgent {
   }*/
 
   useRecipes() {
-    let limit = 10;
+    let limit = 30;
     while (limit--) {
       let [recipe, v] = bestBy(this.recipes, (recipe) =>
         this.utl(recipe) * this.max(recipe)

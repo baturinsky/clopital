@@ -7,6 +7,7 @@ import { state, saveAndUpdateTip, load, select, selected } from "./state";
 import { u, Universe } from './universe';
 import { initRaces } from './races';
 import { updateTip } from './ui';
+import { loop } from './util';
 
 
 export const
@@ -14,8 +15,8 @@ export const
   regenerateUniverse = () => {
     new Universe(state.seed)
     state.lastId = u.c.length
-    nextTurn()
     prerenderUniverse()
+    loop(30, nextTurn)
     saveAndUpdateTip()
   };
 
@@ -31,7 +32,7 @@ const init = () => {
 
   enableControls()
 
-  load()  
+  load()
 
   //setInterval(render, 32)
   render()
@@ -40,10 +41,13 @@ const init = () => {
 //testMarket()
 
 
-export function nextTurn() {
-  u.a.forEach(a=>a.nextTurn())
-  u.c.forEach(c=>c.nextTurn())
-
-  select(selected())
-  updateTip()
-}
+export const
+  nextTurn = () => {
+    u.a.forEach(a => a.nextTurn())
+    u.c.forEach(c => c.nextTurn())
+  },
+  nexTurnAndShowResults = () => {
+    nextTurn()
+    select(selected())
+    updateTip()
+  }

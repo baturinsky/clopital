@@ -7,6 +7,14 @@ export const
     return { sprite: raw[0], color: raw[1]?.split(",") }
   },
 
+  jobs = ["working","workingHard","sowing"],
+
+  moving = ["walking", "flying", "swimming"],
+
+  food = ["apples", "honey", "coffee", "wheat", "sugarcane", "seaweed", "bread", "jam", "pie"],
+
+  items = ["gems", "tools", "lumber", "cotton", "engine", "wagon", "fabric", "clothes", "iron", "gold", "beds"],
+
   resources = objMap({
     unknown: 106,
     working: 80,
@@ -22,6 +30,8 @@ export const
     irrigation: [86, "#00f,#fff"],
     water: [86, "#08f,#fff"],
 
+    tools: [80, "#88a,,#55a"],
+
     walking: [100, "#fff"],
     flying: [101, "#fff"],
     swimming: [102, "#fff"],
@@ -29,6 +39,7 @@ export const
     gems: [85, "#f08,#fff"],
     oil: [93, "#000,,#222"],
     honey: [96, "#f80,#fff,#aaf"],
+    coffee: [96, "#000,#fff,#aaf"],
     moss: [105, "#4a4,#aa4"],
     wheat: [113, "#fe0"],
     gas: [93, "#88f,,#fff"],
@@ -46,7 +57,7 @@ export const
     berries: [99, "#808,,#fff"],
     axing: 109,
     grass: [90, "#0a0,#0a0"],
-    seaweed: [90, "#0a0,#0a0"],
+    seaweed: [90, "#f0f,#0aa"],
     magic: 94,
     food: 87,
     fertilisers: [89, "#620,#220"],
@@ -60,3 +71,6 @@ export const
       sc?: HTMLCanvasElement
     }
   }
+
+
+  console.log(jobs,moving,food,items);

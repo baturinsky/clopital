@@ -30,13 +30,13 @@ let worldPhoto: HTMLCanvasElement,
   ctx: CanvasRenderingContext2D,
   /** Currently active context (ctx unless it's prerender)*/
   cx: CanvasRenderingContext2D,
-  props: HTMLCanvasElement[], huts: HTMLCanvasElement[],
   sprites: HTMLCanvasElement[],
+  props: HTMLCanvasElement[], huts: HTMLCanvasElement[],
   outlined: HTMLCanvasElement[],
   letters: HTMLCanvasElement[],
+  letterWidth = 6,
   filters = new Set(),
   revealingMap = 0,
-  letterWidth = 6,
   blinkAlpha = 0,
   dt = 1,
   lastT = Date.now();
@@ -126,10 +126,10 @@ export const
     for (let agent of u.a) {
       if (agent.anim || !agent.cell.seen)
         continue
+      drawOnCell(agent.cell, SHADOW)
       if (selected() == agent) {
         drawOnCell(agent.cell, BIGCURSOR)
       }
-      drawOnCell(agent.cell, SHADOW)
       drawOnCell(agent.cell, agent.race?.sprite)
 
       if (agent.transfers?.length && dt > rng(300) && dist(agent.cell.center(), pointedCell()?.center()) < 30) {
@@ -165,7 +165,7 @@ export const
       p.forEach((step, i) => {
         i > 0 && drawOnCell(
           step,
-          resourceIcon(a.race.moving + (i > a.steps || true ? "Far" : "")))
+          resourceIcon(a.race.moving + (i > a.steps ? "Far" : "")))
       })
     }
   },
@@ -279,16 +279,8 @@ export const
         let i1 = nof(props.map(p => sprites[p]), 6, pnum);
         drawProps(cell, i1)
       }
-
       
       cell.special && drawOnCell(cell, resourceIcon(cell.special))
-
-      /*if (state.debug) {
-        cx.fillStyle = "#00f";
-        cx.fillRect(...sum(cell.topLeft(), [5, 10]), 1, -cell.hum);
-        cx.fillStyle = "#f00";
-        cx.fillRect(...sum(cell.topLeft(), [6, 10]), 1, -cell.t * 10);
-      }*/
 
     })
 
@@ -329,8 +321,8 @@ export const
   },
   makeBiomeSprites = (biome: Biome) => {
     return [...new Array(6)].map((v, i) =>
-      cutSpriteFromAtlas(0, 235, 17, 22, constructFilter([
-        scale(biome.rgba, 1.3 - .05 * i - (i > 2 ? .2 : 0)),
+      cutSpriteFromAtlas(240, 0, 16, 22, constructFilter([
+        scale(biome.rgba, 1.3/* - .05 * i - (i > 2 ? .2 : 0)*/),
         scale(biome.rgba, .5),
         scale(biome.rgba, .3)
       ])))

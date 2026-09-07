@@ -195,3 +195,23 @@ function addRoads() {
     `<table>${Object.entries(a).map(([k, v]) =>
       `<tr><td>${cap1(k)}</td><td data-icon="${k}"></td><td>${v}</td></tr>`).join('')}</table>`
   ,
+
+
+      let score = 0, coast = 0;
+
+      cell.neighbors.forEach(nb => {
+        score += nb.biome.habitability * 2
+        coast += nb.water() ? 1 : 0;
+      })
+
+      score += cell.rivers ? 10 : 0;
+
+      cell.habitability = score * (coast ? 2 : 1);
+
+
+      /*if (state.debug) {
+        cx.fillStyle = "#00f";
+        cx.fillRect(...sum(cell.topLeft(), [5, 10]), 1, -cell.hum);
+        cx.fillStyle = "#f00";
+        cx.fillRect(...sum(cell.topLeft(), [6, 10]), 1, -cell.t * 10);
+      }*/

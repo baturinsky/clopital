@@ -1,7 +1,7 @@
 import { drawCentered, drawSprite, wobbleFlight as verticalWobble } from "./renderer";
 import { removeFromList, vecTween, Vec2 } from "./util";
 
-let animations: MovementAnimation[] = [];
+export let animations: MovementAnimation[] = [];
 
 export type MovementAnimation = {
   /** Sprite */

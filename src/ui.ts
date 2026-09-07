@@ -3,13 +3,14 @@ import { GoodNumbers, marginalUtility, MarketAgent } from "./market";
 import { resourceIcon } from "./renderer";
 import { iterationsPerTurn } from "./setting";
 import { state, agentPointed, pointedCell, queen } from "./state";
+import { u } from "./universe";
 import { cap1, dist, objFilter, objMap, objScale, objStripFalsy, removeDuplicates } from "./util";
 
 declare var TIP: HTMLDivElement, INFO: HTMLDivElement;
 
 export const ARROW = 65, Tip = 0, Info = 1, Tt = 2,
 
-  tabs = ["jobs", "recipes", "income", "trade", "trades"],
+  tabs = ["gifts", "jobs", "recipes", "income", "trades"],
 
   updateDiv = (slot: number, ...text: (string | undefined)[]) => {
     [TIP, INFO][slot].innerHTML = text.filter(v => v).map(t =>
@@ -50,26 +51,29 @@ export const ARROW = 65, Tip = 0, Info = 1, Tt = 2,
     }
   },
 
-  agenTitle = (agent: Agent) => `<h4>${icon(agent.race.job)} ${agent.name} ${agent.race.name}</h4>`,
+  agenTitle = (agent: Agent) => `<h4>${icon(agent.race.job)}${agent.name} - ${agent.size>1?agent.size:""} ${agent.race.name}</h4>`,
 
   updateTip = () => {
     let cell = pointedCell()
 
     let lines = []
-    if (agentPointed())
-      lines.push(agenTitle(agentPointed()))
 
     if (cell) {
-      lines.push(`${cell.name} ${cell.biome.name}`)
+      lines.push(`<h4>${cell.name} ${cell.biome.name} ${cell.special?`with ${cell.special}`:''}</h4>${cell.agent ? `<div class=stock>${asList(objStripFalsy(cell.agent?.stock))}</div>` : ''}`)
+
+      u.a.forEach(a => a.cell == cell && lines.push(agenTitle(a)))
+
       if (cell.agent) {
         lines.push(
-          "!income",
+          "!income/turn",
           asList(cell.agent.income),
-          "!have",
-          asList(cell.agent.stock),
+          "!jobs available",
+          `<div class=tc>${cell.agent.ownRecipes.map(fancyRecipe).join("</br>")}</div>`,
           ...Object.keys(cell.agent.uses).length ?
-            ["!jobs this turn",
-              recipeUsedStats(cell.agent)] : []
+            [
+              "!jobs this turn",
+              recipeUsedStats(cell.agent)] : [],
+
         )
       } else {
         lines.push(asList(objStripFalsy(cell.resources)))
@@ -88,6 +92,8 @@ export const ARROW = 65, Tip = 0, Info = 1, Tt = 2,
   agentInfo = (agent: Agent) => [
     //"!Authority:∞",
     `${agenTitle(agent)}<div class=stock>${asList(objStripFalsy(agent.stock))}</div>`,
+    "!needs covered",
+    `${asList(agent.cra)}`,
 
     //`<div class=stock>${asList(objMap(a.stock, v => ~~(marginalUtility(v) / 1000)))}</div>`,
     "btn",
@@ -96,24 +102,25 @@ export const ARROW = 65, Tip = 0, Info = 1, Tt = 2,
       ["!jobs this turn",
         recipeUsedStats(agent)] :
       state.tab == "income" ?
-        ["!income",
+        ["!income/turn",
           asList(objScale(agent.income, agent.size * iterationsPerTurn))] :
-        state.tab == "trade" ?
-          ["!trade with the Queen",
+        state.tab == "gifts" ?
+          ["!give or receive goods",
             tradeTable(agent)] :
-          ["!recipes available",
+          ["!jobs available",
             `<div class=tc>${agent.ownRecipes.map(fancyRecipe).join("</br>")}</div>`
           ]
   ],
 
+  authority = (agent:Agent)=>`Authority: ${agent.queen() ? "∞" : agent.authority}`,
+
   tradeTable = (agent: Agent) => {
     if (agent.queen() || !agent.cell.neighbors.includes(queen().cell))
-      return "Select a herd next to the Queen"
+      return `${authority(agent)}<br/>Approach other herd to trade` 
 
     let res = removeDuplicates([...Object.keys(queen().stock), ...Object.keys(agent.stock)])
 
-
-    return `Authority: ${agent.queen() ? "∞" : agent.authority}
+    return `${authority(agent)}
 <table>
 <td>${icon("alicorning")}</td>
 <td>give</td>
@@ -121,14 +128,14 @@ export const ARROW = 65, Tip = 0, Info = 1, Tt = 2,
 <td>take</td>
 <td>${icon(agent.race.job)}</td>
 ${res.map(name => {
-  let [give, take] = [agent.queenTrade(name, true), agent.queenTrade(name, false)];
-  if(!give[1] && !take[1])
-    return ""
-  return `<tr>
+      let [give, take] = [agent.queenTrade(name, true), agent.queenTrade(name, false)];
+      if (!give[1] && !take[1])
+        return ""
+      return `<tr>
 <td>${queen().stock[name] ?? 0}</td>
 <td>${queen().stock[name] && give[1] ? `<button data-give="${name}">${give[0]}</button>` : ""}</td>
 <td>${icon(name)}</td>
-<td>${agent.stock[name] && take[1] && agent.authority>1 ? `<button data-take="${name}">${-take[0]}</button>` : ""}</td>
+<td>${agent.stock[name] && take[1] && agent.authority > 1 ? `<button data-take="${name}">${-take[0]}</button>` : ""}</td>
 <td>${agent.stock[name] ?? 0}</td>
 </tr>`
     }).join('')}

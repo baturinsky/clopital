@@ -15,6 +15,7 @@ body {
 #INFO {
   position: fixed;
   top: -10px;
+  pointer-events: none;
 }
 
 .pnl {
@@ -73,7 +74,8 @@ button.h {
 *[data-icon] canvas {
   margin: 0 4px 0 0;
   transform: scale(1.5) translateY(1px);
-  filter: drop-shadow(1px 1px)
+  filter: drop-shadow(1px 1px);
+  pointer-events: all;
 }
 
 *[data-icon]:hover .ttx {

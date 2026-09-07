@@ -5,7 +5,7 @@ import { layerSickness } from "./renderer"
 import { photoScale, worldCoord, toXY, wh, ws, ww, neighborhood } from "./root"
 import { iterationsPerTurn, biomeToAgent, races, cellCapPerIncome, incomePerResource } from "./setting"
 import { nameById } from "./state"
-import { Universe } from "./universe"
+import { ESea, Universe } from "./universe"
 import { cap1, clamp, loop, min, muls, objAdd, objScale, randomElement, rng, round, setSeed, objStripFalsy, sum, Vec2 } from "./util"
 
 export type PathPoint = { c: Cell, d: number, from: Cell }
@@ -27,8 +27,6 @@ export class Cell {
 
   layer: number = SEALVL | GROUNDLVL | HILLSLVL
 
-  habitability!: number
-
   bedrock!: boolean
 
   /** Neighbor (or undefined) to the six irections in order */
@@ -49,7 +47,6 @@ export class Cell {
   agent?: MarketAgent
 
   special?:string
-  specialx?:number
 
   neighborhoodR(d: number) {
     return neighborhood[d].map(v => this.u.c[v + this.at]).filter(v => v);
@@ -67,7 +64,7 @@ export class Cell {
   }
 
   water() {
-    return this.elev < this.u.SeaElev;
+    return this.elev < this.u.elev[ESea];
   }
 
   constructor(public u: Universe, public at: number) {
@@ -187,7 +184,7 @@ export const erode = (cell:Cell, path: Cell[] = []): Cell[] | undefined => {
     return
 
   path.push(cell);
-  if (cell.elev < cell.u.SeaElev)
+  if (cell.elev < cell.u.elev[ESea])
     return path;
 
   let flowTo = min(cell.neighbors, c => c.elev)

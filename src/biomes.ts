@@ -1,3 +1,4 @@
+import { GoodNumbers } from "./market";
 import { RGBA, asArray, hexToRgb } from "./util";
 
 export type Biome = {
@@ -14,8 +15,7 @@ export type Biome = {
   trees: number
   deposits: number
   deepwater: number
-  special?: string
-  specialx?: number
+  special?: GoodNumbers
 }
 
 export type BiomeName = keyof typeof biomesByNames;
@@ -47,7 +47,7 @@ export const biomesByNames = {
     travel: 2,
     habitability: 0,
     races: "goats",
-    special: "gems",
+    special: { gems: 1 },
     deposits: 3,
     soil: 1
   },
@@ -56,7 +56,7 @@ export const biomesByNames = {
     travel: 2,
     habitability: 0,
     races: "deers",
-    special: "oil",
+    special: { oil: 1 },
   },
   tundra: {
     color: "#8fa",
@@ -64,7 +64,7 @@ export const biomesByNames = {
     travel: 2,
     habitability: 1,
     races: "deers",
-    special: "moss",
+    special: { moss: 1 },
     soil: 2
   },
   plains: {
@@ -73,8 +73,8 @@ export const biomesByNames = {
     travel: 1,
     habitability: 2,
     races: "horses",
-    special: "wheat",
-    specialx: 10,
+    special: { wheat: 5 },
+    specialx: 3,
     soil: 6
   },
   swamp: {
@@ -83,7 +83,8 @@ export const biomesByNames = {
     travel: 4,
     habitability: 1,
     soil: 3,
-    special: "gas",
+    races: "unicorns",
+    special: { sugarcane: 1 },
   },
   desert: {
     color: "#f80",
@@ -91,7 +92,7 @@ export const biomesByNames = {
     travel: 2,
     habitability: 1,
     races: "zebras",
-    special: "oil",
+    special: { coffee: 5 },
     soil: 2
   },
   steppe: {
@@ -100,7 +101,7 @@ export const biomesByNames = {
     travel: 1,
     habitability: 2,
     races: ["zebras", "horses"],
-    special: "cotton",
+    special: { cotton: 1 },
     soil: 4
   },
   jungles: {
@@ -109,7 +110,7 @@ export const biomesByNames = {
     travel: 4,
     habitability: 1,
     races: "zebras",
-    special: "gems",
+    special: { gems: 1 },
     soil: 3,
     trees: 4
   },
@@ -119,7 +120,7 @@ export const biomesByNames = {
     travel: 2,
     habitability: 2,
     races: ["deers", "horses"],
-    special: "apples",
+    special: { apples: 1 },
     soil: 3,
     trees: 3
   },
@@ -129,7 +130,7 @@ export const biomesByNames = {
     travel: 3,
     habitability: 1,
     races: "deers",
-    special: "honey",
+    special: { honey: 1 },
     soil: 2,
     trees: 2
   },
@@ -139,7 +140,7 @@ export const biomesByNames = {
     seaTravel: 2,
     habitability: 0,
     races: "seahorses",
-    special: "pearls",
+    special: { pearls: .3 },
     deepwater: 1
   },
   sea: {
@@ -148,7 +149,7 @@ export const biomesByNames = {
     seaTravel: 1,
     habitability: 0,
     races: "seahorses",
-    special: "oil",
+    special: { oil: 1 },
     deepwater: 1
   },
 } as { [name: string]: Biome };

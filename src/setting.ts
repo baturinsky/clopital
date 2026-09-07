@@ -3,7 +3,7 @@ import { Race } from "./races"
 
 export const
   iterationsPerTurn = 7,
-  cellCapPerIncome = 10,
+  cellCapPerIncome = 100,
   incomePerResource = 100,
 
   /** How biome resources translate to cell agent income */
@@ -38,9 +38,9 @@ export const
     deepwater: {
       income: { deepwater: 1 },
       ownRecipes: [
-        { deepwater: -5, swimming: -1, seaweeds: 1 },
-        { deepwater: -5, swimming: -1, water: 2 },
-        { deepwater: -5, walking: -1, water: 1 }
+        { deepwater: -1, swimming: -1, seaweed: 1 },
+        { deepwater: -1, swimming: -1, water: 2 },
+        { deepwater: -1, walking: -1, water: 1 }
       ]
     }
   } as {
@@ -62,10 +62,9 @@ export const
       { working: -2, workingHard: 1 },
       { working: -1, magic: -5, workingHard: 3 },
       { working: -1, thinking: 1 },
-      { strength: -1, digging: 1 },
-      { strength: -3, tools: -1, digging: 10 },
-      { magic: -1, fertilisers: 1 },
-      { rain: -1, irrigation: 1 }
+      { workingHard: -1, digging: 1 },
+      { workingHard: -3, tools: -1, digging: 10 },
+      { magic: -1, fertilisers: 1 }
     ],
 
   //@ts-ignore

@@ -1,9 +1,11 @@
-import { clamp, debounce, floor, scale, sub, sum, Vec2 } from "./util";
+import { clamp, debounce, floor, objMap, scale, sub, sum, Vec2 } from "./util";
 import { neighborhood, photoScale, worldCoord, ww } from "./root";
 import { agentPointed, pointedCell, queen, queenCell, select, selected, state, update } from "./state";
 import { u } from "./universe";
-import { nextTurn } from "./main";
+import { nextTurn, nexTurnAndShowResults } from "./main";
 import { tabs, updateTip } from "./ui";
+import { animate, animations } from "./animation";
+import { layerSickness as layerThickness } from "./renderer";
 
 declare var C: HTMLCanvasElement;
 
@@ -15,7 +17,7 @@ export const
 
     onpointerdown = (e: MouseEvent) => {
       let f = ({
-        TURN: nextTurn,
+        TURN: nexTurnAndShowResults,
         QUEEN: () => select(queen())
       } as { [button: string]: Function })[(e.target as HTMLButtonElement)?.id]
       f && f()
@@ -27,22 +29,21 @@ export const
         select()
       }
 
-      if (element.dataset.give) 
+      if (element.dataset.give)
         selected().queenTradeApply(element.dataset.give, true)
-      
-      if (element.dataset.take) 
+
+      if (element.dataset.take)
         selected().queenTradeApply(element.dataset.take, false)
 
     }
-
 
     C.onpointerdown = C.onpointermove = C.onpointerup = C.onpointerleave = e => {
       let canvasMousePos = [e.offsetX, e.offsetY] as Vec2;
       let photoMousePos = sub(scale(canvasMousePos, 1 / state.scale), state.topLeftAt);
       let worldMousePos = [photoMousePos[0] / photoScale[0], photoMousePos[1] / photoScale[1]]
       worldMousePos[0] -= floor(worldMousePos[1]) / 2;
-      let tilePointed = floor(worldMousePos[0]) + floor(worldMousePos[1] - .1) * ww + (floor(worldMousePos[0]) < 0 ? ww : 0)
 
+      let tilePointed = floor(worldMousePos[0]) + floor(worldMousePos[1] - .1) * ww + (floor(worldMousePos[0]) < 0 ? ww : 0)
 
 
       if (e.type == "pointermove") {
@@ -107,6 +108,7 @@ export const
   },
 
   shiftViewBy = (delta: Vec2) => {
+    animations.length = 0
     update({ topLeftAt: sum(state.topLeftAt, delta, 1 / state.scale) })
   }
 
@@ -114,10 +116,16 @@ export const
 onkeydown = e => {
   switch (e.code) {
     case "Space":
-      nextTurn()
+      nexTurnAndShowResults()
       break;
     case "Escape":
       update({ selected: undefined })
+      break
+    case "KeyI":
+      console.log(selected().recipes.map((recipe) =>
+        [JSON.stringify(recipe.recipe), selected().utl(recipe) * selected().max(recipe)]));
+      console.log(objMap(selected().stock, k => selected().mutl(k)));
+      selected().iterate()
       break
   }
 }
