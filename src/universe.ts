@@ -10,7 +10,8 @@ export let u: Universe
 export const HAVERIVERS = false;
 
 export const East = 1, West = 4, SE = 3, SW = 4,
-  EOcean = 0, ESea = 1, EHighlands = 2, EPeaks = 3;
+  EOcean = 0, ESea = 1, EHighlands = 2, EPeaks = 3,
+  buildingInCell = (c: Cell) => c.a.find(a => a.isBuilding())
 ;
 
 export class Universe {
@@ -49,7 +50,7 @@ export class Universe {
 
   generate() {
 
-    this.c = loop(ws, at => new Cell(this, at))
+    this.c = loop(ws, at => new Cell(at))
 
     setSeed(this.seed)
 
@@ -69,7 +70,7 @@ export class Universe {
 
     this.elev = [.4, .5, .82, .97].map(h => this.quantile(h))
 
-    if (HAVERIVERS) {
+    /*if (HAVERIVERS) {
 
       loop(10000, () => erode(this.anyCell()))
 
@@ -82,10 +83,11 @@ export class Universe {
           path.forEach(cell => cell.rivers++);
         }
       })
-    }
+    }*/
 
     this.c.forEach(c => {
-      c.t = 1.6 - c.latitude() * 1 - (c.elev - this.elev[ESea]) / 2
+      let latitude = Math.abs(.5 - c.at / ws) * 2
+      c.t = 1.6 - latitude - (c.elev - this.elev[ESea]) / 2
     })
 
     loop(12, i =>
@@ -162,10 +164,11 @@ export class Universe {
           new Agent(cell, race, rng(1000) + 100);
         }
       }
+      cell.minit()
     })
 
 
-    let randomHorse = randomElement(this.a.filter(a => a.race?.name == "horses"))
+    let randomHorse = randomElement(this.a)
     randomHorse.remove()
     let queen = new Agent(randomHorse.cell, "alicorn");
     queen.name = "Vasilisa";

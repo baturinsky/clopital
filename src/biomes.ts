@@ -56,7 +56,7 @@ export const biomesByNames = {
     travel: 2,
     habitability: 0,
     races: "deers",
-    special: { oil: 1 },
+    special: { coal: 1 },
   },
   tundra: {
     color: "#8fa",

@@ -5,7 +5,7 @@ export type RGBA = [number, number, number, number]
 export let seed = 1;
 
 
-export const 
+export const
   rng = (n = 1e9) => ~~(Math.sin(++seed) ** 2 * 1e9 % n) / (n == 1e9 ? n : 1),
   setSeed = (n: number) => { seed = n },
   randomElement = <T>(a: T[], gen = rng) => a[gen(a.length)],
@@ -51,7 +51,7 @@ export const
     let s = ''
     for (let i = rng(3) + 2; i > 0; i--)
       s += randomElement([..."kstnhmyrw", ''], rng) + randomElement([..."aiueo", ''], rng)
-    return s
+    return cap1(s)
   },
   cap1 = (s: string) => `${s}`.charAt(0).toUpperCase() + `${s}`.substring(1),
   asArray = <T>(s: T): any[] => s == undefined ? [] : Array.isArray(s) ? s as T[] : [s],
@@ -60,7 +60,7 @@ export const
     if (i != -1)
       list.splice(i, 1)
   },
-  removeDuplicates = (a:any[])=>[...new Set(a)],
+  removeDuplicates = (a: any[]) => [...new Set(a)],
   /** return *slots* elements, of which *filled* is filled with random variants, while the rest us undefined */
   nof = (variants: any[], slots: number, filled: number) =>
     shuffle(loop(slots, i => i < filled ? randomElement(variants) : undefined))
@@ -69,13 +69,19 @@ export const
   objMap = (a: any, f: (v: any, k: string) => any) => Object.fromEntries(Object.entries(a).map(([k, v]) => [k, f(v, k)])),
   objFilter = <T>(a: T, f: (v: any, k: string) => any) =>
     Object.fromEntries(Object.entries(a as any).filter(([k, v]) => f(v, k))) as T,
+  objEvery = <T>(a: T, f: (v: any, k: string) => any) =>
+    Object.entries(a as any).every(([k, v]) => f(v, k)) as T,
   objAdd = (a: any, b: any = {}, times = 1) => {
     Object.keys(b).forEach((k) => a[k] = (a[k] ?? 0) + b[k] * times)
     return a
   },
   objScale = (a: any, scale: number) => objMap(a, v => v * scale),
   objStripFalsy = <T>(a: T): T => objFilter(a, v => v),
-  rotateList = (a: any[], d: number) => [...a.slice(a.length - d - 2), ...a.slice(0, d)]
+  rotateList = (a: any[], d: number) => [...a.slice(a.length - d - 2), ...a.slice(0, d)],
+  formatNumber = (x: number) => {
+    let p = Math.abs(x);
+    return (x < 0 ? "-" : "") + (p < 1e5 ? ~~(p*1e3)/1e3 : p < 1e8 ? ~~(p / 1e3) + "K" : ~~(p / 1e6) + "M")
+  }
   ;
 
 

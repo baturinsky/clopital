@@ -2,8 +2,9 @@ import { Agent } from "./agent";
 import { Race } from "./races";
 import { tradeables } from "./resources";
 import { neighborBy } from "./root";
+import { iterationsPerTurn } from "./setting";
 import { queen, state } from "./state";
-import { addToKey, bestBy, clamp, listSum, numTween, objAdd, objScale, vecTween, worstBy } from "./util";
+import { addToKey, bestBy, clamp, listSum, numTween, objAdd, objFilter, objScale, vecTween, worstBy } from "./util";
 
 //import { loop } from "./util";
 const loop = <T>(l: number, f: (i: number) => T) => [...new Array(l)].map((v, i) => f(i))
@@ -25,7 +26,7 @@ export const
     listSum(Object.keys(agent.stock).map(k => totalGoodUtility(agent, k))),
   totalGoodUtility = (agent: MarketAgent, good: string) =>
     totalUtility(~~((agent.stock[good] ?? 0) / agent.size)),
-  recipeXName = (r: RecipeX) => `${r.place.id ?? ""}@${JSON.stringify(r.recipe)}`,
+  //recipeXName = (r: RecipeX) => `${r.place.id ?? ""}@${JSON.stringify(r.recipe)}`,
   reportRecipeStats = (a: Agent) => {
     console.log(`${a.name} used recipes:\n`);
     console.table(Object.fromEntries(a.recipes.map((r, i) =>
@@ -79,7 +80,7 @@ export class MarketAgent {
   stock: GoodNumbers = {}
   cap: GoodNumbers = {}
 
-  trades = {} as any;
+  //trades = {} as any;
 
   consumeStats = {} as any;
   potentialConsumeStats = {} as any;
@@ -90,27 +91,20 @@ export class MarketAgent {
 
   /** Consume rolling average */
   cra = {} as any
-  id: number
+  //id: number
 
   constructor(params: MarketAgentParameters = {}) {
-    this.id = params.id ?? ++state.lastId
-    this.minit(params)
+    //this.id = params.id ?? ++state.lastId
+    //this.minit(params)
   }
 
+  /** Init market parameters */
   minit(params: MarketAgentParameters = {}) {
     Object.assign(this, params)
     if (params.sellList)
       this.sells = new Set(params.sellList);
     if (params.buyList)
       this.buys = new Set(params.buyList);
-
-    /*let out: GoodNumbers = {}
-    for (let r of this.ownRecipes) {
-      for (let k in r) {
-        out[k] = Math.min(out[k] ?? 1, r[k])
-      }
-    }
-    this.out = new Set(Object.keys(out).filter(k => out[k] > 0))*/
   }
 
   /**Compile recipes from places. For Agent, automatically pick up the places from cells */
@@ -156,8 +150,6 @@ export class MarketAgent {
       return
     }
 
-    let transfer: RecipeX | undefined;
-
     Object.keys(recipe.recipe).forEach((k) => {
       let amount = recipe.recipe[k] * times;
 
@@ -167,15 +159,20 @@ export class MarketAgent {
       (local ? this : recipe.place).gain(k, amount)
 
       if ((amount < 0) == local) {
-        transfer = this.transfers.find(t => t.place == recipe.place)
-        if (!transfer) {
-          transfer = { place: recipe.place, recipe: {} }
-          this.transfers.push(transfer);
-        }
-        addToKey(transfer.recipe, k, amount);
+        this.addTransfer(recipe.place, k, amount)
       }
+
     })
 
+  }
+
+  addTransfer(place: MarketAgent, good: string, amount: number) {
+    let transfer = this.transfers.find(t => t.place == place)
+    if (!transfer) {
+      transfer = { place: place, recipe: {} }
+      this.transfers.push(transfer);
+    }
+    addToKey(transfer.recipe, good, amount);
   }
 
 
@@ -257,9 +254,9 @@ export class MarketAgent {
     if (!(weGive > 0))
       return false;
 
-    addToKey(this.trades, `${myBestSeller}>${their.name}`, weGive)
-    addToKey(this.trades, `${theirBestSeller}>${their.name}`, -theyGive)
-    
+    //addToKey(this.trades, `${myBestSeller}>${their.name}`, weGive)
+    //addToKey(this.trades, `${theirBestSeller}>${their.name}`, -theyGive)
+
     this.give(their, myBestSeller, weGive)
     their.give(this, theirBestSeller, theyGive)
 
@@ -269,6 +266,8 @@ export class MarketAgent {
   give(receiver: MarketAgent, good: string, amount: number) {
     if (amount > this.stock[good])
       debugger
+
+    this.addTransfer(receiver, good, amount)
 
     receiver.gain(good, amount);
     this.gain(good, -amount);
@@ -286,7 +285,7 @@ export class MarketAgent {
     this.iterations++
   }
 
-  trade(){
+  trade() {
 
   }
 
@@ -319,7 +318,6 @@ export class MarketAgent {
         }
       })
     } while (recipeUsed && --limit)
-
   }*/
 
   useRecipes() {
@@ -333,6 +331,10 @@ export class MarketAgent {
       else
         break
     }
+  }
+
+  prodTurn(need: number=1) {
+    return objScale(objFilter(this.income, v => need * v > 0), this.size * iterationsPerTurn * need)
   }
 
 

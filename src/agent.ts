@@ -1,23 +1,24 @@
 import { animate, cancelAnimation, MovementAnimation } from "./animation";
-import { Cell } from "./cell";
+import { Cell, cellAgentParameters } from "./cell";
+import { updateBuildButton } from "./controls";
 import { marginalUtility, MarketAgent, RecipeX, Transfer } from "./market";
 import { Race, raceAgentParameters } from "./races";
 import { resourceIcon, spriteOf } from "./renderer";
 import { cellNeighborhood } from "./root";
 import { iterationsPerTurn, races } from "./setting";
-import { debouncedPrerender, nameById, namePool, pointedCell, queen, select, selected, state, update } from "./state";
-import { u } from "./universe";
-import { cap1, dist, loop, objMap, randomElement, removeFromList, rng, sum, Vec2 } from "./util";
+import { debouncedPrerender, queen, select, selected, state, update } from "./state";
+import { buildingInCell, u } from "./universe";
+import { cap1, dist, japaneseName, loop, objMap, randomElement, removeFromList, rng, sum, Vec2 } from "./util";
 
 /** Scale when saving Consume rolling average */
 export const craScale = 10000;
 
-export const agentLocation = (a: MarketAgent) => {
+/*export const agentLocation = (a: MarketAgent) => {
   let c = (a as Agent).cell ?? u.c[a.id]
   return c
-}
+}*/
 
-type SaveFormat = ReturnType<Agent["save"]>
+declare var Build: HTMLDivElement
 
 let resAnimations = 0
 export class Agent extends MarketAgent {
@@ -27,56 +28,67 @@ export class Agent extends MarketAgent {
   dest?: Cell
   steps = 0
   anim?: MovementAnimation
-  authority = 0
+  happiness = 0
+
+  happy() {
+    return this.queen() || this.happiness > 100;
+  }
 
   /** We create a herd in this cell, an improvement in  this cell, or the agent for the cell itself */
   constructor(cell: Cell, race?: string, size = 1) {
     super()
-    if (!cell)
-      debugger
+    this.visit(cell);
     if (race)
       this.race = races[race];
     this.size = size
 
-    let params = raceAgentParameters(this.race);
-
     this.cell = cell
-    this.name = nameById(this.id)
+    this.name = japaneseName()
     u.a.push(this);
 
-    this.minit(params);
+    this.minit();
     this.recomp()
-
   }
+
+  get friend() {
+    return this.queen()
+  }
+
+  minit() {
+    this.race && super.minit(raceAgentParameters(this.race))
+  }
+
 
   /** Animate transfers */
   anit(transfer: RecipeX) {
-    let locs = [agentLocation(this), agentLocation(transfer.place)];
+    let locs = [this.cell, (transfer.place as Agent | Cell).cell];
     Object.entries(transfer.recipe).forEach(([good, v]) => {
-      let points = locs.map(cell => cell.topLeft())
+      let points = locs.map(cell => cell.topLeft()) as [Vec2, Vec2]
       points[1] = sum(points[1], [rng(5) - 2, -rng(5) - 2])
       if (v > 0)
         points = [points[1], points[0]];
-      let anim = animate(resourceIcon(good), points, 500)
+      let anim = animate(resourceIcon(good), points, 500 + 5 * dist(...points))
       resAnimations++
       anim.f = () => resAnimations--
     })
   }
 
   recomp() {
-    this.places = this.cell.neighborhood.map(c => c.getAgent())
+    this.places = this.cell.neighborhood
+    this.cell.neighborhood.forEach(p => p.woke = true)
     super.recomp()
   }
 
   trade() {
     let
-      nb = new Set(this.cell.neighborhoodR(20)),
-      partners = u.a.filter(a => nb.has(a.cell));
+      nb = this.cell.cir(20),
+      partners = u.a.filter(a => nb.has(a.cell) && !((a.queen() || this.queen()) && !a.cell.seen && !this.cell.seen));
     partners.forEach(p => this.barter(p));
   }
 
   nextTurn() {
-    this.steps = 3
+    if (!this.isBuilding())
+      this.steps = 3
     this.transfers = []
     loop(iterationsPerTurn, () => this.iterate())
 
@@ -100,11 +112,12 @@ export class Agent extends MarketAgent {
       this.anim.f = () => delete this.anim
     }
 
+    updateBuildButton();
   }
 
   see() {
     let newSeen = 0;
-    this.cell.neighborhoodR(3).forEach(c => {
+    this.cell.cir(3).forEach(c => {
       if (!c.seen) {
         newSeen++
         c.seen = true
@@ -115,48 +128,24 @@ export class Agent extends MarketAgent {
   }
 
   visit(c: Cell) {
+    this.cell && removeFromList(this.cell.a, this)
     this.cell = c;
+    this.cell?.a.push(this)
     if (c == this.dest)
       delete this.dest;
     this.recomp()
-    this.see();
+    if (this.friend)
+      this.see();
+
   }
 
   remove() {
-    let sa = selected()
+    if (selected() == this)
+      update({ selected: undefined })
+    this.cell && removeFromList(this.cell.a, this);
     removeFromList(u.a, this);
-    update({ selected: u.a.indexOf(sa) })
   }
 
-  save() {
-    let v = this;
-    return {
-      at: v.cell.at,
-      name: v.name,
-      size: v.size,
-      stock: v.stock,
-      kind: v.kind,
-      steps: v.steps,
-      dest: v.dest?.at,
-      cell: v.cell.at,
-      race: v.race.name,
-      cra: objMap(v.cra, v => ~~(v * craScale))
-    }
-  }
-
-  load(v: SaveFormat) {
-    Object.assign(this, {
-      name: v.name,
-      size: v.size,
-      stock: v.stock,
-      kind: this.kind,
-      steps: v.steps,
-      cell: u.c[v.cell],
-      dest: u.c[v.dest as any],
-      race: races[v.race],
-      cra: objMap(this.cra, v => v / craScale)
-    } as Partial<Agent>)
-  }
 
   get at() {
     return this.cell.at
@@ -169,8 +158,9 @@ export class Agent extends MarketAgent {
   pathTo(destination?: Cell, maxDist = 15) {
     if (!destination)
       return
-    let pf = this.pathfind(maxDist, destination);
-    let p = u.c[destination.at].pathFrom(pf);
+    let pf = this.pathfind(maxDist, destination),
+      dp = u.c[destination.at]
+    let p = dp?.pathFrom(pf);
     return p
   }
 
@@ -193,8 +183,12 @@ export class Agent extends MarketAgent {
   queenTradeApply(good: string, give: boolean) {
     let [amount, value] = this.queenTrade(good, give);
     queen().give(this, good, amount);
-    this.authority += value
+    this.happiness += value
     select()
+  }
+
+  isBuilding() {
+    return !this.race.job
   }
 
 }

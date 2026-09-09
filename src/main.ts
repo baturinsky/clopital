@@ -2,22 +2,21 @@
 import './imported.css'
 
 import { enableControls } from "./controls";
-import { initRenderer, prerenderUniverse, render } from "./renderer";
-import { state, saveAndUpdateTip, load, select, selected } from "./state";
+import { initRenderer, prerenderUniverse, renderLoop } from "./renderer";
+import { state, select, selected } from "./state";
 import { u, Universe } from './universe';
-import { initRaces } from './races';
+import { initSetting } from './races';
 import { updateTip } from './ui';
 import { loop } from './util';
+import { saveAll } from './saves';
 
 
 export const
   atlas = document.createElement("img"),
-  regenerateUniverse = () => {
+  generateUniverse = () => {
     new Universe(state.seed)
-    state.lastId = u.c.length
     prerenderUniverse()
     loop(30, nextTurn)
-    saveAndUpdateTip()
   };
 
 onload = () => {
@@ -26,19 +25,17 @@ onload = () => {
 }
 
 const init = () => {
-  initRaces()
-
+  initSetting()
   initRenderer()
+
+  generateUniverse()
 
   enableControls()
 
-  load()
+  select()
 
-  //setInterval(render, 32)
-  render()
+  renderLoop()
 }
-
-//testMarket()
 
 
 export const
@@ -46,8 +43,9 @@ export const
     u.a.forEach(a => a.nextTurn())
     u.c.forEach(c => c.nextTurn())
   },
-  nexTurnAndShowResults = () => {
+  nexTurnAndSaveAndShowResults = () => {
     nextTurn()
-    select(selected())
+    select()
     updateTip()
+    saveAll()
   }

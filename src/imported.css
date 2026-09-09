@@ -13,8 +13,13 @@ body {
 
 #TIP,
 #INFO {
-  position: fixed;
+  position: absolute;
   top: -10px;
+  max-width: 320px;
+  height: 100vh;
+}
+
+#TIP{
   pointer-events: none;
 }
 
@@ -24,6 +29,9 @@ body {
   margin: 5px;
   border: #4004 solid;
   border-width: 2px 4px;
+  min-width: 300px;
+  max-height: 70vh;
+  overflow-y: auto;
 }
 
 .ptl {
@@ -43,21 +51,19 @@ body {
 
 #BTN {
   position: fixed;
-  bottom: 10px;
-  right: 10px;
-  width: 100vw;
+  bottom: 5px;
+  right: 5px;
   text-align: right;
   pointer-events: none;
 }
 
 #BTN button {
   padding: 5px;
-  font-size: 200%;
   margin: 3px;
 }
 
 
-button#TURN {
+button#Next {
   padding: 10px;
   margin: 20px;
 }
@@ -65,12 +71,13 @@ button#TURN {
 button {
   border: 3px solid #aaa;
   pointer-events: all;
+  background: #fffa;
 }
 
-button:hover,
-button.h {
-  border-color: #fff;
+button:hover, button.h {
+  border-color: #fdd;
 }
+
 
 *[data-icon] canvas {
   margin: 0 5px 0 -1px;
@@ -95,7 +102,6 @@ button.h {
 .stock {
   display: flex;
   flex-wrap: wrap;
-  max-width: 250px;
 }
 
 .aaa {
@@ -104,6 +110,7 @@ button.h {
 
 .abtn {
   text-align: center;
+  margin-bottom: -5px;
 }
 
 .tc {
@@ -122,19 +129,21 @@ td button {
   width: 80px;
 }
 
-#MID{
-  position: fixed; 
-  top: 0; 
+#MID {
+  position: fixed;
+  top: 0;
   left: 50%;
   transform: translateX(-50%);
 }
 
 #X {
   position: absolute;
-  right:0;
-  top:0;
+  right: 0;
+  top: 0;
 }
 
-.w1{
-  width:200px;
+button *[data-icon] canvas {
+  margin: 0;
+  padding: 5px;
+  pointer-events: none;
 }

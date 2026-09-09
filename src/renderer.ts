@@ -1,7 +1,7 @@
 import { atlas } from "./main";
 import { ww, photoScale, wh, TWO_PI, worldCoord, photoShift } from "./root";
 import { Biome, biomeMatrix, BiomeName, biomesByNames, HUTS, HUTS2, MESA, WAVES } from "./biomes"
-import { agentPointed, pointedCell, queen, queenCell, selected, state, update } from "./state";
+import { pointedCell, queen, queenCell, selected, state, update } from "./state";
 import { HAVERIVERS, u } from "./universe";
 import { asArray, loop, muls, nof, randomElement, RGBA, rng, round, scale, setSeed, shuffle, sum, vecTween, Vec2, sub, len, dist, cap1, hexToRgb } from "./util";
 import { Cell } from "./cell";
@@ -41,7 +41,7 @@ let worldPhoto: HTMLCanvasElement,
   dt = 1,
   lastT = Date.now();
 
-declare var DEFS: SVGElement, C: HTMLCanvasElement, TURN: HTMLButtonElement;
+declare var DEFS: SVGElement, C: HTMLCanvasElement, Next: HTMLButtonElement;
 
 export const
   calculatePropSlots =
@@ -83,14 +83,14 @@ export const
 
   wobbleFlight = (p: Vec2, amplitude = 6) => sum(p, [0, amplitude * (1 + Math.sin(Date.now() / 500)) / 2]),
 
-  render = () => {
+  renderLoop = () => {
     let t = Date.now();
     dt = t - lastT;
     lastT += dt;
 
     blinkAlpha = (2 + Math.sin(t / 100)) / 3;
 
-    TURN.style.transform = `scale(${queen().steps == 0 ? 1 + blinkAlpha / 10 : 1})`
+    Next.style.transform = `scale(${queen().steps == 0 ? 1 + blinkAlpha / 10 : 1})`
 
     if (state.targetTLA) {
       //console.log(state.topLeftAt, state.targetTLA, dt);
@@ -127,7 +127,7 @@ export const
       if (agent.anim || !agent.cell.seen)
         continue
       drawOnCell(agent.cell, SHADOW)
-      if (selected() == agent) {
+      if (selected() == agent && t%800<400) {
         drawOnCell(agent.cell, BIGCURSOR)
       }
       drawOnCell(agent.cell, agent.race?.sprite)
@@ -138,10 +138,10 @@ export const
       }
     }
 
-    if (selected() && !selected().anim) {
+    if (selected() && !selected().anim && !selected().isBuilding()) {
       let a = selected()
 
-      if (!agentPointed()) {
+      if (pointedCell()?.a.length == 0) {
         cx.globalAlpha = .7
         drawStepsTo(a, pointedCell())
         cx.globalAlpha = 1
@@ -153,9 +153,8 @@ export const
 
     cx.restore()
 
-    requestAnimationFrame(render)
+    requestAnimationFrame(renderLoop)
   },
-
 
   drawStepsTo = (a: Agent, target?: Cell) => {
     if (!target)
@@ -251,7 +250,7 @@ export const
       })
     })
 
-    if (HAVERIVERS) {
+    /*if (HAVERIVERS) {
       cx.lineCap = "round"
 
       for (let riverLayer of [0, 1]) {
@@ -267,7 +266,7 @@ export const
           1
         ))
       }
-    }
+    }*/
 
     u.drawOrder.forEach(cell => {
 
@@ -279,22 +278,15 @@ export const
         let i1 = nof(props.map(p => sprites[p]), 6, pnum);
         drawProps(cell, i1)
       }
-      
+
       cell.special && drawOnCell(cell, resourceIcon(cell.special))
 
     })
 
   },
-  drawProps = (cell: Cell, images: HTMLCanvasElement[], options?: { shadow?: boolean }) => {
+  drawProps = (cell: Cell, images: HTMLCanvasElement[]) => {
     images.forEach((img, i) => {
       if (img) {
-        if (options?.shadow) {
-          cx.drawImage(
-            sprites[SHADOW],
-            ...round(sum(sum(
-              cell.topLeft(), propSlots[i % 6]), [0, 4]))
-          )
-        }
         cx.drawImage(
           img,
           ...round(sum(
@@ -349,7 +341,8 @@ export const
   /** If name is resource name, returns resource icon. 
    * If it is number, returns numbered sprite
    * If it is number @ text, returns filtered sprite */
-  resourceIcon = (name: string) => {
+  resourceIcon = (name: string):HTMLCanvasElement => {
+    
     let sprite: HTMLCanvasElement, split = name.split("@") as [number, string];
 
     if (split[0] * 0 == 0) {

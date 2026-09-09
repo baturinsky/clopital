@@ -1,37 +1,62 @@
 import { clamp, debounce, floor, objMap, scale, sub, sum, Vec2 } from "./util";
 import { neighborhood, photoScale, worldCoord, ww } from "./root";
-import { agentPointed, pointedCell, queen, queenCell, saveAndUpdateTip, select, selected, state, update } from "./state";
-import { u } from "./universe";
-import { nextTurn, nexTurnAndShowResults } from "./main";
+import { pointedCell, queen, queenCell, select, selected, state, update } from "./state";
+import { buildingInCell, u } from "./universe";
+import { nextTurn, nexTurnAndSaveAndShowResults } from "./main";
 import { hideMenu, menuOn, showResearchMenu, showSavesMenu, tabs, updateTip } from "./ui";
 import { animate, animations } from "./animation";
-import { layerSickness as layerThickness } from "./renderer";
-import { playSound } from "./sound";
+import { loadAll, saveAll } from "./saves";
+import { races } from "./setting";
+import { Agent } from "./agent";
+import { Cell } from "./cell";
 
 declare var C: HTMLCanvasElement;
 
 let buttonsDown: number[] = [], pme = [] as any[];
 
+declare var Build: HTMLDivElement;
+
 export const
+
+  updateBuildButton = () => {
+    let a = selected()
+    Build.style.visibility = a && (a.isBuilding() || (a.happy() && !buildingInCell(a.cell))) ? "" : "hidden";
+    Build.innerHTML = a?.isBuilding() ? "Remove" : "Build";
+  },
 
   enableControls = () => {
 
     onpointerdown = (e: MouseEvent) => {
+      if(e.button!=0)
+        return
+
+      let id = (e.target as HTMLElement).closest("button")?.id as string;
+
       let f = ({
-        TURN: nexTurnAndShowResults,
-        QUEEN: () => select(queen()),
-        SAVES: () => menuOn ? hideMenu() : showSavesMenu(),
-        RS: () => menuOn ? hideMenu() : showResearchMenu(),
-        X: hideMenu
-      } as { [button: string]: Function })[(e.target as HTMLButtonElement)?.id]
+        Next: nexTurnAndSaveAndShowResults,
+        Queen: () => select(queen()),
+        Saves: () => menuOn ? hideMenu() : showSavesMenu(),
+        //Research: () => menuOn ? hideMenu() : showResearchMenu(),
+        Build: () => {
+          let c = selected()?.cell;
+
+          if (selected().isBuilding())
+            selected().remove();
+          else
+            new Agent(c, c.water() ? "dome" : "village")
+
+          updateBuildButton()
+        },
+        X: hideMenu,
+      } as { [button: string]: Function })[id]
       f && f()
 
-      let element = e.target as HTMLElement;
-
-      if (tabs.includes(element.id)) {
-        state.tab = element.id;
+      if (id?.substring(0,3)=="tab") {
+        state.tab = id.substring(3);
         select()
       }
+
+      let element = e.target as HTMLElement;
 
       if (element.dataset.give)
         selected().queenTradeApply(element.dataset.give, true)
@@ -40,13 +65,13 @@ export const
         selected().queenTradeApply(element.dataset.take, false)
 
       if (element.dataset.save) {
-        saveAndUpdateTip(element.dataset.save)
+        saveAll(element.dataset.save)
         showSavesMenu()
       }
 
       if (element.dataset.load) {
-        saveAndUpdateTip(element.dataset.load)
-        showSavesMenu()
+        loadAll(element.dataset.load)
+        hideMenu()
       }
 
     }
@@ -58,7 +83,6 @@ export const
       worldMousePos[0] -= floor(worldMousePos[1]) / 2;
 
       let tilePointed = floor(worldMousePos[0]) + floor(worldMousePos[1] - .1) * ww + (floor(worldMousePos[0]) < 0 ? ww : 0)
-
 
       if (e.type == "pointermove") {
         if (buttonsDown[1] || buttonsDown[2]) {
@@ -79,9 +103,15 @@ export const
         buttonsDown[e.button] = 1;
         if (e.button == 0) {
 
-          let a = agentPointed()
-          if (a) {
-            select(a)
+          let a = pointedCell()?.a
+
+          if (a?.length > 0) {
+            let ind = a.indexOf(selected());
+            if (!selected() || a.length == 0 || ind == -1) {
+              select(a[0])
+            } else {
+              select(a[(ind + 1) % a.length])
+            }
           } else if (selected()) {
             selected().dest = pointedCell()
             selected()?.go()
@@ -130,7 +160,7 @@ export const
 onkeydown = e => {
   switch (e.code) {
     case "Space":
-      nexTurnAndShowResults()
+      nexTurnAndSaveAndShowResults()
       break;
     case "Escape":
       update({ selected: undefined })
