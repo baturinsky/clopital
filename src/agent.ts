@@ -1,14 +1,14 @@
 import { animate, cancelAnimation, MovementAnimation } from "./animation";
 import { Cell, cellAgentParameters } from "./cell";
-import { updateBuildButton } from "./controls";
+//import { updateBuildButton } from "./controls";
 import { marginalUtility, MarketAgent, RecipeX, Transfer } from "./market";
 import { Race, raceAgentParameters } from "./races";
 import { resourceIcon, spriteOf } from "./renderer";
 import { cellNeighborhood } from "./root";
 import { iterationsPerTurn, races } from "./setting";
 import { debouncedPrerender, queen, select, selected, state, update } from "./state";
-import { buildingInCell, u } from "./universe";
-import { cap1, dist, japaneseName, loop, objMap, randomElement, removeFromList, rng, sum, Vec2 } from "./util";
+import { u } from "./universe";
+import { cap1, clamp, dist, japaneseName, listSum, loop, objMap, randomElement, removeFromList, rng, sum, Vec2 } from "./util";
 
 /** Scale when saving Consume rolling average */
 export const craScale = 10000;
@@ -31,7 +31,12 @@ export class Agent extends MarketAgent {
   happiness = 0
 
   happy() {
-    return this.queen() || this.happiness > 100;
+    return this.queen() || this.happiness > 999;
+  }
+
+  /** This agent is village or dome */
+  village() {
+    return !this.race.job
   }
 
   /** We create a herd in this cell, an improvement in  this cell, or the agent for the cell itself */
@@ -48,6 +53,10 @@ export class Agent extends MarketAgent {
 
     this.minit();
     this.recomp()
+  }
+
+  nextHappiness(){
+    return clamp(0, this.happiness + this.tghappiness() - this.expectation())
   }
 
   get friend() {
@@ -87,18 +96,31 @@ export class Agent extends MarketAgent {
   }
 
   nextTurn() {
-    if (!this.isBuilding())
-      this.steps = 3
+    //if (!this.isBuilding())
+    this.steps = 3
     this.transfers = []
+    this.happiness = this.nextHappiness();
     loop(iterationsPerTurn, () => this.iterate())
 
     //if(this.race.name =="alicorn")      debugger
 
+    if(!this.happy()){
+      this.dest = randomElement(this.cell.neighbors);
+      //if(this.race.biomes.includes(cell.biome.name) || this.race.biomes.length == 0)
+    }
     this.go();
   }
 
+  tghappiness() {
+    return listSum(Object.values(this.happinessG))
+  }
+
+  expectation() {
+    return state.expectation + ~~(this.happiness / 100)
+  }
+
   go() {
-    if (this.steps < 1)
+    if (this.steps < 1 || this.cell == this.dest)
       return
 
     let p = this.pathTo(this.dest);
@@ -110,9 +132,9 @@ export class Agent extends MarketAgent {
       cancelAnimation(this.anim);
       this.anim = animate(spriteOf(this), p.map(c => c.topLeft()))
       this.anim.f = () => delete this.anim
+      //if(this == selected())        updateBuildButton();
     }
 
-    updateBuildButton();
   }
 
   see() {
@@ -151,14 +173,15 @@ export class Agent extends MarketAgent {
     return this.cell.at
   }
 
-  pathfind(maxDist: number, destination?: Cell) {
-    return this.cell?.pathfind(this.race.moving, maxDist, destination)
+  /** Pathfind */
+  pf(maxDist: number, destination?: Cell) {
+    return this.cell?.pf(this.race.name, maxDist, destination)
   }
 
   pathTo(destination?: Cell, maxDist = 15) {
     if (!destination)
       return
-    let pf = this.pathfind(maxDist, destination),
+    let pf = this.pf(maxDist, destination),
       dp = u.c[destination.at]
     let p = dp?.pathFrom(pf);
     return p
@@ -168,7 +191,8 @@ export class Agent extends MarketAgent {
     return this.race == races.alicorn
   }
 
-  queenTrade(good: string, give: boolean) {
+  /** Calculate manual trade */
+  gift(good: string, give: boolean) {
     let giver = give ? queen() : this;
     let mu = marginalUtility(this.stock[good] ?? 0)
     let amount = Math.ceil(giver.stock[good] / 10);
@@ -180,16 +204,17 @@ export class Agent extends MarketAgent {
     return [amount, value].map(v => v * (give ? 1 : -1))
   }
 
-  queenTradeApply(good: string, give: boolean) {
-    let [amount, value] = this.queenTrade(good, give);
+  /**apply manual trade */
+  gifta(good: string, give: boolean) {
+    let [amount, value] = this.gift(good, give);
     queen().give(this, good, amount);
     this.happiness += value
     select()
   }
 
-  isBuilding() {
+  /*isBuilding() {
     return !this.race.job
-  }
+  }*/
 
 }
 

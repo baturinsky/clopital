@@ -3,7 +3,7 @@ import './imported.css'
 
 import { enableControls } from "./controls";
 import { initRenderer, prerenderUniverse, renderLoop } from "./renderer";
-import { state, select, selected } from "./state";
+import { state, select, selected, updateExpectation as updateExpectation } from "./state";
 import { u, Universe } from './universe';
 import { initSetting } from './races';
 import { updateTip } from './ui';
@@ -16,7 +16,7 @@ export const
   generateUniverse = () => {
     new Universe(state.seed)
     prerenderUniverse()
-    loop(30, nextTurn)
+    loop(10, nextTurn)
   };
 
 onload = () => {
@@ -42,6 +42,7 @@ export const
   nextTurn = () => {
     u.a.forEach(a => a.nextTurn())
     u.c.forEach(c => c.nextTurn())
+    updateExpectation();
   },
   nexTurnAndSaveAndShowResults = () => {
     nextTurn()

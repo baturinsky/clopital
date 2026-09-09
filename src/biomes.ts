@@ -5,7 +5,7 @@ export type Biome = {
   color: string,
   name: string,
   rgba: RGBA,
-  prop: number[],
+  prop: number,
   travel?: number
   seaTravel?: number
   habitability: number
@@ -43,7 +43,7 @@ export const biomesByNames = {
   },
   peaks: {
     color: "#fff",
-    prop: [MESA, MESA2],
+    prop: MESA2,
     travel: 2,
     habitability: 0,
     races: "goats",
@@ -92,7 +92,7 @@ export const biomesByNames = {
     travel: 2,
     habitability: 1,
     races: "zebras",
-    special: { coffee: 5 },
+    special: { cacao: 5 },
     soil: 2
   },
   steppe: {
@@ -158,6 +158,5 @@ for (let k in biomesByNames) {
   let b = biomesByNames[k]
   b.name = k;
   b.rgba = hexToRgb(b.color)
-  b.prop = asArray(b.prop) as number[]
   b.races = asArray(b.races)
 }

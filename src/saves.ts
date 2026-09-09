@@ -5,8 +5,11 @@ import { races } from "./setting"
 import { state, select, queen } from "./state"
 import { updateTip } from "./ui"
 import { u } from "./universe"
-import { debounce, objMap } from "./util"
 import { GoodNumbers } from "./market"
+import { objFilter, objMap } from "./util"
+
+declare const DEBUG: boolean
+
 
 type AgentSaveFormat = {
   name: string,
@@ -14,6 +17,9 @@ type AgentSaveFormat = {
   steps: number,
   cell: number,
   dest: number,
+  happiness: number,
+  consumed: any,
+  happinessG: any,
   race: string
   stock: GoodNumbers
   seen: boolean
@@ -30,15 +36,21 @@ export const
     updateTip()
     let data = {
       ...state,
-      c: Object.fromEntries(u.c.map((cell, i) => [i, cell.woke ? undefined : save(cell)])),
+      c: objMap(objFilter(u.c, c => c.woke), (c:Cell) => save(c)),
       a: u.a.map(agent => save(agent))
     }
-    console.log(data);
+
+    
+
+    if (DEBUG) {
+      console.log(data, JSON.stringify(data).length);
+    }
+
+    
     localStorage[savePrefix + slot] = JSON.stringify(data)
     localStorage[saveTitlePrefix + slot] = new Date().toISOString()
   },
   loadAll = (slot: string | number = 0) => {
-    debugger
     let sdata = localStorage[savePrefix + slot]
     if (sdata) {
       generateUniverse()
@@ -56,8 +68,8 @@ export const
         let agent = new Agent(u.c[d.cell as number])
         load(agent, d)
         agent.minit();
-        agent.recomp()
         agent.visit(agent.cell)
+        agent.recomp()
       }
 
       return true;
@@ -65,16 +77,24 @@ export const
     return false
 
   },
+
+  saveAsIs = (v: any) => Object.fromEntries([
+    "name",
+    "size",
+    "steps",
+    "happiness",
+    "consumed",
+    "happinessG"
+  ].map(k => [k, (v as any)[k]])),
+
   save = (v: Agent | Cell) => {
     return {
 
       stock: v.stock,
-      cra: objMap(v.cra, v => ~~(v * craScale)),
+      //cra: objMap(v.cra, v => ~~(v * craScale)),
 
       ...v instanceof Agent ? {
-        name: v.name,
-        size: v.size,
-        steps: v.steps,
+        ...saveAsIs(v),
         dest: v.dest?.at,
         cell: v.cell.at,
         race: v.race.name
@@ -88,13 +108,11 @@ export const
   load = (a: Agent | Cell, v: AgentSaveFormat) => {
     v && Object.assign(a, {
 
-      cra: objMap(a.cra, v => v / craScale),
+      //cra: objMap(a.cra, v => v / craScale),
       stock: v.stock,
 
       ...a instanceof Agent ? {
-        name: v.name,
-        size: v.size,
-        steps: v.steps,
+        ...saveAsIs(v),
         cell: u.c[v.cell as number],
         dest: u.c[v.dest as any],
         race: races[v.race as string],

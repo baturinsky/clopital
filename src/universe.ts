@@ -10,8 +10,8 @@ export let u: Universe
 export const HAVERIVERS = false;
 
 export const East = 1, West = 4, SE = 3, SW = 4,
-  EOcean = 0, ESea = 1, EHighlands = 2, EPeaks = 3,
-  buildingInCell = (c: Cell) => c.a.find(a => a.isBuilding())
+  EOcean = 0, ESea = 1, EHighlands = 2, EPeaks = 3
+  //buildingInCell = (c: Cell) => c.a.find(a => a.isBuilding())
 ;
 
 export class Universe {
@@ -168,10 +168,7 @@ export class Universe {
     })
 
 
-    let randomHorse = randomElement(this.a)
-    randomHorse.remove()
-    let queen = new Agent(randomHorse.cell, "alicorn");
-    queen.name = "Vasilisa";
+    let queen = new Agent(u.c[ws/2+ww/2], "alicorn");
     select(queen)
 
     queen.see();

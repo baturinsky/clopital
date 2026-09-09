@@ -4,12 +4,13 @@ export type RGBA = [number, number, number, number]
 
 export let seed = 1;
 
+declare const DEBUG: boolean
 
 export const
   rng = (n = 1e9) => ~~(Math.sin(++seed) ** 2 * 1e9 % n) / (n == 1e9 ? n : 1),
   setSeed = (n: number) => { seed = n },
   randomElement = <T>(a: T[], gen = rng) => a[gen(a.length)],
-  clamp = (min: number, v: number, max: number) => v < min ? min : v > max ? max : v,
+  clamp = (min: number, v: number, max = 1e30) => v < min ? min : v > max ? max : v,
   minInd = <T>(a: T[], f: (v: T) => number) => {
     let amf = a.map(f)
     let r = amf.indexOf(Math.min(...amf))
@@ -28,11 +29,16 @@ export const
   floor = (n: number) => ~~n - (n < 0 ? 1 : 0),
   fixed = (n: number) => ~~(n * 100) / 100,
   len = (a: Vec2) => (a[0] ** 2 + a[1] ** 2) ** .5,
-  debounce = (callback: Function) => {
+  debounce = (callback: Function, dur = 300) => {
     let timeoutId: any;
     return () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(callback, 300);
+      if(!timeoutId){
+        callback()
+        timeoutId = setTimeout(()=>{}, dur);
+      } else {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(callback, dur);
+      }
     };
   },
   hexToRgb = (h: string) => [1, 2, 3, 4].map(i => (parseInt(h[i] ?? "f", 16)) / 15) as RGBA,
@@ -76,11 +82,17 @@ export const
     return a
   },
   objScale = (a: any, scale: number) => objMap(a, v => v * scale),
+  objScaleI = (a: any, scale: number) => objMap(a, v => ~~(v * scale)),
   objStripFalsy = <T>(a: T): T => objFilter(a, v => v),
   rotateList = (a: any[], d: number) => [...a.slice(a.length - d - 2), ...a.slice(0, d)],
   formatNumber = (x: number) => {
     let p = Math.abs(x);
-    return (x < 0 ? "-" : "") + (p < 1e5 ? ~~(p*1e3)/1e3 : p < 1e8 ? ~~(p / 1e3) + "K" : ~~(p / 1e6) + "M")
+    return (x < 0 ? "-" : "") + 
+    (p < 1e4 ? ~~(p * 1e3) / 1e3 : 
+    p < 1e7 ? ~~(p / 1e3) + "K" : 
+    p < 1e10 ? ~~(p / 1e6) + "M":
+    p.toExponential(5)
+  )
   }
   ;
 

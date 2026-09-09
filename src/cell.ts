@@ -1,7 +1,7 @@
 import { Agent } from "./agent"
 import { Biome, biomesByNames, HILLS } from "./biomes"
 import { GoodNumbers, MarketAgent, MarketAgentParameters } from "./market"
-import { layerSickness } from "./renderer"
+import { layerThickness } from "./renderer"
 import { food, minerals, plants } from "./resources"
 import { photoScale, worldCoord, toXY, wh, ws, ww, neighborhood } from "./root"
 import { iterationsPerTurn, biomeToAgent, races, cellCapPerIncome, incomePerResource } from "./setting"
@@ -86,11 +86,11 @@ export class Cell extends MarketAgent {
   }*/
 
   /** todo: traverse queue in correct order */
-  pathfind(moveMode: string, maxDist: number, destination?: Cell) {
+  pf(race: string, maxDist: number, destination?: Cell) {
     const visited = new Set<Cell>();
     const queue: PathPoint[] = [], result: { [at: number]: PathPoint } = {};
 
-    const costFunction = travelCostFunction(moveMode);
+    const costFunction = travelCostFunction(race);
     queue.push({ c: this, d: 0, from: this });
     visited.add(this);
 
@@ -132,7 +132,7 @@ export class Cell extends MarketAgent {
   topLeft(shift: Vec2 = [0, 0], fixedLayer?: number) {
     let p = worldCoord(this.at);
     p = sum(muls(p, photoScale), shift);
-    p[1] -= layerSickness * (fixedLayer ?? this.layer ?? 0)
+    p[1] -= layerThickness * (fixedLayer ?? this.layer ?? 0)
     return p
   }
 
@@ -142,7 +142,7 @@ export class Cell extends MarketAgent {
 
   nextTurn() {
     if (this.woke) {
-      this.gainIncome(iterationsPerTurn)
+      this.gainIncome()
       if (objEvery(this.cap, (v, k) => this.stock[k] >= v))
         this.woke = false;
     }
@@ -151,16 +151,17 @@ export class Cell extends MarketAgent {
 }
 
 export const
-  travelCostFunction = (moveMode: string) => {
+  travelCostFunction = (race: string) => {
     return (a: Cell, b: Cell) => {
-      switch (moveMode) {
-        case "flying":
+      switch (race) {
+        case "alicorn":
+        case "pegasi":
           return b.bedrock ? UNPPASSABLE : .5;
-        case "swimming":
+        case "seahorses":
           return b.water() || a.water() || a.rivers || b.rivers ? 1 : UNPPASSABLE;
         default:
           let cost = b.biome.travel ?? 1e9
-          if (races[moveMode] && b.biome.races.includes(moveMode)) {
+          if (races[race] && b.biome.races.includes(race)) {
             cost /= 2;
           }
           return cost;

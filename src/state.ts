@@ -1,11 +1,12 @@
 import { type Agent } from "./agent";
 import { Cell } from "./cell";
-import { updateBuildButton } from "./controls";
-import { GoodNumbers } from "./market";
 import { centerOn, prerenderUniverse } from "./renderer";
 import { agentInfo, asList, Info, Tip, updateDiv, updateTip } from "./ui";
-import { buildingInCell, u } from "./universe";
+import { u } from "./universe";
 import { cap1, clamp, debounce, fixed, japaneseName, loop, objStripFalsy, Vec2 } from "./util";
+
+declare const DEBUG: boolean
+declare var TIP: HTMLDivElement, INFO: HTMLDivElement, MID: HTMLDivElement, BTN: HTMLDivElement;
 
 export let state = {
   scale: 4,
@@ -18,7 +19,8 @@ export let state = {
   /** current turn */
   turn: 0,
   //locked: { } as GoodNumbers,
-  tab: 0 as number | string
+  tab: 0 as number | string,
+  expectation: 0
 }
 
 
@@ -38,20 +40,30 @@ export const
   pointedCell = () => u.c[state.cellPointed as any],
   selected = () => u.a[state.selected],
   select = (a: Agent = selected()) => {
-    if(!a)
+    if (!a)
       return;
     update({ selected: u.a.indexOf(a) })
     centerOn(a.cell)
-    console.log(a);
 
-    updateBuildButton()
+    if (DEBUG) {
+      console.log(a);
+    }
+
+    //updateBuildButton()
 
     //reportRecipeStats(a);
+
+    INFO.className = a.happy()?"h":"u";
 
     updateDiv(Info, ...agentInfo(a))
   },
   //agentPointed = () => pointedCell().a[0],
   queen = () => u.a.find(a => a.queen()) as Agent,
-  queenCell = () => queen()?.cell
-//namePool = [...new Set<string>(loop(1e5, japaneseName))],
-//nameById = (id: number) => cap1(namePool[id % namePool.length])
+  queenCell = () => queen()?.cell,
+  //namePool = [...new Set<string>(loop(1e5, japaneseName))],
+  //nameById = (id: number) => cap1(namePool[id % namePool.length])
+
+  /** Calculate loyal agents */
+  updateExpectation = () => {
+    update({ expectation: 5 + u.a.filter(a => a.village() || a.happiness > 999).length })
+  }

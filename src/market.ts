@@ -4,7 +4,7 @@ import { tradeables } from "./resources";
 import { neighborBy } from "./root";
 import { iterationsPerTurn } from "./setting";
 import { queen, state } from "./state";
-import { addToKey, bestBy, clamp, listSum, numTween, objAdd, objFilter, objScale, vecTween, worstBy } from "./util";
+import { addToKey, bestBy, clamp, listSum, numTween, objAdd, objFilter, objScale, objScaleI, vecTween, worstBy } from "./util";
 
 //import { loop } from "./util";
 const loop = <T>(l: number, f: (i: number) => T) => [...new Array(l)].map((v, i) => f(i))
@@ -70,7 +70,7 @@ export class MarketAgent {
 
   transfers = [] as RecipeX[]
 
-  /** How much of this good market receives (or loses) per turn */
+  /** How much of this good market receives (or loses) per day, per size  */
   income: GoodNumbers = {}
 
   sells?: Set<string>
@@ -82,15 +82,17 @@ export class MarketAgent {
 
   //trades = {} as any;
 
-  consumeStats = {} as any;
-  potentialConsumeStats = {} as any;
+  consumed = {} as any;
+  /** Happiness gained */
+  happinessG = {} as any
+  //potentialConsumeStats = {} as any;
 
   /** Resources which agent does not use themselves, 
    * so they will be given to worker if this agent is proxied */
   //out!: Set<string>
 
   /** Consume rolling average */
-  cra = {} as any
+  //cra = {} as any
   //id: number
 
   constructor(params: MarketAgentParameters = {}) {
@@ -140,29 +142,34 @@ export class MarketAgent {
     let rn = JSON.stringify(recipe.recipe)
     objAdd(this.uses, { [rn]: times })
 
-    if (recipe.place != this) {
-      objAdd(recipe.place.uses, { [rn]: times })
-    }
-
     /** Not proxied - give and receive oneself */
     if (recipe.place == this) {
       objAdd(recipe.place.stock, recipe.recipe, times)
       return
+    } else {
+      objAdd(recipe.place.uses, { [rn]: times })
+
+      Object.keys(recipe.recipe).forEach((k) => {
+        
+        //if(k=="grass" || this.name == "Vasilisa")          debugger
+
+        let amount = recipe.recipe[k] * times;
+
+        /** Means that the good is given/taken to/from local. Otherwise, proxy.*/
+        let local = amount < 0 ? k in this.stock : tradeables.has(k);
+
+        (local ? this : recipe.place).gain(k, amount)
+
+        if (local) {
+          //console.log(local, recipe.place.name, k, amount);
+          //if(k=="ore")          debugger
+          this.addTransfer(recipe.place, k, amount)
+        }
+
+      })
+
     }
 
-    Object.keys(recipe.recipe).forEach((k) => {
-      let amount = recipe.recipe[k] * times;
-
-      /** Means that the good is given/taken to/from local. Otherwise, proxy.*/
-      let local = amount < 0 ? this.stock[k] : tradeables.has(k);
-
-      (local ? this : recipe.place).gain(k, amount)
-
-      if ((amount < 0) == local) {
-        this.addTransfer(recipe.place, k, amount)
-      }
-
-    })
 
   }
 
@@ -274,14 +281,14 @@ export class MarketAgent {
   }
 
   gain(good: string, amount: number) {
-    this.stock[good] = (this.stock[good] ?? 0) + amount;
+    this.stock[good] = (this.stock[good] ?? 0) + ~~amount;
   }
 
   iterate() {
     this.recomp()
-    this.gainIncome()
     this.useRecipes()
     this.trade()
+    this.gainIncome()
     this.iterations++
   }
 
@@ -289,19 +296,19 @@ export class MarketAgent {
 
   }
 
-  gainIncome(multiplier = 1) {
-    for (let good in this.income) {
-      let v = this.income[good] * this.size * multiplier
+  gainIncome() {
+    this.consumed = {}
+    this.happinessG = {}
+    let total = this.totTurnInc();
+    for (let good in total) {
+      let v = total[good]
       if (v < 0) {
         let factual = Math.min(-v, this.stock[good] ?? 0)
-        addToKey(this.consumeStats, good, factual);
-        addToKey(this.potentialConsumeStats, good, -v);
-        this.cra[good] = numTween(this.cra[good] ?? 0, factual, 1 / this.ravg);
-
+        addToKey(this.consumed, good, factual);
+        this.happinessG[good] = ~~(factual / v * this.income[good] * iterationsPerTurn)
       }
       this.gain(good, v)
       this.stock[good] = clamp(0, this.stock[good], this.cap[good] ?? DEFAULT_STOCK_CAP)
-
     }
   }
 
@@ -333,8 +340,14 @@ export class MarketAgent {
     }
   }
 
-  prodTurn(need: number=1) {
-    return objScale(objFilter(this.income, v => need * v > 0), this.size * iterationsPerTurn * need)
+  /** Production with 1, needs with -1 */
+  prodTurn(need: number = 1) {
+    return objScaleI(objFilter(this.totTurnInc(), v => need * v > 0), need)
+  }
+
+  /** Total income/expense per turn */
+  totTurnInc() {
+    return objScale(this.income, this.size * iterationsPerTurn)
   }
 
 

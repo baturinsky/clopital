@@ -8,7 +8,7 @@ export type Race = {
   job: string,
   recipes: GoodNumbers[]
   income: GoodNumbers
-  moving: string
+  //moving: string
   biomes: string[]
   sprite: number
   wm: number
@@ -21,7 +21,7 @@ export const
       let race = races[rn]
       race.name = rn
       race.biomes = []
-      race.moving ??= "walking"
+      //race.moving ??= "walking"
       resources[race.name] = resources[race.job] = convertResources(icon);
       race.sprite = icon++;
     }
@@ -33,7 +33,7 @@ export const
     }
 
     food.forEach((f, i) => commonRecipes.push({ [f]: -1, food: ~~(i / 3) + 1 }))
-    
+
   },
 
   raceHabitabiliy = (race: Race, biome: Biome) => {
@@ -43,13 +43,15 @@ export const
   raceAgentParameters = (race: Race) => {
     let ownRecipes = [...commonRecipes,
     ...race.recipes ?? [],
-    { [race.job]: -1, working: race.wm??1 },
-    { [race.job]: -1, [race.moving]: race.moving == "swimming" ? 2 : 1 },
+    ...race.job ? [
+      { [race.job]: -1, working: race.wm ?? 1 },
+      { [race.job]: -1, fun: 1 },
+      { [race.job]: -1, travel: 1 }] : [],
     ]
 
     return {
       ownRecipes,
-      income: race.job? { [race.job]: 1, food: -1, fertilisers: .5, ...race.income }:{}
+      income: race.job ? { [race.job]: 1, food: -1, fun: -.5, comfort: -.5, fertilisers: .1, ...race.income } : {}
     } as MarketAgentParameters
   }
 

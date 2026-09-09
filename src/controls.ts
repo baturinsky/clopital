@@ -1,33 +1,34 @@
 import { clamp, debounce, floor, objMap, scale, sub, sum, Vec2 } from "./util";
 import { neighborhood, photoScale, worldCoord, ww } from "./root";
 import { pointedCell, queen, queenCell, select, selected, state, update } from "./state";
-import { buildingInCell, u } from "./universe";
+import { u } from "./universe";
 import { nextTurn, nexTurnAndSaveAndShowResults } from "./main";
-import { hideMenu, menuOn, showResearchMenu, showSavesMenu, tabs, updateTip } from "./ui";
+import { hideMenu, menuOn, showSavesMenu, updateTip } from "./ui";
 import { animate, animations } from "./animation";
 import { loadAll, saveAll } from "./saves";
-import { races } from "./setting";
 import { Agent } from "./agent";
-import { Cell } from "./cell";
 
 declare var C: HTMLCanvasElement;
+declare const DEBUG:boolean
 
 let buttonsDown: number[] = [], pme = [] as any[];
 
-declare var Build: HTMLDivElement;
+//declare var Build: HTMLDivElement;
+
+export let shift:boolean|undefined;
 
 export const
 
-  updateBuildButton = () => {
+  /*updateBuildButton = () => {
     let a = selected()
     Build.style.visibility = a && (a.isBuilding() || (a.happy() && !buildingInCell(a.cell))) ? "" : "hidden";
     Build.innerHTML = a?.isBuilding() ? "Remove" : "Build";
-  },
+  },*/
 
   enableControls = () => {
 
     onpointerdown = (e: MouseEvent) => {
-      if(e.button!=0)
+      if (e.button != 0)
         return
 
       let id = (e.target as HTMLElement).closest("button")?.id as string;
@@ -37,7 +38,7 @@ export const
         Queen: () => select(queen()),
         Saves: () => menuOn ? hideMenu() : showSavesMenu(),
         //Research: () => menuOn ? hideMenu() : showResearchMenu(),
-        Build: () => {
+        /*Build: () => {
           let c = selected()?.cell;
 
           if (selected().isBuilding())
@@ -46,12 +47,12 @@ export const
             new Agent(c, c.water() ? "dome" : "village")
 
           updateBuildButton()
-        },
+        },*/
         X: hideMenu,
       } as { [button: string]: Function })[id]
       f && f()
 
-      if (id?.substring(0,3)=="tab") {
+      if (id?.substring(0, 3) == "tab") {
         state.tab = id.substring(3);
         select()
       }
@@ -59,10 +60,10 @@ export const
       let element = e.target as HTMLElement;
 
       if (element.dataset.give)
-        selected().queenTradeApply(element.dataset.give, true)
+        selected().gifta(element.dataset.give, true)
 
       if (element.dataset.take)
-        selected().queenTradeApply(element.dataset.take, false)
+        selected().gifta(element.dataset.take, false)
 
       if (element.dataset.save) {
         saveAll(element.dataset.save)
@@ -84,12 +85,14 @@ export const
 
       let tilePointed = floor(worldMousePos[0]) + floor(worldMousePos[1] - .1) * ww + (floor(worldMousePos[0]) < 0 ? ww : 0)
 
+      shift = e.shiftKey
+
       if (e.type == "pointermove") {
         if (buttonsDown[1] || buttonsDown[2]) {
           let delta = [e.movementX, e.movementY] as Vec2;
           shiftViewBy(delta);
         } else {
-          if (u.c[tilePointed]?.seen) {
+          if (u.c[tilePointed]?.seen && !e.shiftKey) {
             let last = state.cellPointed;
             update({ cellPointed: tilePointed })
             if (last != state.cellPointed)
@@ -105,7 +108,7 @@ export const
 
           let a = pointedCell()?.a
 
-          if (a?.length > 0) {
+          if (!e.shiftKey && a?.length > 0) {
             let ind = a.indexOf(selected());
             if (!selected() || a.length == 0 || ind == -1) {
               select(a[0])
@@ -118,8 +121,10 @@ export const
           }
         }
 
-        if (e.button == 2) {
-          console.log(pointedCell());
+        if (DEBUG) {
+          if (e.button == 2) {
+            console.log(pointedCell());
+          }
         }
 
       }
@@ -165,12 +170,18 @@ onkeydown = e => {
     case "Escape":
       update({ selected: undefined })
       break
-    case "KeyI":
+    case "Tab":      
+      update({ tab:(state.tab as number +1)%4 })
+      select()
+      break
+  }
+  if (DEBUG) {
+    if (e.code == "KeyI") {
       console.log(selected().recipes.map((recipe) =>
         [JSON.stringify(recipe.recipe), selected().utl(recipe) * selected().max(recipe)]));
       console.log(objMap(selected().stock, k => selected().mutl(k)));
       selected().iterate()
-      break
+    }
   }
 }
 

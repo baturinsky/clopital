@@ -9,13 +9,16 @@ import { animate, cancelAnimation, updateAnimations } from "./animation";
 import { Agent } from "./agent";
 import { GoodNumbers } from "./market";
 import { resources } from "./resources";
+import { shift } from "./controls";
+
+declare const DEBUG: boolean
 
 export const
-  layerSickness = 4,
+  layerThickness = 4,
   mapRevealDuration = 700,
   AtlasSpriteSize = 16,
   BIGCURSOR = 16,
-  CURSOR = 17,
+  CURSOR = 18,
   WALK = 100,
   FLY = 101,
   SWIM = 102,
@@ -101,7 +104,6 @@ export const
     }
 
     cx = ctx;
-    cx.imageSmoothingEnabled = false
     cx.clearRect(0, 0, 1e7, 1e7);
     cx.save();
     cx.scale(state.scale, state.scale)
@@ -127,7 +129,7 @@ export const
       if (agent.anim || !agent.cell.seen)
         continue
       drawOnCell(agent.cell, SHADOW)
-      if (selected() == agent && t%800<400) {
+      if (selected() == agent && t % 800 < 400) {
         drawOnCell(agent.cell, BIGCURSOR)
       }
       drawOnCell(agent.cell, agent.race?.sprite)
@@ -138,10 +140,10 @@ export const
       }
     }
 
-    if (selected() && !selected().anim && !selected().isBuilding()) {
+    if (selected() && !selected().anim/* && !selected().isBuilding()*/) {
       let a = selected()
 
-      if (pointedCell()?.a.length == 0) {
+      if (shift || pointedCell()?.a.length == 0) {
         cx.globalAlpha = .7
         drawStepsTo(a, pointedCell())
         cx.globalAlpha = 1
@@ -149,7 +151,9 @@ export const
       drawStepsTo(a, a.dest)
     }
 
-    drawOnCell(pointedCell(), CURSOR)
+    drawOnCell(pointedCell(), CURSOR, [0, layerThickness * (pointedCell()?.layer - 1)])
+
+    drawOnCell(pointedCell(), CURSOR, undefined, .5)
 
     cx.restore()
 
@@ -157,14 +161,15 @@ export const
   },
 
   drawStepsTo = (a: Agent, target?: Cell) => {
-    if (!target)
+    if (!target || !a.happy())
       return;
     let p = a.pathTo(target);
     if (p) {
       p.forEach((step, i) => {
         i > 0 && drawOnCell(
           step,
-          resourceIcon(a.race.moving + (i > a.steps ? "Far" : "")))
+          //resourceIcon(a.race.moving + (i > a.steps ? "Far" : "")))
+          resourceIcon("travel" + (i > a.steps ? "Far" : "")))
       })
     }
   },
@@ -180,10 +185,7 @@ export const
     Object.values(biomesByNames).forEach(b => b.sprites = makeBiomeSprites(b))
     sprites = loop(160, i => atlasSprite(i))
     outlined = loop(160, i => atlasSprite(i, "url(#OUTL)"))
-    C.width = innerWidth;
-    C.height = innerHeight;
-    ctx = C.getContext("2d") as CanvasRenderingContext2D;
-    ctx.imageSmoothingEnabled = false;
+    ctx = canvasElementAndContext(innerWidth, innerHeight, C)[1]
   },
 
   drawCurve = (points: Vec2[]) => {
@@ -193,8 +195,8 @@ export const
     })
   },
 
-  canvasElementAndContext = (w: number, h: number) => {
-    let c = document.createElement('canvas');
+  canvasElementAndContext = (w: number, h: number, c?: HTMLCanvasElement) => {
+    c ??= document.createElement('canvas');
     c.width = w;
     c.height = h;
     let cx = c.getContext("2d") as CanvasRenderingContext2D;
@@ -204,7 +206,7 @@ export const
 
   drawLine = (path: Cell[], lw: number, transform: (v: Vec2, i: number) => Vec2 = a => a, riverEnd = 0) => {
 
-    let coords = path.map((cell, i) => transform(sum(cell.center(), [0, layerSickness + 2]), i));
+    let coords = path.map((cell, i) => transform(sum(cell.center(), [0, layerThickness + 2]), i));
 
     if (path.length == 1)
       return
@@ -272,10 +274,10 @@ export const
 
       setSeed(cell.at)
       let pnum = cell.rivers ? 3 : 3 + rng(3),
-        props = asArray(cell.biome.prop) as number[]
+        prop = cell.biome.prop
 
-      if (props?.length > 0) {
-        let i1 = nof(props.map(p => sprites[p]), 6, pnum);
+      if (prop) {
+        let i1 = nof([sprites[prop]], 6, pnum);
         drawProps(cell, i1)
       }
 
@@ -341,19 +343,21 @@ export const
   /** If name is resource name, returns resource icon. 
    * If it is number, returns numbered sprite
    * If it is number @ text, returns filtered sprite */
-  resourceIcon = (name: string):HTMLCanvasElement => {
-    
+  resourceIcon = (name: string): HTMLCanvasElement => {
+
     let sprite: HTMLCanvasElement, split = name.split("@") as [number, string];
 
     if (split[0] * 0 == 0) {
       sprite = spriteCopy(spriteCache(...split))
     } else {
-      if (!resources[name])
-        console.log("!" + name);
+      if (DEBUG) {
+        if (!resources[name])
+          console.log("!" + name);
+      }
       let r = resources[name] ?? resources["unknown"];
       r.sc ??= spriteCache(
-        r.sprite,
-        r.color && constructHexFilter(...r.color))
+        r.s,
+        r.c && constructHexFilter(...r.c))
 
       sprite = spriteCopy(r.sc)
     }
