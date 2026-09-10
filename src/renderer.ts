@@ -10,6 +10,7 @@ import { Agent } from "./agent";
 import { GoodNumbers } from "./market";
 import { resources } from "./resources";
 import { shift } from "./controls";
+import { flyers } from "./races";
 
 declare const DEBUG: boolean
 
@@ -25,7 +26,7 @@ export const
   SAIL = 103,
   AIR = 104,
   QUEEN = 48,
-  SHADOW = 64;
+  SHADOW = 65;
 
 let worldPhoto: HTMLCanvasElement,
   previousWorldPhoto: HTMLCanvasElement | undefined,
@@ -128,15 +129,16 @@ export const
     for (let agent of u.a) {
       if (agent.anim || !agent.cell.seen)
         continue
-      drawOnCell(agent.cell, SHADOW)
+      drawOnCell(agent.cell, agent.happy() ? SHADOW + 1 : SHADOW)
       if (selected() == agent && t % 800 < 400) {
         drawOnCell(agent.cell, BIGCURSOR)
       }
-      drawOnCell(agent.cell, agent.race?.sprite)
+      drawOnCell(agent.cell, agent.race?.sprite,
+        [0, flyers.includes(agent.race.name) ? -5 - (Math.sin(Date.now() / 500) * 2) : 0])
 
       if (agent.transfers?.length && dt > rng(300) && dist(agent.cell.center(), pointedCell()?.center()) < 30) {
         let transfer = randomElement(agent.transfers);
-        agent.anit(transfer);
+        agent.animateTransfer(transfer);
       }
     }
 
@@ -169,7 +171,7 @@ export const
         i > 0 && drawOnCell(
           step,
           //resourceIcon(a.race.moving + (i > a.steps ? "Far" : "")))
-          resourceIcon("travel" + (i > a.steps ? "Far" : "")))
+          resourceIcon("travel" + (i > a.maxSteps() ? "Far" : "")))
       })
     }
   },
@@ -252,7 +254,7 @@ export const
       })
     })
 
-    /*if (HAVERIVERS) {
+    if (HAVERIVERS) {
       cx.lineCap = "round"
 
       for (let riverLayer of [0, 1]) {
@@ -268,7 +270,7 @@ export const
           1
         ))
       }
-    }*/
+    }
 
     u.drawOrder.forEach(cell => {
 

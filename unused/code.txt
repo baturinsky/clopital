@@ -215,3 +215,10 @@ function addRoads() {
         cx.fillStyle = "#f00";
         cx.fillRect(...sum(cell.topLeft(), [6, 10]), 1, -cell.t * 10);
       }*/
+
+
+          /*canGive ? goodSpan("happiness", give[1]) : "",
+          canGive ? `<button data-give="${name}">${formatNumber(give[0])}</button>` : "",
+          icon(name),
+          canTake ? `<button data-take="${name}">${formatNumber(-take[0])}</button>` : "",
+          canTake ? goodSpan("happiness", -take[1]) : ""*/

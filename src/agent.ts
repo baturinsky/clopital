@@ -1,5 +1,5 @@
 import { animate, cancelAnimation, MovementAnimation } from "./animation";
-import { Cell, cellAgentParameters } from "./cell";
+import { Cell, cellAgentParameters, PathPoint } from "./cell";
 //import { updateBuildButton } from "./controls";
 import { marginalUtility, MarketAgent, RecipeX, Transfer } from "./market";
 import { Race, raceAgentParameters } from "./races";
@@ -28,7 +28,17 @@ export class Agent extends MarketAgent {
   dest?: Cell
   steps = 0
   anim?: MovementAnimation
-  happiness = 0
+  happiness: number
+  _pathfindData?: { [id: string]: PathPoint }
+  _pathfindDataCell?: Cell
+
+  pathfindData() {
+    if (this.cell != this._pathfindDataCell || !this._pathfindData) {
+      this._pathfindData = this.cell.pathfind(this.race.name, 12)
+      this._pathfindDataCell = this.cell
+    }
+    return this._pathfindData
+  }
 
   happy() {
     return this.queen() || this.happiness > 999;
@@ -51,32 +61,37 @@ export class Agent extends MarketAgent {
     this.name = japaneseName()
     u.a.push(this);
 
-    this.minit();
+    this.happiness = ~~rng(size) + 50;
+
+    this.initMarket();
     this.recomp()
   }
 
-  nextHappiness(){
-    return clamp(0, this.happiness + this.tghappiness() - this.expectation())
+  nextHappiness() {
+    return clamp(0, this.happiness + this.totalHappinessGain() - this.expectation())
   }
 
-  get friend() {
-    return this.queen()
-  }
-
-  minit() {
-    this.race && super.minit(raceAgentParameters(this.race))
+  initMarket() {
+    this.race && super.initMarket(raceAgentParameters(this.race))
   }
 
 
   /** Animate transfers */
-  anit(transfer: RecipeX) {
-    let locs = [this.cell, (transfer.place as Agent | Cell).cell];
+  animateTransfer(transfer: RecipeX) {
+
+    let path: Cell[] = [this.cell, transfer.place.cell];
+    if (transfer.place instanceof Agent) {
+      path = this.pathTo(transfer.place.cell) ?? path;
+    }
+    let points = path?.map(c => c.topLeft()) as Vec2[];
+    if (points.length < 3)
+      points.unshift(sum(points[0], [rng(5) - 2, -rng(5) - 2]))
+
+    let rev = [...points].reverse(), stepDuration = 200 + 500 / points.length;
+
     Object.entries(transfer.recipe).forEach(([good, v]) => {
-      let points = locs.map(cell => cell.topLeft()) as [Vec2, Vec2]
-      points[1] = sum(points[1], [rng(5) - 2, -rng(5) - 2])
-      if (v > 0)
-        points = [points[1], points[0]];
-      let anim = animate(resourceIcon(good), points, 500 + 5 * dist(...points))
+      if (good == "travel") return;
+      let anim = animate(resourceIcon(good), v < 0 ? points : rev, stepDuration)
       resAnimations++
       anim.f = () => resAnimations--
     })
@@ -92,27 +107,44 @@ export class Agent extends MarketAgent {
     let
       nb = this.cell.cir(20),
       partners = u.a.filter(a => nb.has(a.cell) && !((a.queen() || this.queen()) && !a.cell.seen && !this.cell.seen));
-    partners.forEach(p => this.barter(p));
+    partners.forEach(p => {
+      let path = this.pathTo(p.cell);
+      if (path)
+        this.barter(p, Math.max(0, path.length - 2))
+    });
+  }
+
+  barter(their: MarketAgent, distance?: number): boolean {
+    if (this == queen() || their == queen()) {
+      if (!this.cell.seen || !(their as any).cell.seen){
+        return false
+      }
+    }
+    return super.barter(their, distance)
+  }
+
+  maxSteps() {
+    return Math.min(this.steps, ~~(this.stock.travel / this.size));
   }
 
   nextTurn() {
     //if (!this.isBuilding())
-    this.steps = 3
+    this.steps = 5
     this.transfers = []
     this.happiness = this.nextHappiness();
     loop(iterationsPerTurn, () => this.iterate())
 
     //if(this.race.name =="alicorn")      debugger
 
-    if(!this.happy()){
+    if (!this.happy()) {
       this.dest = randomElement(this.cell.neighbors);
       //if(this.race.biomes.includes(cell.biome.name) || this.race.biomes.length == 0)
     }
     this.go();
   }
 
-  tghappiness() {
-    return listSum(Object.values(this.happinessG))
+  totalHappinessGain() {
+    return Math.round(listSum(Object.values(this.happinessGain())))
   }
 
   expectation() {
@@ -120,7 +152,8 @@ export class Agent extends MarketAgent {
   }
 
   go() {
-    if (this.steps < 1 || this.cell == this.dest)
+    this.visit(this.cell);
+    if (this.maxSteps() < 1 || this.cell == this.dest)
       return
 
     let p = this.pathTo(this.dest);
@@ -128,6 +161,7 @@ export class Agent extends MarketAgent {
     if (p) {
       p = p.slice(1, this.steps + 1)
       this.steps -= p?.length;
+      this.gain("travel", -this.size);
       p.forEach(c => this.visit(c))
       cancelAnimation(this.anim);
       this.anim = animate(spriteOf(this), p.map(c => c.topLeft()))
@@ -156,7 +190,7 @@ export class Agent extends MarketAgent {
     if (c == this.dest)
       delete this.dest;
     this.recomp()
-    if (this.friend)
+    if (this.happy())
       this.see();
 
   }
@@ -173,15 +207,15 @@ export class Agent extends MarketAgent {
     return this.cell.at
   }
 
-  /** Pathfind */
-  pf(maxDist: number, destination?: Cell) {
-    return this.cell?.pf(this.race.name, maxDist, destination)
-  }
+  /*pathfind(maxDist: number, destination?: Cell) {
+    return this.cell?.pathfind(this.race.name, maxDist, destination)
+  }*/
 
-  pathTo(destination?: Cell, maxDist = 15) {
+  pathTo(destination?: Cell) {
     if (!destination)
       return
-    let pf = this.pf(maxDist, destination),
+    //let pf = this.pathfind(maxDist, destination),
+    let pf = this.pathfindData(),
       dp = u.c[destination.at]
     let p = dp?.pathFrom(pf);
     return p

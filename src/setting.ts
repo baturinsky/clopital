@@ -1,5 +1,7 @@
+import { biomesByNames } from "./biomes"
 import { GoodNumbers } from "./market"
 import { Race } from "./races"
+import { resources, convertResources, food, tradeables } from "./resources"
 
 export const
   iterationsPerTurn = 7,
@@ -65,9 +67,9 @@ export const
       { workingHard: -1, thinking: -1, tools: -1, crafting: 3 },
       { working: -1, thinking: -2, engines: -1, fuel: -3, crafting: 15 },
 
-      { cars: -1, fuel: -3, travel: 10 },
-      { cars: -1, fuel: -3, diving: 10 },
-      { engines: -1, fuel: -3, energy: 10 },
+      { vehicles: -1, fuel: -5, travel: 30 },
+      { vehicles: -1, fuel: -5, diving: 30 },
+      { engines: -1, fuel: -5, energy: 30 },
       { magic: -1, fertilisers: 1 },
 
       { crafting: -1, iron: -1, tools: 2 },
@@ -82,8 +84,9 @@ export const
       { crafting: -1, fabric: -1, clothes: 1 },
       { crafting: -1, rubber: -1, copper: -1, electronics: 1 },
       { crafting: -1, lumber: -1, fabric: -1, beds: 1 },
-      { crafting: -1, rubber: -1, engines: -1, iron: -1, cars: 1 },
-      { crafting: -1, iron: -1, engines: 1 },
+      { crafting: -1, rubber: -1, engines: -1, iron: -1, vehicles: 1 },
+      { crafting: -3, iron: -2, engines: 1 },
+      { crafting: -1, iron: -1, horseshoes: 1 },
       { crafting: -1, electronics: -1, iron: -1, engines: 5 },
       { crafting: -1, copper: -1, rubber: -1, electronics: 1 },
 
@@ -109,6 +112,7 @@ export const
       recipes: [
         { alicorning: -1, magic: 100 },
         { alicorning: -1, thinking: 100 },
+        { alicorning: -1, travel: 100 },
       ]
     },
     horses: {
@@ -174,7 +178,36 @@ export const
     },
     dome: {
     }
-  } as { [id: string]: Race }
+  } as { [id: string]: Race },
+
+  initSetting = () => {
+    let icon = 48;
+    for (let rn in races) {
+      let race = races[rn]
+      race.name = rn
+      race.biomes = []
+      race.income = {
+        ...race.income ?? {},
+        ...Object.fromEntries([...tradeables].map(t => [t, -.1]))
+      }
+      //race.moving ??= "walking"
+      resources[race.name] = resources[race.job] = convertResources(icon);
+      race.sprite = icon++;
+    }
+
+    for (let b of Object.values(biomesByNames)) {
+      for (let r of b.races) {
+        races[r].biomes.push(b.name)
+      }
+    }
+
+    food.forEach((f, i) => commonRecipes.push({
+      [f]: -1,
+      food: ~~(i / 3) + 1
+    }))
+
+  }
+
 
 export const placeables = Object.keys(races).slice(8)
 console.log(placeables);

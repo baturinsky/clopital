@@ -19,13 +19,13 @@ type AgentSaveFormat = {
   dest: number,
   happiness: number,
   consumed: any,
-  happinessG: any,
+  //happinessG: any,
   race: string
   stock: GoodNumbers
   seen: boolean
 }
 
-type AllSaveFormat = typeof state & { c: { [at: number]: AgentSaveFormat }, a: AgentSaveFormat[] }
+type AllSaveFormat = typeof state & { c: { [at: number]: AgentSaveFormat }, a: AgentSaveFormat[], s:number[] }
 
 export const
   savePrefix = "CLP:",
@@ -37,7 +37,8 @@ export const
     let data = {
       ...state,
       c: objMap(objFilter(u.c, c => c.woke), (c:Cell) => save(c)),
-      a: u.a.map(agent => save(agent))
+      a: u.a.map(agent => save(agent)),
+      s: u.c.map(c=>c.seen?1:0)
     }
 
     
@@ -45,7 +46,6 @@ export const
     if (DEBUG) {
       console.log(data, JSON.stringify(data).length);
     }
-
     
     localStorage[savePrefix + slot] = JSON.stringify(data)
     localStorage[saveTitlePrefix + slot] = new Date().toISOString()
@@ -67,10 +67,12 @@ export const
       for (let d of data.a) {
         let agent = new Agent(u.c[d.cell as number])
         load(agent, d)
-        agent.minit();
+        agent.initMarket();
         agent.visit(agent.cell)
         agent.recomp()
       }
+
+      data.s.forEach((v,i)=>u.c[i].seen = !!v)
 
       return true;
     }
@@ -80,11 +82,11 @@ export const
 
   saveAsIs = (v: any) => Object.fromEntries([
     "name",
+    "turns",
     "size",
     "steps",
     "happiness",
-    "consumed",
-    "happinessG"
+    "consumed"
   ].map(k => [k, (v as any)[k]])),
 
   save = (v: Agent | Cell) => {
@@ -99,9 +101,7 @@ export const
         cell: v.cell.at,
         race: v.race.name
       }
-        : {
-          seen: v.seen
-        }
+        : {}
     }
   },
 
@@ -116,8 +116,6 @@ export const
         cell: u.c[v.cell as number],
         dest: u.c[v.dest as any],
         race: races[v.race as string],
-      } : {
-        seen: v.seen
-      }
+      } : {}
     } as Partial<Agent>)
   }

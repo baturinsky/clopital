@@ -15,7 +15,7 @@ body {
 #INFO {
   position: absolute;
   top: -10px;
-  max-width: 370px;
+  max-width: 340px;
   height: 100vh;
   pointer-events: none;
 }
@@ -26,18 +26,18 @@ body {
 
 .pnl {
   background: #fffa;
-  padding: 7px;
+  padding: 10px 2px;
   margin: 5px;
   border: #4004 solid;
   border-width: 2px 4px;
-  min-width: 350px;
+  min-width: 330px;
   max-height: 70vh;
   overflow-y: auto;
   pointer-events: all;
 }
 
 .ptl {
-  margin-bottom: -20px;
+  margin-bottom: -24px;
   font-size: 80%;
   text-align: right;
   padding: 0 10px;
@@ -81,7 +81,7 @@ button:hover, button.h {
 
 
 *[data-icon] canvas {
-  margin: 0 5px 0 -1px;
+  margin: 0 0 0 3px;
   transform: scale(1.5) translateY(1px);
   filter: drop-shadow(1px 1px);
   pointer-events: all;
@@ -105,13 +105,14 @@ button:hover, button.h {
   flex-wrap: wrap;
 }
 
-.aaa {
+
+.good, button {
   white-space: nowrap;
 }
 
 .abtn {
   text-align: center;
-  margin-bottom: -5px;
+  margin-bottom: -1px;
 }
 
 .tc {
@@ -126,9 +127,6 @@ td {
   text-align: center;
 }
 
-td button {
-  width: 80px;
-}
 
 #MID {
   position: fixed;
@@ -149,10 +147,14 @@ button *[data-icon] canvas {
   pointer-events: none;
 }
 
-.u>*:first-child{
+#INFO>*:first-child{
   background: #faaa;
 }
 
-.h>*:first-child{
+#INFO>*:first-child{
   background: #afaa;
+}
+
+h4{
+  cursor: pointer;
 }

@@ -1,8 +1,30 @@
-import glsl from 'vite-plugin-glsl';
-import wasm from "vite-plugin-wasm";
-import topLevelAwait from "vite-plugin-top-level-await";
-import { viteSingleFile } from "vite-plugin-singlefile"
 import { defineConfig, UserConfig } from 'vite';
+import { roadrollerPlugin } from "js13k-vite-plugins";
+
+export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
+
+  return {
+    plugins: [
+      roadrollerPlugin(),
+    ],
+    base: '',
+    define: {
+      DEBUG: mode == 'development'
+    },
+
+    build: {
+      minify: mode == "min" ? 'terser' : false,
+      terserOptions: hardTerse,
+      cssMinify: mode == "min",
+      modulePreload: { polyfill: false },
+      emptyOutDir: true,
+      outDir: "./dist",
+      rollupOptions: {
+        output: { entryFileNames: "bundle.js" }
+      }
+    }
+  } as UserConfig
+});
 
 const hardTerse = {
 
@@ -11,9 +33,8 @@ const hardTerse = {
     passes: 3,
 
     // General dangerous compressions
-    unsafe: true,
     unsafe_arrows: true,
-    unsafe_comps: true,
+    //unsafe_comps: true,
     unsafe_Function: true,
     unsafe_math: true,
     unsafe_symbols: true,
@@ -26,12 +47,12 @@ const hardTerse = {
     drop_debugger: true,
     dead_code: true,
   },
-  mangle:  false && {
+  mangle: {
     // Mangle variables at the highest scope level
     toplevel: true,
 
     // Force-mangle property names on objects/classes
-    properties: {
+    properties: false && {
       // If you use standard DOM APIs (like Canvas ctx.fillStyle), 
       // set builtins: false to prevent Terser from mangling native browser traits.
       builtins: false,
@@ -51,32 +72,3 @@ const hardTerse = {
   // Target modern JS to avoid ES5 bloat wrapper code
   ecma: 2024,
 }
-
-export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
-
-  return {
-    plugins: [
-      glsl({ minify: true }),
-      wasm(),
-      topLevelAwait(),
-      viteSingleFile({ removeViteModuleLoader: true }),
-    ],
-    base: '',
-    define: {
-      DEBUG: mode == 'development'
-    },
-
-    build: {
-      minify: mode == "min" ? 'terser' : false,
-      //terserOptions: hardTerse,
-      cssMinify: mode == "min",
-      modulePreload: { polyfill: false },
-      emptyOutDir: true,
-      outDir: "./dist",
-      rollupOptions: {
-        output: { entryFileNames: "bundle.js" }
-      }
-    }
-  } as UserConfig
-});
-

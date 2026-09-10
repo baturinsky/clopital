@@ -1,7 +1,11 @@
 import { Biome, biomesByNames } from "./biomes"
 import { GoodNumbers, MarketAgentParameters } from "./market"
-import { convertResources, food, resources } from "./resources"
+import { convertResources, food, resources, tradeables } from "./resources"
 import { commonRecipes, races } from "./setting"
+
+export const
+  flyers = ["alicorn", "pegasi"],
+  flyersAndSwimmers = [...flyers, "seahorses"]
 
 export type Race = {
   name: string
@@ -15,26 +19,6 @@ export type Race = {
 }
 
 export const
-  initSetting = () => {
-    let icon = 48;
-    for (let rn in races) {
-      let race = races[rn]
-      race.name = rn
-      race.biomes = []
-      //race.moving ??= "walking"
-      resources[race.name] = resources[race.job] = convertResources(icon);
-      race.sprite = icon++;
-    }
-
-    for (let b of Object.values(biomesByNames)) {
-      for (let r of b.races) {
-        races[r].biomes.push(b.name)
-      }
-    }
-
-    food.forEach((f, i) => commonRecipes.push({ [f]: -1, food: ~~(i / 3) + 1 }))
-
-  },
 
   raceHabitabiliy = (race: Race, biome: Biome) => {
     return biome.habitability + (biome.races.indexOf(race.name) < 0 ? 0 : 1);
@@ -49,9 +33,21 @@ export const
       { [race.job]: -1, travel: 1 }] : [],
     ]
 
+    if (!flyersAndSwimmers.includes(race.name)) {
+      ownRecipes.push({ [race.job]: -10, horseshoes: -1, travel: 20 })
+    }
+
+
     return {
       ownRecipes,
-      income: race.job ? { [race.job]: 1, food: -1, fun: -.5, comfort: -.5, fertilisers: .1, ...race.income } : {}
+      income: race.job ? 
+      { [race.job]: 1, 
+        food: -1, 
+        fun: -.5, 
+        comfort: -.5, 
+        fertilisers: .1, 
+        ...race.income        
+      } : {}
     } as MarketAgentParameters
   }
 

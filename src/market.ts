@@ -1,10 +1,13 @@
 import { Agent } from "./agent";
+import { Cell } from "./cell";
 import { Race } from "./races";
 import { tradeables } from "./resources";
 import { neighborBy } from "./root";
 import { iterationsPerTurn } from "./setting";
 import { queen, state } from "./state";
-import { addToKey, bestBy, clamp, listSum, numTween, objAdd, objFilter, objScale, objScaleI, vecTween, worstBy } from "./util";
+import { addToKey, bestBy, clamp, listSum, numTween, objAdd, objFilter, objMap, objScale, objScaleI, vecTween, worstBy } from "./util";
+
+const FASTRECIPEPICK = true;
 
 //import { loop } from "./util";
 const loop = <T>(l: number, f: (i: number) => T) => [...new Array(l)].map((v, i) => f(i))
@@ -17,9 +20,11 @@ const utilityBase = 0.97, utilityBaseLog = Math.log(utilityBase), DEFAULT_STOCK_
 /** Cached marginal utility numbers */
 const marginalUtilityLookup = loop(100000, n => 1e6 * Math.pow(utilityBase, n))
 
+const distanceTax = .01, happinessGainMultiplier = 10
+
 export const
   marginalUtility = (amount: number) =>
-    amount > 100000 ? 0 : marginalUtilityLookup[amount],
+    amount > 100000 ? 0 : marginalUtilityLookup[~~amount],
   totalUtility = (amount: number) =>
     (utilityBase ** amount - 1) / utilityBaseLog,
   totalStockUtility = (agent: MarketAgent) =>
@@ -31,15 +36,15 @@ export const
     console.log(`${a.name} used recipes:\n`);
     console.table(Object.fromEntries(a.recipes.map((r, i) =>
       [JSON.stringify(r.recipe),
-      [a.uses[JSON.stringify(r.recipe)], a.utl(a.recipes[i])]
+      [a.uses[JSON.stringify(r.recipe)], a.util(a.recipes[i])]
       ])))
   },
   utilities = (a: MarketAgent) =>
-    Object.fromEntries(Object.keys(a.stock).map(k => [k, a.mutl(k)]));
+    Object.fromEntries(Object.keys(a.stock).map(k => [k, a.mutil(k)]));
 
 
 export type RecipeX = {
-  place: MarketAgent,
+  place: Agent | Cell,
   recipe: GoodNumbers
 }
 
@@ -101,7 +106,7 @@ export class MarketAgent {
   }
 
   /** Init market parameters */
-  minit(params: MarketAgentParameters = {}) {
+  initMarket(params: MarketAgentParameters = {}) {
     Object.assign(this, params)
     if (params.sellList)
       this.sells = new Set(params.sellList);
@@ -120,23 +125,24 @@ export class MarketAgent {
    * The perceived utility of the one unit of this good
    * If working in worlplace, use the sum of stock
   */
-  mutl(good: string, place?: MarketAgent) {
-    let v = marginalUtility(~~(this.common(good, place) / this.size))
+  mutil(good: string, place?: MarketAgent, travelPerUnit = 0) {
+    let v = marginalUtility(this.common(good, place) / this.size) -
+      (travelPerUnit ? marginalUtility((this.stock.travel ?? 0) / this.size) * travelPerUnit : 0)
     return v
   }
 
   /** Recipe utility
    * How much the market utility will change when using the recipe without multiplier */
-  utl(recipe: RecipeX) {
+  util(recipe: RecipeX) {
     return listSum(Object.keys(recipe.recipe), good => {
       //if(recipe.recipe.seaweed>0)        debugger
-      let v = this.mutl(good, recipe.place) * recipe.recipe[good]
+      let v = this.mutil(good, recipe.place) * recipe.recipe[good]
       return v
     })
   }
 
   /** Applies the recipe with the given multiplier and proxies */
-  use(recipe: RecipeX, times: number) {
+  useRecipe(recipe: RecipeX, times: number) {
 
     //let rn = recipeXName(recipe);
     let rn = JSON.stringify(recipe.recipe)
@@ -150,7 +156,7 @@ export class MarketAgent {
       objAdd(recipe.place.uses, { [rn]: times })
 
       Object.keys(recipe.recipe).forEach((k) => {
-        
+
         //if(k=="grass" || this.name == "Vasilisa")          debugger
 
         let amount = recipe.recipe[k] * times;
@@ -206,7 +212,7 @@ export class MarketAgent {
 
   bestSeller(buyer: MarketAgent, minimalStock = 40) {
     let soldables = this.soldableTo(buyer);
-    let [good, v] = bestBy([...soldables], k => this.stock[k] > minimalStock ? buyer.mutl(k) / this.mutl(k) : 0);
+    let [good, v] = bestBy([...soldables], k => this.stock[k] > minimalStock ? buyer.mutil(k) / this.mutil(k) : 0);
 
     return v > 0 ? good : undefined;
   }
@@ -217,7 +223,8 @@ export class MarketAgent {
     return this.sells ?? buyer.buys ?? tradeables
   }
 
-  barter(their: MarketAgent) {
+  barter(their: MarketAgent, distance = 0) {
+
     /** Calculating the best goods to trade */
     let myBestSeller = this.bestSeller(their), theirBestSeller = their.bestSeller(this);
 
@@ -226,18 +233,11 @@ export class MarketAgent {
     if (!myBestSeller || !theirBestSeller)
       return false
 
-    /*if (iteration > 10000 && their == unicorns) {
-      console.log("rrrr", [...tradeable].map(k => [k,
-        "we", this.stock[k], this.marginalUtility(k),
-        "them", their.stock[k], their.marginalUtility(k),
-        their.marginalUtility(k) / this.marginalUtility(k)]));
-      debugger
-      this.bestSeller(their)
-    }*/
+    let travelPerUnit = distance * distanceTax;
 
     /** Calculating the exchange rate - how many of their good for one our good */
-    let theirBreakEvenPrice = their.mutl(myBestSeller) / their.mutl(theirBestSeller);
-    let ourBreakEvenPrice = this.mutl(myBestSeller) / this.mutl(theirBestSeller);
+    let theirBreakEvenPrice = their.mutil(myBestSeller) / their.mutil(theirBestSeller);
+    let ourBreakEvenPrice = this.mutil(myBestSeller, undefined, travelPerUnit) / this.mutil(theirBestSeller, undefined, travelPerUnit);
 
     if (Math.abs(theirBreakEvenPrice - ourBreakEvenPrice) < .2)
       return false;
@@ -251,7 +251,7 @@ export class MarketAgent {
     finalExchangeRate = finalExchangeRate * 100;
     //if (finalExchangeRate == 0)      debugger
 
-    let maxAmountOfMyGood = Math.min(this.stock[myBestSeller], their.stock[theirBestSeller] * finalExchangeRate);
+    let maxAmountOfMyGood = Math.min(this.stock[myBestSeller], their.stock[theirBestSeller] * finalExchangeRate, (this.stock.travel ?? 0) / travelPerUnit / (1 + finalExchangeRate));
 
     let weGive = Math.ceil(maxAmountOfMyGood / 4);
     let theyGive = Math.min(their.stock[theirBestSeller] / 4, weGive * finalExchangeRate);
@@ -264,24 +264,31 @@ export class MarketAgent {
     //addToKey(this.trades, `${myBestSeller}>${their.name}`, weGive)
     //addToKey(this.trades, `${theirBestSeller}>${their.name}`, -theyGive)
 
+    let travelUsed = ~~((weGive + theyGive) * travelPerUnit);
+
+    this.addTransfer(their, "travel", -travelUsed)
+    this.gain("travel", -travelUsed)
     this.give(their, myBestSeller, weGive)
     their.give(this, theirBestSeller, theyGive)
 
     return true
   }
 
+  /** Transfer goods from one agent to another */
   give(receiver: MarketAgent, good: string, amount: number) {
     if (amount > this.stock[good])
       debugger
 
-    this.addTransfer(receiver, good, amount)
+    this.addTransfer(receiver, good, -amount)
+    receiver.addTransfer(this, good, amount)
 
     receiver.gain(good, amount);
     this.gain(good, -amount);
   }
 
+  /** Gain or lose goods */
   gain(good: string, amount: number) {
-    this.stock[good] = (this.stock[good] ?? 0) + ~~amount;
+    this.stock[good] = Math.max(0, (this.stock[good] ?? 0) + ~~amount);
   }
 
   iterate() {
@@ -298,45 +305,50 @@ export class MarketAgent {
 
   gainIncome() {
     this.consumed = {}
-    this.happinessG = {}
     let total = this.totTurnInc();
     for (let good in total) {
       let v = total[good]
       if (v < 0) {
         let factual = Math.min(-v, this.stock[good] ?? 0)
         addToKey(this.consumed, good, factual);
-        this.happinessG[good] = ~~(factual / v * this.income[good] * iterationsPerTurn)
+        //this.happinessG[good] = ~~(factual / v * this.income[good] * iterationsPerTurn)
       }
       this.gain(good, v)
       this.stock[good] = clamp(0, this.stock[good], this.cap[good] ?? DEFAULT_STOCK_CAP)
     }
   }
 
-  /*_useRecipes() {
-    let recipeUsed = 0, limit = 10;
-    do {
-      this.recipes.forEach((recipe, i) => {
-        if (this.utl(recipe) > 0) {
-          let maxUses = this.max(recipe);
-          if (maxUses < 1)
-            return
-          this.use(recipe, Math.ceil(maxUses / 8))
-          recipeUsed++;
-        }
-      })
-    } while (recipeUsed && --limit)
-  }*/
+  happinessGain() {
+    let total = this.prodTurn(-1);
+    return objMap(this.consumed, (v, good) => - (v / total[good] * happinessGainMultiplier * this.income[good]))
+  }
 
   useRecipes() {
-    let limit = 30;
-    while (limit--) {
-      let [recipe, v] = bestBy(this.recipes, (recipe) =>
-        this.utl(recipe) * this.max(recipe)
-      )
-      if (v > 0)
-        this.use(recipe, Math.ceil(this.max(recipe) / 4))
-      else
-        break
+    if (FASTRECIPEPICK) {
+      let recipeUsed = 0, limit = 10;
+      do {
+        this.recipes.forEach((recipe, i) => {
+          if (this.util(recipe) > 0) {
+            let maxUses = this.max(recipe);
+            if (maxUses < 1)
+              return
+            this.useRecipe(recipe, Math.ceil(maxUses / 8))
+            recipeUsed++;
+          }
+        })
+      } while (recipeUsed && --limit)
+    } else {
+      let limit = 30;
+      while (limit--) {
+        let [recipe, v] = bestBy(this.recipes, (recipe) =>
+          this.util(recipe) * this.max(recipe)
+        )
+        if (v > 0)
+          this.useRecipe(recipe, Math.ceil(this.max(recipe) / 4))
+        else
+          break
+      }
+
     }
   }
 
@@ -345,9 +357,9 @@ export class MarketAgent {
     return objScaleI(objFilter(this.totTurnInc(), v => need * v > 0), need)
   }
 
-  /** Total income/expense per turn */
+  /** Total income/expense per week, considering size */
   totTurnInc() {
-    return objScale(this.income, this.size * iterationsPerTurn)
+    return objScaleI(this.income, this.size * iterationsPerTurn)
   }
 
 

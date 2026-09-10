@@ -82,7 +82,7 @@ export const
     return a
   },
   objScale = (a: any, scale: number) => objMap(a, v => v * scale),
-  objScaleI = (a: any, scale: number) => objMap(a, v => ~~(v * scale)),
+  objScaleI = (a: any, scale: number) => objMap(a, v => Math.round(v * scale)),
   objStripFalsy = <T>(a: T): T => objFilter(a, v => v),
   rotateList = (a: any[], d: number) => [...a.slice(a.length - d - 2), ...a.slice(0, d)],
   formatNumber = (x: number) => {

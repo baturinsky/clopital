@@ -11,13 +11,13 @@ export const
 
   //moving = ["walking", "flying", "swimming"],
 
-  minerals = ["oil", "gems", "iron", "copper"],
+  minerals = ["oil", "gems", "iron", "copper", "stone", "coal"],
   
   plants = ["cotton", "rubber"],
 
   food = ["grass", "seaweed", "sugarcane", "apples", "wheat", "honey", "jam", "pie", "cacao", "chocolate"],
 
-  items = ["gems", "tools", "lumber", "engines", "fabric", "clothes", "iron", "gold", "beds", "fertilisers", "fuel"],
+  items = ["gems", "tools", "lumber", "engines", "fabric", "clothes", "iron", "beds", "fertilisers", "fuel"],
 
   //majorNeeds = ["food", "comfort", "fun"],
 
@@ -28,8 +28,8 @@ export const
     working: 80,
     workingHard: 81,
     //sowing: 98,
-    crops: [82, "#0f0"],
-    deposits: 8,
+    crops: [82, "#f00,#00f"],
+    deposits: 9,
     ore: [83, "#00f,,#008"],
     coal: [83, "#000"],
     iron: [84, "#888,"],
@@ -44,7 +44,8 @@ export const
 
     tools: [80, "#88a,,#55a"],
 
-    travel: [100, "#fff"],
+    travel: [100, "#00f"],
+    horseshoes: [100, "#666"],
     diving: [100, "#048"],
 
     /*flying: [101, "#fff"],
@@ -58,12 +59,12 @@ export const
     cacao: [82, "#a40"],
     moss: [105, "#4af,#888"],
     wheat: [113, "#fe0"],
-    fuel: 93,
+    fuel: [93, ",,#0f0"],
     cotton: [82, "#fff"],
     apples: [99, "#f00"],
     pearls: [114, "#aaa"],
 
-    cars: 116,
+    vehicles: 116,
     beds: 117,
     //construction: [56, "#000"],
     //houses: 56,
@@ -96,7 +97,7 @@ export const
     //spelunking: [91, "#006"],
     digging: 110,
 
-    fabric: [91],
+    fabric: [91, "#f0f"],
     clothes: [91, "#ff0"],
 
     engines: [92, "#444"],

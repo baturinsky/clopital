@@ -7,15 +7,19 @@ import { hideMenu, menuOn, showSavesMenu, updateTip } from "./ui";
 import { animate, animations } from "./animation";
 import { loadAll, saveAll } from "./saves";
 import { Agent } from "./agent";
+import { centerOn } from "./renderer";
+//import { audio_play, audio_create_song, music_data, audio_init } from "./sonant";
+//import { CPlayer, sonata } from "./voxby";
+import { pl_synth_init, song } from "./pl-synth";
 
 declare var C: HTMLCanvasElement;
-declare const DEBUG:boolean
+declare const DEBUG: boolean
 
 let buttonsDown: number[] = [], pme = [] as any[];
 
 //declare var Build: HTMLDivElement;
 
-export let shift:boolean|undefined;
+export let shift: boolean | undefined;
 
 export const
 
@@ -30,6 +34,8 @@ export const
     onpointerdown = (e: MouseEvent) => {
       if (e.button != 0)
         return
+
+      //playpl()
 
       let id = (e.target as HTMLElement).closest("button")?.id as string;
 
@@ -67,12 +73,20 @@ export const
 
       if (element.dataset.save) {
         saveAll(element.dataset.save)
-        showSavesMenu()
+        hideMenu()
       }
 
       if (element.dataset.load) {
         loadAll(element.dataset.load)
         hideMenu()
+      }
+
+      if (element.dataset.a) {
+        select(u.a[element.dataset.a as any])
+      }
+
+      if (element.dataset.c) {
+        centerOn(u.c[element.dataset.c as any])
       }
 
     }
@@ -103,8 +117,15 @@ export const
 
       if (e.type == "pointerdown") {
 
+
         buttonsDown[e.button] = 1;
         if (e.button == 0) {
+
+          /*audio_init()
+          audio_play(audio_create_song(...music_data), 1, 1);*/
+
+
+
 
           let a = pointedCell()?.a
 
@@ -115,9 +136,10 @@ export const
             } else {
               select(a[(ind + 1) % a.length])
             }
-          } else if (selected()) {
+          } else if (selected() && selected().happy()) {
             selected().dest = pointedCell()
             selected()?.go()
+            select()
           }
         }
 
@@ -170,18 +192,50 @@ onkeydown = e => {
     case "Escape":
       update({ selected: undefined })
       break
-    case "Tab":      
-      update({ tab:(state.tab as number +1)%4 })
+    case "Tab":
+      update({ tab: (state.tab as number + 1) % 4 })
       select()
       break
   }
   if (DEBUG) {
     if (e.code == "KeyI") {
       console.log(selected().recipes.map((recipe) =>
-        [JSON.stringify(recipe.recipe), selected().utl(recipe) * selected().max(recipe)]));
-      console.log(objMap(selected().stock, k => selected().mutl(k)));
+        [JSON.stringify(recipe.recipe), selected().util(recipe) * selected().max(recipe)]));
+      console.log(objMap(selected().stock, k => selected().mutil(k)));
       selected().iterate()
     }
   }
 }
 
+const playVoxby = () => {
+  let A = new AudioContext();
+  let cplayer = new CPlayer();
+  cplayer.init(sonata);
+  let B = cplayer.createAudioBuffer(A)
+  let w = A.createBufferSource();
+  w.buffer = B;
+
+  let gain = A.createGain();
+  gain.gain.value = 1;
+  w.connect(gain);
+  gain.connect(A.destination);
+
+  w.start();
+}
+
+const playpl = ()=>{
+  let A = new AudioContext();
+  let synth = pl_synth_init(A)
+  let B = synth.song(song)
+  
+  let w = A.createBufferSource();
+  w.buffer = B;
+
+  let gain = A.createGain();
+  gain.gain.value = 1;
+  w.connect(gain);
+  gain.connect(A.destination);
+
+  w.start();
+
+}

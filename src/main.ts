@@ -5,10 +5,11 @@ import { enableControls } from "./controls";
 import { initRenderer, prerenderUniverse, renderLoop } from "./renderer";
 import { state, select, selected, updateExpectation as updateExpectation } from "./state";
 import { u, Universe } from './universe';
-import { initSetting } from './races';
+import { initSetting } from './setting';
 import { updateTip } from './ui';
 import { loop } from './util';
 import { saveAll } from './saves';
+import { audio_play, audio_create_song, music_data, audio_init } from './sonant';
 
 
 export const
@@ -35,6 +36,7 @@ const init = () => {
   select()
 
   renderLoop()
+
 }
 
 
@@ -50,3 +52,4 @@ export const
     updateTip()
     saveAll()
   }
+

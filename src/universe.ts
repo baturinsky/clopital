@@ -7,12 +7,12 @@ import { rng, loop, randomElement, clamp, setSeed, seed, sum, listSum, dist, obj
 
 export let u: Universe
 
-export const HAVERIVERS = false;
+export const HAVERIVERS = true;
 
 export const East = 1, West = 4, SE = 3, SW = 4,
   EOcean = 0, ESea = 1, EHighlands = 2, EPeaks = 3
   //buildingInCell = (c: Cell) => c.a.find(a => a.isBuilding())
-;
+  ;
 
 export class Universe {
   elev!: number[]
@@ -70,7 +70,7 @@ export class Universe {
 
     this.elev = [.4, .5, .82, .97].map(h => this.quantile(h))
 
-    /*if (HAVERIVERS) {
+    if (HAVERIVERS) {
 
       loop(10000, () => erode(this.anyCell()))
 
@@ -83,7 +83,7 @@ export class Universe {
           path.forEach(cell => cell.rivers++);
         }
       })
-    }*/
+    }
 
     this.c.forEach(c => {
       let latitude = Math.abs(.5 - c.at / ws) * 2
@@ -139,7 +139,7 @@ export class Universe {
     this.c.forEach(cell => {
 
       objMap(cell.biome.special || {}, (chance, name) => {
-        if (rng(1000) < chance*10)
+        if (rng(1000) < chance * 10)
           cell.special = name;
       })
 
@@ -158,17 +158,18 @@ export class Universe {
       let isCoast = !cell.water() && cell.neighbors.find(c => c.water());
       if (!rng(isCoast || cell.rivers ? 60 : cell.water() ? 200 : 150)) {
         let race = randomElement(cell.biome.races);
-        if(!cell.water() && !rng(6))
+        if (!cell.water() && !rng(6))
           race = "unicorns"
         if (race) {
           new Agent(cell, race, rng(1000) + 100);
         }
       }
-      cell.minit()
+      cell.initMarket()
     })
 
 
-    let queen = new Agent(u.c[ws/2+ww/2], "alicorn");
+    let queen = new Agent(u.c[ws / 2 + ww / 2], "alicorn");
+    queen.name = "Vasilisa"
     select(queen)
 
     queen.see();

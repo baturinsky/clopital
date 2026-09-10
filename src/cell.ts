@@ -40,7 +40,7 @@ export class Cell extends MarketAgent {
   /** neighbors and itself*/
   neighborhood!: Cell[]
 
-  seen?: boolean = true
+  seen?: boolean
 
   settlement?: MarketAgent
 
@@ -65,8 +65,8 @@ export class Cell extends MarketAgent {
     return this.elev < u.elev[ESea];
   }
 
-  minit() {
-    super.minit(cellAgentParameters(this))
+  initMarket() {
+    super.initMarket(cellAgentParameters(this))
   }
 
   get cell() {
@@ -86,7 +86,7 @@ export class Cell extends MarketAgent {
   }*/
 
   /** todo: traverse queue in correct order */
-  pf(race: string, maxDist: number, destination?: Cell) {
+  pathfind(race: string, maxDist: number, destination?: Cell) {
     const visited = new Set<Cell>();
     const queue: PathPoint[] = [], result: { [at: number]: PathPoint } = {};
 
@@ -117,14 +117,14 @@ export class Cell extends MarketAgent {
     return result;
   }
 
-  pathFrom(pf: { [id: string]: PathPoint } = {}) {
-    let path: Cell[] = [this], point = pf[this.at];
+  pathFrom(pathfindData: { [id: string]: PathPoint } = {}) {
+    let path: Cell[] = [this], point = pathfindData[this.at];
     if (!point)
       return undefined;
-    do {
-      point = pf[point.from.at]
+    while (point.c != point.from) {
+      point = pathfindData[point.from.at]
       path.push(point.c)
-    } while (point.c != point.from)
+    } 
     return path.reverse()
   }
 
