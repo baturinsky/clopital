@@ -17,7 +17,7 @@ export const
 
   food = ["grass", "seaweed", "sugarcane", "apples", "wheat", "honey", "jam", "pie", "cacao", "chocolate"],
 
-  items = ["gems", "tools", "lumber", "engines", "fabric", "clothes", "iron", "beds", "fertilisers", "fuel"],
+  items = ["gems", "tools", "lumber", "engines", "fabric", "hats", "iron", "beds", "fertilisers", "fuel"],
 
   //majorNeeds = ["food", "comfort", "fun"],
 
@@ -45,6 +45,7 @@ export const
     tools: [80, "#88a,,#55a"],
 
     travel: [100, "#00f"],
+    walk: [100, "#fff"],
     horseshoes: [100, "#666"],
     diving: [100, "#048"],
 
@@ -65,16 +66,16 @@ export const
     pearls: [114, "#aaa"],
 
     vehicles: 116,
-    beds: 117,
+    beds: [117, "#a40,,#fff"],
     //construction: [56, "#000"],
     //houses: 56,
     //shelter: [56, "#0f0"],
     fun: [94, "#0f0"],
-    comfort: [117, "#0f0"],
+    comfort: 117,
 
     happiness: 95,
 
-    travelFar: [100, "#f80"],
+    walkFar: [100, "#f80"],
     /*flyingFar: [101, "#f80"],
     swimmingFar: [102, "#f80"],*/
 
@@ -88,6 +89,7 @@ export const
     sugarcane: [90, "#0a0,#0a0"],
     seaweed: [90, "#f0f,#0aa"],
     magic: 94,
+    warp: 94,
     energy: [94, "#00f,#00f"],
     food: [99, "#0f0,#000"],
     cooking: [96, "#fff"],
@@ -98,7 +100,7 @@ export const
     digging: 110,
 
     fabric: [91, "#f0f"],
-    clothes: [91, "#ff0"],
+    hats: [98, "#fff"],
 
     engines: [92, "#444"],
     electronics: [92, "#0a0"],

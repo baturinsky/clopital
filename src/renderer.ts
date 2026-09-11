@@ -6,7 +6,7 @@ import { HAVERIVERS, u } from "./universe";
 import { asArray, loop, muls, nof, randomElement, RGBA, rng, round, scale, setSeed, shuffle, sum, vecTween, Vec2, sub, len, dist, cap1, hexToRgb } from "./util";
 import { Cell } from "./cell";
 import { animate, cancelAnimation, updateAnimations } from "./animation";
-import { Agent } from "./agent";
+import { Agent, resAnimations } from "./agent";
 import { GoodNumbers } from "./market";
 import { resources } from "./resources";
 import { shift } from "./controls";
@@ -88,13 +88,17 @@ export const
   wobbleFlight = (p: Vec2, amplitude = 6) => sum(p, [0, amplitude * (1 + Math.sin(Date.now() / 500)) / 2]),
 
   renderLoop = () => {
+    if(!u)
+      return requestAnimationFrame(renderLoop)
+
     let t = Date.now();
     dt = t - lastT;
     lastT += dt;
 
     blinkAlpha = (2 + Math.sin(t / 100)) / 3;
 
-    Next.style.transform = `scale(${queen().steps == 0 ? 1 + blinkAlpha / 10 : 1})`
+    if(document.Next)
+      Next.style.transform = `scale(${queen().steps == 0 ? 1 + blinkAlpha / 10 : 1})`
 
     if (state.targetTLA) {
       //console.log(state.topLeftAt, state.targetTLA, dt);
@@ -136,7 +140,13 @@ export const
       drawOnCell(agent.cell, agent.race?.sprite,
         [0, flyers.includes(agent.race.name) ? -5 - (Math.sin(Date.now() / 500) * 2) : 0])
 
-      if (agent.transfers?.length && dt > rng(300) && dist(agent.cell.center(), pointedCell()?.center()) < 30) {
+      let animationProbability =
+        100 *
+        agent.transfers?.length /
+        (10 + dist(agent.cell.center(), pointedCell()?.center())) /
+        (resAnimations + 100)
+
+      if (animationProbability > rng(100)) {
         let transfer = randomElement(agent.transfers);
         agent.animateTransfer(transfer);
       }
@@ -171,7 +181,7 @@ export const
         i > 0 && drawOnCell(
           step,
           //resourceIcon(a.race.moving + (i > a.steps ? "Far" : "")))
-          resourceIcon("travel" + (i > a.maxSteps() ? "Far" : "")))
+          resourceIcon("walk" + (i > a.maxSteps() ? "Far" : "")))
       })
     }
   },
@@ -222,13 +232,17 @@ export const
 
     coords.slice(1).forEach((v, i) => {
       if (path[i].seen || path[i + 1].seen) {
-        cx.beginPath()
-        cx.moveTo(...coords[i])
-        cx.lineTo(...v)
-        cx.stroke()
+        stroke(coords[i], v);
       }
     })
 
+  },
+
+  stroke = (a: Vec2, b: Vec2) => {
+    cx.beginPath()
+    cx.moveTo(...a)
+    cx.lineTo(...b)
+    cx.stroke()
   },
 
   smoothLine = (line: Vec2[]) => {
@@ -237,11 +251,29 @@ export const
     return line2;
   },
 
+  drawRadials = ()=>{
+    let wps = [worldPhoto.width, worldPhoto.height] as Vec2;
+    cx.save()
+    cx.strokeStyle = "#fff4";
+    cx.translate(...scale(wps, .5))
+    loop(63, i => {
+      let v = [Math.sin(i * .1), -Math.cos(i * .1)] as Vec2;
+      stroke(scale(v, 70), scale(v, 1000))
+      cx.beginPath()
+      cx.arc(0, 0, i * 70, 0, 7);
+      cx.stroke();
+    })
+    cx.restore()
+  },
+
   prerenderUniverse = () => {
     previousWorldPhoto = worldPhoto;
     revealingMap = mapRevealDuration;
 
     [worldPhoto, cx] = canvasElementAndContext((ww + .5) * photoScale[0], wh * photoScale[1])
+
+
+    //drawRadials()
 
     u.drawOrder = loop(wh, row => loop(ww, col => row * ww + (col + ww - ~~(row / 2)) % ww)).flat().map(at => u.c[at]).filter(c => c.seen)
 
@@ -365,6 +397,14 @@ export const
     }
     //sprite.style.transform = `scale(${devicePixelRatio * 2})`
     return sprite
+  },
+
+  iconDataUrls: { [id: string]: string } = {},
+
+  resourceIconDataUrl = (name: string) => {
+    if (!iconDataUrls[name])
+      iconDataUrls[name] = resourceIcon(name).toDataURL()
+    return iconDataUrls[name]
   },
 
   constructHexFilter = (...color: string[]) => constructFilter(

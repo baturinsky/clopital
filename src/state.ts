@@ -8,6 +8,9 @@ import { cap1, clamp, debounce, fixed, japaneseName, loop, objStripFalsy, Vec2 }
 declare const DEBUG: boolean
 declare var TIP: HTMLDivElement, INFO: HTMLDivElement, MID: HTMLDivElement, BTN: HTMLDivElement;
 
+export const  tabs = ["jobs done", "possible jobs", "needs", "present", "trades and local jobs"];
+
+
 export let state = {
   scale: 4,
   seed: 1,
@@ -19,7 +22,7 @@ export let state = {
   /** current turn */
   turn: 0,
   //locked: { } as GoodNumbers,
-  tab: 0 as number | string,
+  tab: 0 as string|number,
   expectation: 0
 }
 
@@ -58,12 +61,12 @@ export const
     updateDiv(Info, ...agentInfo(a))
   },
   //agentPointed = () => pointedCell().a[0],
-  queen = () => u.a.find(a => a.queen()) as Agent,
+  queen = () => u?.a.find(a => a.queen()) as Agent,
   queenCell = () => queen()?.cell,
   //namePool = [...new Set<string>(loop(1e5, japaneseName))],
   //nameById = (id: number) => cap1(namePool[id % namePool.length])
 
   /** Calculate loyal agents */
   updateExpectation = () => {
-    update({ expectation: 5 + u.a.filter(a => a.village() || a.happiness > 999).length })
+    update({ expectation: 5 + ~~(u.a.filter(a => a.village() || a.happiness > 999).length/3) })
   }

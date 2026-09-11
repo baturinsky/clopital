@@ -42,11 +42,11 @@ export const
       ownRecipes,
       income: race.job ? 
       { [race.job]: 1, 
-        food: -1, 
-        fun: -.5, 
-        comfort: -.5, 
+        food: -.5, 
+        fun: -.3, 
+        comfort: -.2, 
         fertilisers: .1, 
-        ...race.income        
+        ...race.income
       } : {}
     } as MarketAgentParameters
   }

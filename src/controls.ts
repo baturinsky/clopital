@@ -2,15 +2,16 @@ import { clamp, debounce, floor, objMap, scale, sub, sum, Vec2 } from "./util";
 import { neighborhood, photoScale, worldCoord, ww } from "./root";
 import { pointedCell, queen, queenCell, select, selected, state, update } from "./state";
 import { u } from "./universe";
-import { nextTurn, nexTurnAndSaveAndShowResults } from "./main";
+import { generateUniverse, nextTurn, nexTurnAndSaveAndShowResults } from "./main";
 import { hideMenu, menuOn, showSavesMenu, updateTip } from "./ui";
 import { animate, animations } from "./animation";
-import { loadAll, saveAll } from "./saves";
+import { loadAll, saveAll, savePrefix, saveTitlePrefix } from "./saves";
 import { Agent } from "./agent";
 import { centerOn } from "./renderer";
 //import { audio_play, audio_create_song, music_data, audio_init } from "./sonant";
 //import { CPlayer, sonata } from "./voxby";
 import { pl_synth_init, song } from "./pl-synth";
+import { CPlayer, sonata } from "./voxby";
 
 declare var C: HTMLCanvasElement;
 declare const DEBUG: boolean
@@ -37,12 +38,19 @@ export const
 
       //playpl()
 
-      let id = (e.target as HTMLElement).closest("button")?.id as string;
+      let element = e.target as HTMLElement, button = element.closest("button") as HTMLButtonElement,
+        id = button?.id, data = button?.dataset ?? {};
 
       let f = ({
         Next: nexTurnAndSaveAndShowResults,
         Queen: () => select(queen()),
         Saves: () => menuOn ? hideMenu() : showSavesMenu(),
+        New: () => {
+          generateUniverse()
+          select(queen())
+          hideMenu()
+        },
+        X: hideMenu,
         //Research: () => menuOn ? hideMenu() : showResearchMenu(),
         /*Build: () => {
           let c = selected()?.cell;
@@ -54,7 +62,6 @@ export const
 
           updateBuildButton()
         },*/
-        X: hideMenu,
       } as { [button: string]: Function })[id]
       f && f()
 
@@ -63,35 +70,47 @@ export const
         select()
       }
 
-      let element = e.target as HTMLElement;
+      if (data.give)
+        selected().giftApply(data.give, true)
 
-      if (element.dataset.give)
-        selected().gifta(element.dataset.give, true)
+      if (data.take)
+        selected().giftApply(data.take, false)
 
-      if (element.dataset.take)
-        selected().gifta(element.dataset.take, false)
-
-      if (element.dataset.save) {
-        saveAll(element.dataset.save)
+      if (data.save) {
+        saveAll(data.save)
         hideMenu()
       }
 
-      if (element.dataset.load) {
-        loadAll(element.dataset.load)
+      if (data.load) {
+        loadAll(data.load)
         hideMenu()
+      }
+
+      if (data.x) {
+        delete localStorage[saveTitlePrefix + data.x]
+        delete localStorage[savePrefix + data.x]
+        showSavesMenu()
       }
 
       if (element.dataset.a) {
         select(u.a[element.dataset.a as any])
       }
 
-      if (element.dataset.c) {
+      /*if (element.dataset.c) {
         centerOn(u.c[element.dataset.c as any])
+      }*/
+
+      if (id == "warp") {
+        queen().gain("magic", -100)
+        queen().visit(selected().cell)
+        queen().steps = 0
       }
 
     }
 
     C.onpointerdown = C.onpointermove = C.onpointerup = C.onpointerleave = e => {
+      if (!u)
+        return
       let canvasMousePos = [e.offsetX, e.offsetY] as Vec2;
       let photoMousePos = sub(scale(canvasMousePos, 1 / state.scale), state.topLeftAt);
       let worldMousePos = [photoMousePos[0] / photoScale[0], photoMousePos[1] / photoScale[1]]
@@ -190,10 +209,14 @@ onkeydown = e => {
       nexTurnAndSaveAndShowResults()
       break;
     case "Escape":
-      update({ selected: undefined })
+      if (menuOn)
+        hideMenu()
+      //else if(selected())        update({ selected: undefined })
+      else
+        showSavesMenu()
       break
     case "Tab":
-      update({ tab: (state.tab as number + 1) % 4 })
+      update({ tab: (state.tab as number + 1) % 5 })
       select()
       break
   }
@@ -209,6 +232,7 @@ onkeydown = e => {
 
 const playVoxby = () => {
   let A = new AudioContext();
+  //@ts-ignore
   let cplayer = new CPlayer();
   cplayer.init(sonata);
   let B = cplayer.createAudioBuffer(A)
@@ -223,11 +247,11 @@ const playVoxby = () => {
   w.start();
 }
 
-const playpl = ()=>{
+const playpl = () => {
   let A = new AudioContext();
   let synth = pl_synth_init(A)
   let B = synth.song(song)
-  
+
   let w = A.createBufferSource();
   w.buffer = B;
 

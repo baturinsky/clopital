@@ -20,7 +20,7 @@ const utilityBase = 0.97, utilityBaseLog = Math.log(utilityBase), DEFAULT_STOCK_
 /** Cached marginal utility numbers */
 const marginalUtilityLookup = loop(100000, n => 1e6 * Math.pow(utilityBase, n))
 
-const distanceTax = .01, happinessGainMultiplier = 10
+const distanceTax = .01, happinessGainMultiplier = 20
 
 export const
   marginalUtility = (amount: number) =>
@@ -320,7 +320,15 @@ export class MarketAgent {
 
   happinessGain() {
     let total = this.prodTurn(-1);
-    return objMap(this.consumed, (v, good) => - (v / total[good] * happinessGainMultiplier * this.income[good]))
+    let res = objMap(this.consumed,
+      (v, good) => {
+        let r = - (v / (total[good]) * happinessGainMultiplier * (this.income[good] ?? 0))
+        if (!total[good])
+          r = 0;
+        return r
+      }
+    )
+    return res
   }
 
   useRecipes() {

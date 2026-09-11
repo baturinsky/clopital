@@ -1,6 +1,6 @@
 body {
   background: #024;
-  overflow: hidden;
+  overflow: hidden;  
 }
 
 * {
@@ -18,9 +18,10 @@ body {
   max-width: 340px;
   height: 100vh;
   pointer-events: none;
+  user-select: none;
 }
 
-#TIP{
+#TIP {
   pointer-events: none;
 }
 
@@ -75,19 +76,20 @@ button {
   background: #fffa;
 }
 
-button:hover, button.h {
+button:hover,
+button.h {
   border-color: #fdd;
 }
 
 
-*[data-icon] canvas {
+.icon img {
   margin: 0 0 0 3px;
   transform: scale(1.5) translateY(1px);
   filter: drop-shadow(1px 1px);
   pointer-events: all;
 }
 
-*[data-icon]:hover .ttx {
+.icon:hover .ttx {
   visibility: visible;
 }
 
@@ -106,7 +108,8 @@ button:hover, button.h {
 }
 
 
-.good, button {
+.good,
+button {
   white-space: nowrap;
 }
 
@@ -147,14 +150,14 @@ button *[data-icon] canvas {
   pointer-events: none;
 }
 
-#INFO>*:first-child{
+#INFO.u>*:first-child {
   background: #faaa;
 }
 
-#INFO>*:first-child{
+#INFO.h>*:first-child {
   background: #afaa;
 }
 
-h4{
+h4 {
   cursor: pointer;
 }

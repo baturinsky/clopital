@@ -1,11 +1,11 @@
 import { Agent } from "./agent";
 import { Cell } from "./cell";
 import { GoodNumbers, marginalUtility, MarketAgent } from "./market";
-import { resourceIcon } from "./renderer";
+import { resourceIcon, resourceIconDataUrl } from "./renderer";
 import { tradeables } from "./resources";
 import { saveTitlePrefix } from "./saves";
 import { iterationsPerTurn, placeables } from "./setting";
-import { state, pointedCell, queen } from "./state";
+import { tabs, state, pointedCell, queen } from "./state";
 import { u } from "./universe";
 import { cap1, clamp, debounce, dist, formatNumber, loop, objFilter, objMap, objScale, objStripFalsy, removeDuplicates } from "./util";
 
@@ -17,20 +17,28 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
 
   //tabs = ["jobs", "gifts", "possible", "income", "trades"],
 
+  showButtons = () => {
+    BTN.innerHTML =
+      [/*"Build",*/ /*"Research",*/ "Queen", "Saves", "Next Turn"].map((v, i) =>
+        `<button id="${v.split(" ")[0]}">${v}</button>`
+      ).join('')
+
+  },
+
   updateDiv = (slot: number, ...text: (string | undefined)[]) => {
     [TIP, INFO, MID][slot].innerHTML = text.filter(v => v).map(t =>
       t == "btn" ? agentButtons() :
         t?.charAt(0) == "!" ? `<div class=ptl>${t?.substring(1)}</div>` :
           `<div class=pnl>${t ?? " "}</div>`
     ).join('')
-    drawIcons();
+    //drawIcons();
   },
 
   agentButtons = () => {
     return `<div class=abtn>${loop(5, t => `<button id=${"tab" + t} class=${t == state.tab ? "h" : ""}>${icon("tab" + t, tabs[t])}</button>`).join('')}</div>`
   },
 
-  icon = (name: string, tip?: string) => `<span data-icon="${name}"><span></span><span class=ttx>${tip ?? name}</span></span>`,
+  icon = (name: string, tip?: string) => `<span class=icon><img src=${resourceIconDataUrl(name)}><span class=ttx>${tip ?? name}</span></span>`,
 
   asList = (a?: GoodNumbers) => a ? Object.entries(a).map(([k, v]) =>
     goodSpan(k, v),
@@ -38,16 +46,16 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
 
   goodSpan = (good: string, value: number) => `<span class=good>${icon(good)}${formatNumber(value)}</span>`,
 
-  drawIcons = debounce(() => {
-    setTimeout(() => {
+  /*drawIcons = debounce(() => {
+    requestAnimationFrame(() => {
       let icons = document.querySelectorAll("[data-icon]") as any as HTMLElement[]
       for (let icon of icons) {
         let n = icon.dataset.icon
         icon.children[0].innerHTML = ""
         icon.children[0].appendChild(resourceIcon(n as string))
       }
-    }, 0)
-  }, 30),
+    })
+  }, 30),*/
 
   fancyRecipe = (r: GoodNumbers) => {
     let [minus, plus] = [objFilter(r, v => v < 0), objFilter(r, v => !(v < 0))]
@@ -94,15 +102,13 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
 
   doubleColumn = (a: string[]) => `<div class=tc>${a.join("</br>")}</div>`,
 
-  recipeUsedStats = (a: MarketAgent) => Object.entries(a.uses).map(([k, v]) => {
+  recipeUsedStats = (a: MarketAgent) => Object.entries(a.uses ?? {}).map(([k, v]) => {
     let recipeStr = k,
       recipe = JSON.parse(recipeStr)
     return fancyRecipe(objScale(recipe, v))
   }).join("</br>"),
 
   ifAnything = (...l: any[]) => l[1] ? l : [],
-
-  tabs = ["jobs done", "possible jobs", "needs", "share", "trades and local jobs"],
 
   agentInfo = (agent: Agent) => {
     return [
@@ -147,15 +153,15 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
     if (agent.queen())
       return `Get next to the other herd and give them gifts to gain trust`
 
-    if(!agent.cell.neighbors.includes(queen().cell))
-      return `Not next to ${queen().name}`
+    if (!agent.cell.neighborhood.includes(queen().cell))
+      return `Not next to ${queen().name} ${agent.happy() && queen().stock.magic > 100 ? `<button id=warp>${icon("warp")}</button>` : ''}`
 
-    let res = removeDuplicates([...Object.keys(queen().stock), ...Object.keys(agent.stock)]).filter(res=>tradeables.has(res))
+    let res = removeDuplicates([...Object.keys(queen().stock), ...Object.keys(agent.stock)]).filter(res => tradeables.has(res))
 
-    let table:string[][] = []
+    let table: string[][] = []
 
     res.forEach(name => {
-      let [give, take] = [agent.gift(name, true), agent.gift(name, false)],
+      let [give, take] = [agent.giftCalc(name, true), agent.giftCalc(name, false)],
         canTake = agent.stock[name] && take[1] && agent.happy(),
         canGive = queen().stock[name] && give[1]
 
@@ -166,7 +172,7 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
         table.push([`<button data-take="${name}">take</button>`, `${fancyRecipe({ [name]: -take[0], happiness: take[1] })}`])
     })
 
-    return `${writeHappiness(agent)} (happy at 1000)
+    return `${writeHappiness(agent)} (befriended at 1000)    
     ${htmlTable(table)}`
   },
 
@@ -177,14 +183,19 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
 
   showSavesMenu = () => {
     menuOn = true;
-    updateDiv(Mid, htmlTable(loop(20,
-      i => [
-        i || 'auto',
-        i ? `<button data-save=${i}>save</b utton >` : '',
-        localStorage[saveTitlePrefix + i] ? `<button data-load=${i}>load</button>` : '',
-        localStorage[saveTitlePrefix + i] || ''
-      ]
-    )))
+    updateDiv(Mid,
+      `<button id=New>New game</button>`,
+      htmlTable(loop(13,
+        i => [
+          i || 'auto',
+          i ? `<button data-save=${i}>save</b utton >` : '',
+          ...localStorage[saveTitlePrefix + i] ?
+            [
+              `<button data-load=${i}>load</button>`,
+              `<button data-x=${i}>X</button>`,
+              localStorage[saveTitlePrefix + i]] : []
+        ]
+      )))
 
     /*for (let i = 0; i < 20; i++) {
       let title = localStorage[saveTitlePrefix + i]
@@ -196,13 +207,9 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
   }
 
 
+
 /*showResearchMenu = (on = true) => {
   menuOn = true;
   updateDiv(Mid, "Research<button id=X>X</button>")
 }*/
 
-
-BTN.innerHTML =
-  [/*"Build",*/ /*"Research",*/ "Queen", "Saves", "Next Turn"].map((v, i) =>
-    `<button id="${v.split(" ")[0]}">${v}</button>`
-  ).join('')

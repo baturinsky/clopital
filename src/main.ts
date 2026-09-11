@@ -6,7 +6,7 @@ import { initRenderer, prerenderUniverse, renderLoop } from "./renderer";
 import { state, select, selected, updateExpectation as updateExpectation } from "./state";
 import { u, Universe } from './universe';
 import { initSetting } from './setting';
-import { updateTip } from './ui';
+import { showButtons, showSavesMenu, updateTip } from './ui';
 import { loop } from './util';
 import { saveAll } from './saves';
 import { audio_play, audio_create_song, music_data, audio_init } from './sonant';
@@ -18,6 +18,7 @@ export const
     new Universe(state.seed)
     prerenderUniverse()
     loop(10, nextTurn)
+    showButtons()
   };
 
 onload = () => {
@@ -29,14 +30,15 @@ const init = () => {
   initSetting()
   initRenderer()
 
-  generateUniverse()
+  //generateUniverse()
 
   enableControls()
 
-  select()
+  //select()
 
   renderLoop()
 
+  showSavesMenu()
 }
 
 
@@ -52,4 +54,5 @@ export const
     updateTip()
     saveAll()
   }
+
 

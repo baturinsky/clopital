@@ -20,7 +20,7 @@ export const craScale = 10000;
 
 declare var Build: HTMLDivElement
 
-let resAnimations = 0
+export let resAnimations = 0
 export class Agent extends MarketAgent {
   kind!: string
   race!: Race
@@ -79,21 +79,30 @@ export class Agent extends MarketAgent {
   /** Animate transfers */
   animateTransfer(transfer: RecipeX) {
 
-    let path: Cell[] = [this.cell, transfer.place.cell];
-    if (transfer.place instanceof Agent) {
-      path = this.pathTo(transfer.place.cell) ?? path;
-    }
+    let path: Cell[], stepDuration = 200;
+
+    path = this.pathTo(transfer.place.cell) as Cell[];
+
+    if (transfer.place instanceof Agent)
+      path ??= transfer.place.pathTo(this.cell) as Cell[];
+
+    path ??= [this.cell, transfer.place.cell]
+
     let points = path?.map(c => c.topLeft()) as Vec2[];
+
     if (points.length < 3)
       points.unshift(sum(points[0], [rng(5) - 2, -rng(5) - 2]))
 
-    let rev = [...points].reverse(), stepDuration = 200 + 500 / points.length;
+    let rev = [...points].reverse();
+    stepDuration += 500 / points.length;
 
     Object.entries(transfer.recipe).forEach(([good, v]) => {
       if (good == "travel") return;
-      let anim = animate(resourceIcon(good), v < 0 ? points : rev, stepDuration)
-      resAnimations++
-      anim.f = () => resAnimations--
+      setTimeout(() => {
+        let anim = animate(resourceIcon(good), v < 0 ? points : rev, stepDuration)
+        resAnimations++
+        anim.f = () => resAnimations--
+      }, Math.random() * 200)
     })
   }
 
@@ -116,7 +125,7 @@ export class Agent extends MarketAgent {
 
   barter(their: MarketAgent, distance?: number): boolean {
     if (this == queen() || their == queen()) {
-      if (!this.cell.seen || !(their as any).cell.seen){
+      if (!this.cell.seen || !(their as any).cell.seen) {
         return false
       }
     }
@@ -132,6 +141,11 @@ export class Agent extends MarketAgent {
     this.steps = 5
     this.transfers = []
     this.happiness = this.nextHappiness();
+    if (this.size > 1) {
+      let popGain = ~~((rng(this.happiness) - rng(this.size)) / 100);
+      this.size = clamp(100, this.size + popGain, 5000)
+    }
+
     loop(iterationsPerTurn, () => this.iterate())
 
     //if(this.race.name =="alicorn")      debugger
@@ -144,11 +158,12 @@ export class Agent extends MarketAgent {
   }
 
   totalHappinessGain() {
-    return Math.round(listSum(Object.values(this.happinessGain())))
+    let res = Math.round(listSum(Object.values(this.happinessGain()))??0)
+    return res
   }
 
   expectation() {
-    return state.expectation + ~~(this.happiness / 100)
+    return state.expectation + ~~(this.happiness / 200)
   }
 
   go() {
@@ -226,7 +241,7 @@ export class Agent extends MarketAgent {
   }
 
   /** Calculate manual trade */
-  gift(good: string, give: boolean) {
+  giftCalc(good: string, give: boolean) {
     let giver = give ? queen() : this;
     let mu = marginalUtility(this.stock[good] ?? 0)
     let amount = Math.ceil(giver.stock[good] / 10);
@@ -239,8 +254,8 @@ export class Agent extends MarketAgent {
   }
 
   /**apply manual trade */
-  gifta(good: string, give: boolean) {
-    let [amount, value] = this.gift(good, give);
+  giftApply(good: string, give: boolean) {
+    let [amount, value] = this.giftCalc(good, give);
     queen().give(this, good, amount);
     this.happiness += value
     select()

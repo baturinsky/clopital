@@ -58,13 +58,13 @@ export const
       { working: -1, thinking: 1 },
       { working: -1, cooking: 1 },
       { working: -1, travel: 1 },
-      { working: -3, electronics: -1, thinking: 10 },
-      { working: -1, thinking: -1, energy: -2, workingHard: 10 },
+      { working: -3, electronics: -1, thinking: 20 },
+      { working: -10, thinking: -10, engines:-1, energy: -10, workingHard: 50 },
 
       { workingHard: -1, digging: 1 },
 
       { workingHard: -1, thinking: -1, crafting: 1 },
-      { workingHard: -1, thinking: -1, tools: -1, crafting: 3 },
+      { workingHard: -10, thinking: -10, tools: -1, crafting: 40 },
       { working: -1, thinking: -2, engines: -1, fuel: -3, crafting: 15 },
 
       { vehicles: -1, fuel: -5, travel: 30 },
@@ -72,7 +72,7 @@ export const
       { engines: -1, fuel: -5, energy: 30 },
       { magic: -1, fertilisers: 1 },
 
-      { crafting: -1, iron: -1, tools: 2 },
+      { crafting: -1, iron: -1, tools: 3 },
       { crafting: -1, lumber: -1, tools: 1 },
 
       { crafting: -1, food: -1, coal: -1, fertilisers: 3 },
@@ -81,7 +81,7 @@ export const
       { crafting: -1, oil: -1, fuel: 10 },
       { crafting: -1, sugarcane: -3, sugar: 1 },
       { crafting: -1, cotton: -1, fabric: 1 },
-      { crafting: -1, fabric: -1, clothes: 1 },
+      { crafting: -1, fabric: -1, hats: 1 },
       { crafting: -1, rubber: -1, copper: -1, electronics: 1 },
       { crafting: -1, lumber: -1, fabric: -1, beds: 1 },
       { crafting: -1, rubber: -1, engines: -1, iron: -1, vehicles: 1 },
@@ -98,8 +98,10 @@ export const
       { electronics: -1, fun: 10 },
       { travel: -2, fun: 1 },
 
-      { clothes: -1, comfort: 1 },
+      { hats: -1, comfort: 1 },
       { beds: -1, comfort: 1 },
+      { horseshoes: -1, comfort: 1 },
+      { pearls: -1, comfort: 1 },
 
     ] as GoodNumbers[],
 
@@ -188,7 +190,7 @@ export const
       race.biomes = []
       race.income = {
         ...race.income ?? {},
-        ...Object.fromEntries([...tradeables].map(t => [t, -.1]))
+        ...Object.fromEntries([...tradeables].map(t => [t, -.05]))
       }
       //race.moving ??= "walking"
       resources[race.name] = resources[race.job] = convertResources(icon);

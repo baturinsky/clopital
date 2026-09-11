@@ -23,9 +23,10 @@ type AgentSaveFormat = {
   race: string
   stock: GoodNumbers
   seen: boolean
+  uses: GoodNumbers
 }
 
-type AllSaveFormat = typeof state & { c: { [at: number]: AgentSaveFormat }, a: AgentSaveFormat[], s:number[] }
+type AllSaveFormat = typeof state & { c: { [at: number]: AgentSaveFormat }, a: AgentSaveFormat[], s: number[] }
 
 export const
   savePrefix = "CLP:",
@@ -36,17 +37,17 @@ export const
     updateTip()
     let data = {
       ...state,
-      c: objMap(objFilter(u.c, c => c.woke), (c:Cell) => save(c)),
+      c: objMap(objFilter(u.c, c => c.woke), (c: Cell) => save(c)),
       a: u.a.map(agent => save(agent)),
-      s: u.c.map(c=>c.seen?1:0)
+      s: u.c.map(c => c.seen ? 1 : 0)
     }
 
-    
+
 
     if (DEBUG) {
       console.log(data, JSON.stringify(data).length);
     }
-    
+
     localStorage[savePrefix + slot] = JSON.stringify(data)
     localStorage[saveTitlePrefix + slot] = new Date().toISOString()
   },
@@ -72,7 +73,7 @@ export const
         agent.recomp()
       }
 
-      data.s.forEach((v,i)=>u.c[i].seen = !!v)
+      data.s.forEach((v, i) => u.c[i].seen = !!v)
 
       return true;
     }
@@ -86,7 +87,8 @@ export const
     "size",
     "steps",
     "happiness",
-    "consumed"
+    "consumed",
+    "uses"
   ].map(k => [k, (v as any)[k]])),
 
   save = (v: Agent | Cell) => {
