@@ -1,9 +1,9 @@
-import { clamp, debounce, floor, objMap, scale, sub, sum, Vec2 } from "./util";
+import { clamp, debounce, floor, loop, objMap, scale, sub, sum, Vec2 } from "./util";
 import { neighborhood, photoScale, worldCoord, ww } from "./root";
-import { pointedCell, queen, queenCell, select, selected, state, update } from "./state";
+import { debouncedPrerender, pointedCell, queen, queenCell, select, selected, state, update } from "./state";
 import { u } from "./universe";
 import { generateUniverse, nextTurn, nexTurnAndSaveAndShowResults } from "./main";
-import { hideMenu, menuOn, showSavesMenu, updateTip } from "./ui";
+import { hideMenu, menuOn, Mid, showSavesMenu, updateDiv, updateTip } from "./ui";
 import { animate, animations } from "./animation";
 import { loadAll, saveAll, savePrefix, saveTitlePrefix } from "./saves";
 import { Agent } from "./agent";
@@ -13,8 +13,10 @@ import { centerOn } from "./renderer";
 import { pl_synth_init, song } from "./pl-synth";
 import { CPlayer, sonata } from "./voxby";
 
-declare var C: HTMLCanvasElement;
+declare var C: HTMLCanvasElement, SEED: HTMLInputElement, LAND: HTMLInputElement;
 declare const DEBUG: boolean
+declare var TIP: HTMLDivElement, INFO: HTMLDivElement, MID: HTMLDivElement, BTN: HTMLDivElement;
+
 
 let buttonsDown: number[] = [], pme = [] as any[];
 
@@ -38,17 +40,26 @@ export const
 
       //playpl()
 
-      let element = e.target as HTMLElement, button = element.closest("button") as HTMLButtonElement,
-        id = button?.id, data = button?.dataset ?? {};
+      let element = e.target as HTMLElement,
+        button = element.closest("button") as HTMLButtonElement,
+        id = button?.id, data = element.closest("button")?.dataset ?? {};
 
       let f = ({
         Next: nexTurnAndSaveAndShowResults,
         Queen: () => select(queen()),
-        Saves: () => menuOn ? hideMenu() : showSavesMenu(),
+        Menu: () => menuOn ? hideMenu() : showSavesMenu(),
         New: () => {
+          state.seed = SEED.value as any
+          state.land = LAND.value as any
           generateUniverse()
           select(queen())
-          hideMenu()
+          updateDiv(Mid, "<h1>PREPARING WORLD...</h1>")
+          setTimeout(() => {
+            hideMenu()
+            loop(30, nextTurn)
+            select(queen())
+          }, 10)
+
         },
         X: hideMenu,
         //Research: () => menuOn ? hideMenu() : showResearchMenu(),
@@ -90,6 +101,11 @@ export const
         delete localStorage[saveTitlePrefix + data.x]
         delete localStorage[savePrefix + data.x]
         showSavesMenu()
+      }
+
+      if (data.recipe) {
+        selected().useRecipe({ place: selected(), recipe: JSON.parse(data.recipe) })
+        select()
       }
 
       if (element.dataset.a) {
@@ -204,6 +220,23 @@ export const
 
 
 onkeydown = e => {
+  if (DEBUG) {
+    if (e.code == "KeyS" && e.shiftKey && u) {
+      u.c.forEach(c => c.seen = true)
+      debouncedPrerender()
+    }
+    if (e.code == "KeyA" && e.shiftKey && u) {
+      u.a.forEach(a => a.happiness = 1000)
+    }
+    if (e.code == "KeyI" && e.shiftKey && u) {
+      console.log(selected().recipes.map((recipe) =>
+        [JSON.stringify(recipe.recipe), selected().util(recipe) * selected().max(recipe)]));
+      console.log(objMap(selected().stock, k => selected().mutil(k)));
+      selected().iterate()
+    }
+
+  }
+
   switch (e.code) {
     case "Space":
       nexTurnAndSaveAndShowResults()
@@ -219,14 +252,6 @@ onkeydown = e => {
       update({ tab: (state.tab as number + 1) % 5 })
       select()
       break
-  }
-  if (DEBUG) {
-    if (e.code == "KeyI") {
-      console.log(selected().recipes.map((recipe) =>
-        [JSON.stringify(recipe.recipe), selected().util(recipe) * selected().max(recipe)]));
-      console.log(objMap(selected().stock, k => selected().mutil(k)));
-      selected().iterate()
-    }
   }
 }
 

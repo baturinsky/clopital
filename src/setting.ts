@@ -1,11 +1,13 @@
 import { biomesByNames } from "./biomes"
 import { GoodNumbers } from "./market"
 import { Race } from "./races"
-import { resources, convertResources, food, tradeables } from "./resources"
+import { resources, convertResources, food, tradeables, consumerGoods } from "./resources"
+import { objMap, objScale } from "./util"
 
 export const
   iterationsPerTurn = 7,
   cellCapPerIncome = 20,
+  consumptionMultiplier = .5,
   incomePerResource = 100,
 
   /** How biome resources translate to cell agent income */
@@ -59,7 +61,7 @@ export const
       { working: -1, cooking: 1 },
       { working: -1, travel: 1 },
       { working: -3, electronics: -1, thinking: 20 },
-      { working: -10, thinking: -10, engines:-1, energy: -10, workingHard: 50 },
+      { working: -10, thinking: -10, engines: -1, energy: -10, workingHard: 50 },
 
       { workingHard: -1, digging: 1 },
 
@@ -90,9 +92,10 @@ export const
       { crafting: -1, electronics: -1, iron: -1, engines: 5 },
       { crafting: -1, copper: -1, rubber: -1, electronics: 1 },
 
-      { cooking: -1, sugar: -1, cacao: -1, chocolate: 1 },
-      { cooking: -1, sugar: -1, wheat: -1, apples: -1, pie: 1 },
-      { cooking: -1, sugar: -1, apples: -1, jam: 1 },
+      { cooking: -1, sugar: -1, cacao: -1, chocolate: 3 },
+      { cooking: -1, sugar: -1, bread: -1, apples: -1, pie: 10 },
+      { cooking: -1, sugar: -1, apples: -1, jam: 5 },
+      { cooking: -1, energy: -1, wheat: -1, bread: 5 },
 
       { magic: -1, fun: 5 },
       { electronics: -1, fun: 10 },
@@ -189,13 +192,22 @@ export const
       race.name = rn
       race.biomes = []
       race.income = {
+        [race.job]: 10, 
         ...race.income ?? {},
-        ...Object.fromEntries([...tradeables].map(t => [t, -.05]))
+        fertilisers: .3, 
+        food: -.3, 
+        fun: -.2, 
+        comfort: -.1, 
+        ...Object.fromEntries(consumerGoods.map(t => [t, -.02]))
       }
+
+      //race.income = objMap(race.income, k => k > 0 ? k : k)
       //race.moving ??= "walking"
       resources[race.name] = resources[race.job] = convertResources(icon);
       race.sprite = icon++;
     }
+
+    races.alicorn.income = objScale(races.alicorn.income, 70)
 
     for (let b of Object.values(biomesByNames)) {
       for (let r of b.races) {

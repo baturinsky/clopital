@@ -15,9 +15,8 @@ import { audio_play, audio_create_song, music_data, audio_init } from './sonant'
 export const
   atlas = document.createElement("img"),
   generateUniverse = () => {
-    new Universe(state.seed)
+    new Universe(state.seed, state.land)
     prerenderUniverse()
-    loop(10, nextTurn)
     showButtons()
   };
 

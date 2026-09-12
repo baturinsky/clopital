@@ -40,7 +40,7 @@ export class Cell extends MarketAgent {
   /** neighbors and itself*/
   neighborhood!: Cell[]
 
-  seen?: boolean
+  seen?: boolean = true
 
   settlement?: MarketAgent
 
@@ -75,7 +75,6 @@ export class Cell extends MarketAgent {
 
   constructor(public at: number) {
     super()
-    setSeed(at)
     this.name = japaneseName()
     let coord = worldCoord(at)
     this.bedrock = coord[0] < 1 || coord[0] > ww - 2 || coord[1] < 1 || coord[1] > wh - 2;
@@ -102,7 +101,7 @@ export class Cell extends MarketAgent {
         return result
 
       current.c.neighbors.forEach(neighbor => {
-        if (!visited.has(neighbor)) {
+        if (!visited.has(neighbor) && neighbor.biome != biomesByNames.bedrock) {
           visited.add(neighbor);
           let d = current.d + costFunction(current.c, neighbor);
           if (d <= maxDist) {
@@ -142,7 +141,7 @@ export class Cell extends MarketAgent {
 
   nextTurn() {
     if (this.woke) {
-      this.gainIncome()
+      this.gainIterationIncome()
       if (objEvery(this.cap, (v, k) => this.stock[k] >= v))
         this.woke = false;
     }

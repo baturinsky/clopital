@@ -5,7 +5,7 @@ import { tradeables } from "./resources";
 import { neighborBy } from "./root";
 import { iterationsPerTurn } from "./setting";
 import { queen, state } from "./state";
-import { addToKey, bestBy, clamp, listSum, numTween, objAdd, objFilter, objMap, objScale, objScaleI, vecTween, worstBy } from "./util";
+import { addToKey, bestBy, clamp, listSum, numTween, objAdd, objFilter, objForEach, objMap, objScale, objScaleI, objScaleIR, rng, vecTween, worstBy } from "./util";
 
 const FASTRECIPEPICK = true;
 
@@ -90,7 +90,6 @@ export class MarketAgent {
   consumed = {} as any;
   /** Happiness gained */
   happinessG = {} as any
-  //potentialConsumeStats = {} as any;
 
   /** Resources which agent does not use themselves, 
    * so they will be given to worker if this agent is proxied */
@@ -142,14 +141,15 @@ export class MarketAgent {
   }
 
   /** Applies the recipe with the given multiplier and proxies */
-  useRecipe(recipe: RecipeX, times: number) {
+  useRecipe(recipe: RecipeX, times?: number) {
+    times ??= this.max(recipe)
 
     //let rn = recipeXName(recipe);
     let rn = JSON.stringify(recipe.recipe)
     objAdd(this.uses, { [rn]: times })
 
     /** Not proxied - give and receive oneself */
-    if (recipe.place == this) {
+    if (recipe.place as any == this) {
       objAdd(recipe.place.stock, recipe.recipe, times)
       return
     } else {
@@ -182,7 +182,7 @@ export class MarketAgent {
   addTransfer(place: MarketAgent, good: string, amount: number) {
     let transfer = this.transfers.find(t => t.place == place)
     if (!transfer) {
-      transfer = { place: place, recipe: {} }
+      transfer = { place: place as any, recipe: {} }
       this.transfers.push(transfer);
     }
     addToKey(transfer.recipe, good, amount);
@@ -288,41 +288,40 @@ export class MarketAgent {
 
   /** Gain or lose goods */
   gain(good: string, amount: number) {
-    this.stock[good] = Math.max(0, (this.stock[good] ?? 0) + ~~amount);
+    this.stock[good] = clamp(0, (this.stock[good] ?? 0) + ~~amount, this.size * (this.cap[good] ?? DEFAULT_STOCK_CAP));
+    if (this.stock[good] < 0)
+      debugger
   }
 
   iterate() {
     this.recomp()
     this.useRecipes()
     this.trade()
-    this.gainIncome()
+    this.gainIterationIncome()
     this.iterations++
   }
 
-  trade() {
+  trade() { }
 
-  }
-
-  gainIncome() {
-    this.consumed = {}
-    let total = this.totTurnInc();
-    for (let good in total) {
-      let v = total[good]
+  gainIterationIncome() {
+    objForEach(this.totTurnInc(), (perTurn: number, good: string) => {
+      let v = ~~(perTurn / iterationsPerTurn + rng())
+      if(v==0)
+        return
       if (v < 0) {
-        let factual = Math.min(-v, this.stock[good] ?? 0)
-        addToKey(this.consumed, good, factual);
-        //this.happinessG[good] = ~~(factual / v * this.income[good] * iterationsPerTurn)
+        if ((this.stock[good] ?? 0) < this.size - v)
+          return
+        addToKey(this.consumed, good, -v);
       }
       this.gain(good, v)
-      this.stock[good] = clamp(0, this.stock[good], this.cap[good] ?? DEFAULT_STOCK_CAP)
-    }
+    })
   }
 
   happinessGain() {
-    let total = this.prodTurn(-1);
+    let total = this.totTurnInc(-1);
     let res = objMap(this.consumed,
       (v, good) => {
-        let r = - (v / (total[good]) * happinessGainMultiplier * (this.income[good] ?? 0))
+        let r = (v / (total[good]) * happinessGainMultiplier * (this.income[good] ?? 0))
         if (!total[good])
           r = 0;
         return r
@@ -352,7 +351,7 @@ export class MarketAgent {
           this.util(recipe) * this.max(recipe)
         )
         if (v > 0)
-          this.useRecipe(recipe, Math.ceil(this.max(recipe) / 4))
+          this.useRecipe(recipe, this.recipeUseMultiplier(recipe))
         else
           break
       }
@@ -360,14 +359,18 @@ export class MarketAgent {
     }
   }
 
-  /** Production with 1, needs with -1 */
-  prodTurn(need: number = 1) {
-    return objScaleI(objFilter(this.totTurnInc(), v => need * v > 0), need)
+  recipeUseMultiplier(recipe:RecipeX){
+    return Math.ceil(this.max(recipe) / 4)    
   }
 
-  /** Total income/expense per week, considering size */
-  totTurnInc() {
-    return objScaleI(this.income, this.size * iterationsPerTurn)
+  /** Total income/expense per turn, considering size
+   * with argument, onlythose who have that sign (+1 - income, -1 - consume)
+   */
+  totTurnInc(sign = 0) {
+    let inc = objScale(this.income, this.size)
+    if (sign)
+      inc = objFilter(inc, v => sign * v > 0)
+    return inc
   }
 
 

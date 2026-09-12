@@ -27,13 +27,14 @@ export class Universe {
 
   a: Agent[] = []
 
-  constructor(public seed: number) {
+  constructor(public seed: number, public land: number) {
     u = this;
     this.generate()
   }
 
   anyCell() {
-    return this.c[rng(ws)]
+    let ci = rng(ws)
+    return this.c[ci]
   }
 
   erect(c: Cell, by: number, depth: number) {
@@ -42,9 +43,6 @@ export class Universe {
         return
       c.neighbors.forEach(c => c.elev += by)
       c = randomElement(c.neighbors)
-      if (depth > 0 && !rng(30)) {
-        this.erect(c, by, depth - 1)
-      }
     }
   }
 
@@ -60,7 +58,7 @@ export class Universe {
       c.neighborhood = [c, ...c.neighbors];
     })
 
-    loop(100, () => this.erect(this.anyCell(), rng(3) + 1, 3))
+    loop(50, () => this.erect(this.anyCell(), rng(3) + 1, 3))
 
     let averageElev = listSum(this.c, cell => cell.elev) / ws;
 
@@ -68,7 +66,8 @@ export class Universe {
 
     this.byElev = [...this.c].sort((a, b) => a.elev - b.elev)
 
-    this.elev = [.4, .5, .82, .97].map(h => this.quantile(h))
+    let seaQuantile = .85 - this.land * .08
+    this.elev = [seaQuantile - .1, seaQuantile, .82, .97].map(h => this.quantile(h))
 
     if (HAVERIVERS) {
 
@@ -85,9 +84,9 @@ export class Universe {
       })
     }
 
-    this.c.forEach(c => {
-      let latitude = Math.abs(.5 - c.at / ws) * 2
-      c.t = 1.6 - latitude - (c.elev - this.elev[ESea]) / 2
+    this.c.forEach(cell => {
+      let latitude = Math.abs(.5 - cell.at / ws) * 2
+      cell.t = 1.7 - latitude - (cell.elev - this.elev[ESea]) / 2
     })
 
     loop(12, i =>
@@ -168,12 +167,12 @@ export class Universe {
     })
 
 
-    let queen = new Agent(u.c[ws / 2 + ww / 2], "alicorn");
+    let queen = new Agent(u.c[ws / 2 + ww / 4], "alicorn");
     queen.name = "Vasilisa"
-    select(queen)
 
     queen.see();
 
+    
 
     //addRoads()
 
@@ -187,3 +186,8 @@ export class Universe {
 
 
 
+/*let a = new Array(100).fill(0)
+for(let i=0;i<10000;i++)
+  a[rng(100)]++;
+
+console.log(a);*/

@@ -2,7 +2,7 @@ import { Agent, craScale } from "./agent"
 import { type Cell } from "./cell"
 import { generateUniverse } from "./main"
 import { races } from "./setting"
-import { state, select, queen } from "./state"
+import { state, select, queen, selected } from "./state"
 import { updateTip } from "./ui"
 import { u } from "./universe"
 import { GoodNumbers } from "./market"
@@ -52,11 +52,13 @@ export const
     localStorage[saveTitlePrefix + slot] = new Date().toISOString()
   },
   loadAll = (slot: string | number = 0) => {
+
     let sdata = localStorage[savePrefix + slot]
     if (sdata) {
-      generateUniverse()
       let data = JSON.parse(sdata) as AllSaveFormat;
       Object.assign(state, data);
+
+      generateUniverse()
       delete (state as any).c
       delete (state as any).s
       u.c.forEach((cell, at) => {
@@ -64,7 +66,8 @@ export const
         cell.a = []
       })
 
-      u.a = []
+      if (u)
+        u.a = []
       for (let d of data.a) {
         let agent = new Agent(u.c[d.cell as number])
         load(agent, d)
@@ -74,6 +77,8 @@ export const
       }
 
       data.s.forEach((v, i) => u.c[i].seen = !!v)
+
+      setTimeout(()=>select(selected()),20)
 
       return true;
     }

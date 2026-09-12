@@ -5,7 +5,7 @@ import { resourceIcon, resourceIconDataUrl } from "./renderer";
 import { tradeables } from "./resources";
 import { saveTitlePrefix } from "./saves";
 import { iterationsPerTurn, placeables } from "./setting";
-import { tabs, state, pointedCell, queen } from "./state";
+import { tabs, state, pointedCell, queen, selected } from "./state";
 import { u } from "./universe";
 import { cap1, clamp, debounce, dist, formatNumber, loop, objFilter, objMap, objScale, objStripFalsy, removeDuplicates } from "./util";
 
@@ -19,7 +19,7 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
 
   showButtons = () => {
     BTN.innerHTML =
-      [/*"Build",*/ /*"Research",*/ "Queen", "Saves", "Next Turn"].map((v, i) =>
+      [/*"Build",*/ /*"Research",*/ "Menu", "Queen", "Next Turn"].map((v, i) =>
         `<button id="${v.split(" ")[0]}">${v}</button>`
       ).join('')
 
@@ -29,7 +29,7 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
     [TIP, INFO, MID][slot].innerHTML = text.filter(v => v).map(t =>
       t == "btn" ? agentButtons() :
         t?.charAt(0) == "!" ? `<div class=ptl>${t?.substring(1)}</div>` :
-          `<div class=pnl>${t ?? " "}</div>`
+          `<div class=pnl class=tab${state.tab}>${t ?? " "}</div>`
     ).join('')
     //drawIcons();
   },
@@ -38,13 +38,13 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
     return `<div class=abtn>${loop(5, t => `<button id=${"tab" + t} class=${t == state.tab ? "h" : ""}>${icon("tab" + t, tabs[t])}</button>`).join('')}</div>`
   },
 
-  icon = (name: string, tip?: string) => `<span class=icon><img src=${resourceIconDataUrl(name)}><span class=ttx>${tip ?? name}</span></span>`,
+  ttx = (tip: string) => tip == "notip" ? '' : `<span class=ttx>${tip}</span>`,
 
-  asList = (a?: GoodNumbers) => a ? Object.entries(a).map(([k, v]) =>
-    goodSpan(k, v),
-  ).join('') : undefined,
+  icon = (name: string, tip?: string) => `<span class=icon><img src=${resourceIconDataUrl(name)}>${ttx(tip ?? name)}</span>`,
 
-  goodSpan = (good: string, value: number) => `<span class=good>${icon(good)}${formatNumber(value)}</span>`,
+  asList = (a?: GoodNumbers) => a ? `${Object.entries(a).map(([k, v]) => goodSpan(k, v),).join('')}` : undefined,
+
+  goodSpan = (good: string, value: number) => `<span class=good>${icon(good, "notip")}${formatNumber(value)}${ttx(good)}</span>`,
 
   /*drawIcons = debounce(() => {
     requestAnimationFrame(() => {
@@ -59,11 +59,13 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
 
   fancyRecipe = (r: GoodNumbers) => {
     let [minus, plus] = [objFilter(r, v => v < 0), objFilter(r, v => !(v < 0))]
+    let s: string | undefined;
     if (Object.keys(minus).length) {
-      return `${asList(objScale(minus, -1))}→</span>${asList(plus)}`
+      s = `${asList(objScale(minus, -1))}→</span>${asList(plus)}`
     } else {
-      return asList(r)
+      s = asList(r)
     }
+    return s
   },
 
   coloredHappiness = (agent: Agent) => `<span style="color:${agent.happy() ? "#080" : "#a00"}">${goodSpan("happiness", agent.happiness)}</span>`,
@@ -79,7 +81,7 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
     let lines = []
 
     if (cell) {
-      lines.push(`${agentTitle(cell)}${`<div class=stock>${asList(objStripFalsy(cell?.stock))}</div>`}`)
+      lines.push(`${agentTitle(cell)}${asList(objStripFalsy(cell?.stock))}`)
 
       cell.a.forEach(a => lines.push(agentTitle(a)))
 
@@ -112,34 +114,42 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
 
   agentInfo = (agent: Agent) => {
     return [
-      `${agentTitle(agent)}<div class=stock>${asList(objStripFalsy(agent.stock))}</div>`,
+      `${agentTitle(agent)}${asList(objStripFalsy(agent.stock))}`,
       "btn",
       ...
       [
         () => [
-          ...ifAnything("!produced", asList(agent.prodTurn())),
+          ...ifAnything("!produced", asList(agent.totTurnInc(1))),
           ...ifAnything('!' + tabs[0], recipeUsedStats(agent))
         ],
         () =>
           ['!' + tabs[1],
-          doubleColumn(agent.ownRecipes.map(fancyRecipe) as string[])
+          doubleColumn(agent.ownRecipes.map(
+            r => {
+              let uses = selected().recipeUseMultiplier({ place: selected(), recipe: r })
+              return (selected().happy() && uses > 0 ?
+                `<button data-recipe=${JSON.stringify(r)}>${fancyRecipe(objScale(r, uses))}</button>` :
+                fancyRecipe(r)) as string
+            }
+          ))
           ],
         () => [
           '!happiness change',
           `Had ${agent.happiness} + ${agent.totalHappinessGain()} from covered needs - wanted ${agent.expectation()} = ${icon("happiness")}${agent.nextHappiness()}`,
           ...ifAnything('!' + tabs[2], agent.consumed ? doubleColumn(
-            Object.entries(agent.happinessGain()).map(
-              ([good, v]) => `${icon(good)}${agent.consumed[good]}/${agent.prodTurn(-1)[good]}→${goodSpan("happiness", ~~(v * 100) / 100)}`)
+            Object.entries(agent.totTurnInc(-1)).map(
+              ([good, _]) => `${icon(good)}${agent.consumed[good] ?? 0}/${~~(-agent.totTurnInc(-1)[good]).toFixed(2)}${goodSpan("happiness", (agent.happinessGain()[good] as number ?? 0).toFixed(2))}`)
           ) : "?")
-        ],
-        () => [
-          ...ifAnything('!' + tabs[3], tradeTable(agent))
         ],
         () =>
           [
             '!' + tabs[4],
             agent.transfers.sort((a, b) => a.place instanceof Agent && !(b.place instanceof Agent) ? -1 : 1).map(t => `${agentTitle(t.place as any, false)} ${fancyRecipe(t.recipe)}`).join("<br/>")
           ],
+        () => [
+          ...ifAnything('!' + tabs[3], tradeTable(agent))
+        ],
+
       ][state.tab as number || 0]()
     ]
   },
@@ -154,11 +164,11 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
       return `Get next to the other herd and give them gifts to gain trust`
 
     if (!agent.cell.neighborhood.includes(queen().cell))
-      return `Not next to ${queen().name} ${agent.happy() && queen().stock.magic > 100 ? `<button id=warp>${icon("warp")}</button>` : ''}`
+      return `Should be near to give gifts<br/>${agent.happy() && queen().stock.magic > 100 ? `<button id=warp>${icon("warp")}warp to friend</button>` : ''}`
 
     let res = removeDuplicates([...Object.keys(queen().stock), ...Object.keys(agent.stock)]).filter(res => tradeables.has(res))
 
-    let table: string[][] = []
+    let tableGive: string[][] = [], tableTake: string[][] = []
 
     res.forEach(name => {
       let [give, take] = [agent.giftCalc(name, true), agent.giftCalc(name, false)],
@@ -166,14 +176,14 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
         canGive = queen().stock[name] && give[1]
 
       if (canGive)
-        table.push([`${fancyRecipe({ [name]: -give[0], happiness: give[1] })}`, `<button data-give="${name}">give</button>`])
+        tableGive.push([`${fancyRecipe({ [name]: -give[0], happiness: give[1] })}`, `<button data-give="${name}">give</button>`])
 
       if (canTake)
-        table.push([`<button data-take="${name}">take</button>`, `${fancyRecipe({ [name]: -take[0], happiness: take[1] })}`])
+        tableTake.push([`<button data-take="${name}">take</button>`, `${fancyRecipe({ [name]: -take[0], happiness: take[1] })}`])
     })
 
     return `${writeHappiness(agent)} (befriended at 1000)    
-    ${htmlTable(table)}`
+    ${htmlTable([...tableGive, ...tableTake])}`
   },
 
   hideMenu = () => {
@@ -184,11 +194,14 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
   showSavesMenu = () => {
     menuOn = true;
     updateDiv(Mid,
-      `<button id=New>New game</button>`,
+      `<h1>Clopital</h1>
+Seed:<input type=number id=SEED value=${state.seed}></input>
+Land:<input type=range id=LAND value=${state.land} min=1 max=7 />
+<button id=New>New game</button>`,
       htmlTable(loop(13,
         i => [
           i || 'auto',
-          i ? `<button data-save=${i}>save</b utton >` : '',
+          i && u ? `<button data-save=${i}>save</button >` : '---',
           ...localStorage[saveTitlePrefix + i] ?
             [
               `<button data-load=${i}>load</button>`,
@@ -196,14 +209,6 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
               localStorage[saveTitlePrefix + i]] : []
         ]
       )))
-
-    /*for (let i = 0; i < 20; i++) {
-      let title = localStorage[saveTitlePrefix + i]
-      s.push(`${i || '*'} <button data-load=${i}>load</button> ${i ? `<button data-save=${i}>save</button > ${title || "new"} ` : "autosave"}`)
-      if (!title)
-        break
-    }
-    updateDiv(Mid, s.join("</br>"))*/
   }
 
 

@@ -38,16 +38,12 @@ export const
     }
 
 
-    return {
+    let params = {
       ownRecipes,
-      income: race.job ? 
-      { [race.job]: 1, 
-        food: -.5, 
-        fun: -.3, 
-        comfort: -.2, 
-        fertilisers: .1, 
-        ...race.income
-      } : {}
+      income:race.income
+      
     } as MarketAgentParameters
+
+    return params
   }
 

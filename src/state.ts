@@ -8,12 +8,13 @@ import { cap1, clamp, debounce, fixed, japaneseName, loop, objStripFalsy, Vec2 }
 declare const DEBUG: boolean
 declare var TIP: HTMLDivElement, INFO: HTMLDivElement, MID: HTMLDivElement, BTN: HTMLDivElement;
 
-export const  tabs = ["jobs done", "possible jobs", "needs", "present", "trades and local jobs"];
+export const  tabs = ["jobs done", "possible jobs", "needs", "trades and local jobs", "present"];
 
 
 export let state = {
   scale: 4,
   seed: 1,
+  land: 4,
   topLeftAt: [0, 0] as Vec2,
   targetTLA: [0, 0] as Vec2,
   cellPointed: undefined as number | undefined,

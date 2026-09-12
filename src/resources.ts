@@ -15,9 +15,11 @@ export const
   
   plants = ["cotton", "rubber"],
 
-  food = ["grass", "seaweed", "sugarcane", "apples", "wheat", "honey", "jam", "pie", "cacao", "chocolate"],
+  food = ["grass", "seaweed", "wheat", "sugarcane", "apples", "honey", "bread", "jam", "cacao", "chocolate","pie"],
 
-  items = ["gems", "tools", "lumber", "engines", "fabric", "hats", "iron", "beds", "fertilisers", "fuel"],
+  items = ["fertilisers", "gems", "tools", "lumber", "engines", "fabric", "hats", "iron", "beds", "fuel"],
+
+  consumerGoods = ["apples", "wheat", "honey", "jam", "pie", "cacao", "chocolate", "gems", "tools", "lumber", "engines", "fabric", "hats", "iron", "beds", "fuel"],
 
   //majorNeeds = ["food", "comfort", "fun"],
 
@@ -112,6 +114,8 @@ export const
     tab4: [115, "#aaa,,#aaa"],
 
     pie: 84,
+    bread: [84, "#822"],
+
   }, convertResources) as {
     [key: string]: {
       /**sprite */

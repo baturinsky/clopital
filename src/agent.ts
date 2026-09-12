@@ -34,7 +34,7 @@ export class Agent extends MarketAgent {
 
   pathfindData() {
     if (this.cell != this._pathfindDataCell || !this._pathfindData) {
-      this._pathfindData = this.cell.pathfind(this.race.name, 12)
+      this._pathfindData = this.cell.pathfind(this.race.name, 15)
       this._pathfindDataCell = this.cell
     }
     return this._pathfindData
@@ -140,13 +140,15 @@ export class Agent extends MarketAgent {
     //if (!this.isBuilding())
     this.steps = 5
     this.transfers = []
+    this.consumed = {}
+
+    loop(iterationsPerTurn, () => this.iterate())
+
     this.happiness = this.nextHappiness();
     if (this.size > 1) {
       let popGain = ~~((rng(this.happiness) - rng(this.size)) / 100);
       this.size = clamp(100, this.size + popGain, 5000)
     }
-
-    loop(iterationsPerTurn, () => this.iterate())
 
     //if(this.race.name =="alicorn")      debugger
 

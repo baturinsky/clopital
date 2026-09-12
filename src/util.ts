@@ -7,7 +7,7 @@ export let seed = 1;
 declare const DEBUG: boolean
 
 export const
-  rng = (n = 1e9) => ~~(Math.sin(++seed) ** 2 * 1e9 % n) / (n == 1e9 ? n : 1),
+  //rng = (n = 1e9) => ~~(Math.sin(++seed) ** 2 * 1e9 % n) / (n == 1e9 ? n : 1),
   setSeed = (n: number) => { seed = n },
   randomElement = <T>(a: T[], gen = rng) => a[gen(a.length)],
   clamp = (min: number, v: number, max = 1e30) => v < min ? min : v > max ? max : v,
@@ -32,9 +32,9 @@ export const
   debounce = (callback: Function, dur = 300) => {
     let timeoutId: any;
     return () => {
-      if(!timeoutId){
+      if (!timeoutId) {
         callback()
-        timeoutId = setTimeout(()=>{}, dur);
+        timeoutId = setTimeout(() => { }, dur);
       } else {
         clearTimeout(timeoutId);
         timeoutId = setTimeout(callback, dur);
@@ -75,6 +75,8 @@ export const
   objMap = (a: any, f: (v: any, k: string) => any) => Object.fromEntries(Object.entries(a).map(([k, v]) => [k, f(v, k)])),
   objFilter = <T>(a: T, f: (v: any, k: string) => any) =>
     Object.fromEntries(Object.entries(a as any).filter(([k, v]) => f(v, k))) as T,
+  objForEach = <T>(a: T, f: (v: any, k: string) => any) =>
+    Object.entries(a as any).forEach(([k, v]) => f(v, k)) as T,
   objEvery = <T>(a: T, f: (v: any, k: string) => any) =>
     Object.entries(a as any).every(([k, v]) => f(v, k)) as T,
   objAdd = (a: any, b: any = {}, times = 1) => {
@@ -83,17 +85,29 @@ export const
   },
   objScale = (a: any, scale: number) => objMap(a, v => v * scale),
   objScaleI = (a: any, scale: number) => objMap(a, v => Math.round(v * scale)),
+  objScaleIR = (a: any, scale: number) => objMap(a, v => ~~(v * scale + rng())),
   objStripFalsy = <T>(a: T): T => objFilter(a, v => v),
   rotateList = (a: any[], d: number) => [...a.slice(a.length - d - 2), ...a.slice(0, d)],
   formatNumber = (x: number) => {
     let p = Math.abs(x);
-    return (x < 0 ? "-" : "") + 
-    (p < 1e4 ? ~~(p * 1e3) / 1e3 : 
-    p < 1e7 ? ~~(p / 1e3) + "K" : 
-    p < 1e10 ? ~~(p / 1e6) + "M":
-    p.toExponential(5)
-  )
+    return (x < 0 ? "-" : "") +
+      (p < 1e4 ? ~~(p * 1e3) / 1e3 :
+        p < 1e7 ? ~~(p / 1e3) + "K" :
+          p < 1e10 ? ~~(p / 1e6) + "M" :
+            p.toExponential(5)
+      )
+  },
+
+
+  rngi = (n: number) => {
+    seed = (seed * 69069 + 1) % 2 ** 31;
+    return seed % n;
+  },
+
+  rng = (n?: number) => {
+    return n == -1 ? seed : n == undefined ? rngi(1e9) / 1e9 : rngi(n)
   }
+
   ;
 
 
