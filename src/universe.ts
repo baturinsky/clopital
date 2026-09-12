@@ -155,10 +155,14 @@ export class Universe {
 
     this.c.forEach(cell => {
       let isCoast = !cell.water() && cell.neighbors.find(c => c.water());
-      if (!rng(isCoast || cell.rivers ? 60 : cell.water() ? 200 : 150)) {
+      if (!rng(isCoast || cell.rivers ? 40 : cell.water() ? 200 : 150)) {
         let race = randomElement(cell.biome.races);
-        if (!cell.water() && !rng(6))
+        if (!cell.water() && rng()<1/8)
           race = "unicorns"
+        if (rng()<1/8){
+          race = "pegasi"
+          console.log("P");
+        }
         if (race) {
           new Agent(cell, race, rng(1000) + 100);
         }

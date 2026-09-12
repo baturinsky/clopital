@@ -1,13 +1,13 @@
 import { Agent } from "./agent";
 import { Cell } from "./cell";
 import { Race } from "./races";
-import { tradeables } from "./resources";
+import { consumerGoods, tradeables } from "./resources";
 import { neighborBy } from "./root";
 import { iterationsPerTurn } from "./setting";
 import { queen, state } from "./state";
 import { addToKey, bestBy, clamp, listSum, numTween, objAdd, objFilter, objForEach, objMap, objScale, objScaleI, objScaleIR, rng, vecTween, worstBy } from "./util";
 
-const FASTRECIPEPICK = true;
+const FASTRECIPEPICK = false;
 
 //import { loop } from "./util";
 const loop = <T>(l: number, f: (i: number) => T) => [...new Array(l)].map((v, i) => f(i))
@@ -20,7 +20,7 @@ const utilityBase = 0.97, utilityBaseLog = Math.log(utilityBase), DEFAULT_STOCK_
 /** Cached marginal utility numbers */
 const marginalUtilityLookup = loop(100000, n => 1e6 * Math.pow(utilityBase, n))
 
-const distanceTax = .01, happinessGainMultiplier = 20
+const distanceTax = .001, happinessGainMultiplier = 15, consumerGoodsHappiness=3
 
 export const
   marginalUtility = (amount: number) =>
@@ -115,7 +115,8 @@ export class MarketAgent {
 
   /**Compile recipes from places. For Agent, automatically pick up the places from cells */
   recomp() {
-    this.recipes = [this, this.places[this.iterations % this.places.length]].map(place =>
+    let place = this.places[this.iterations % this.places.length] as Cell;
+    this.recipes = [this, ...(place.biome.name =="bedrock"?[]:[place])].map(place =>
       place.ownRecipes?.map(recipe => ({ place, recipe } as RecipeX))
     ).flat(1) as RecipeX[]
   }
@@ -305,7 +306,7 @@ export class MarketAgent {
 
   gainIterationIncome() {
     objForEach(this.totTurnInc(), (perTurn: number, good: string) => {
-      let v = ~~(perTurn / iterationsPerTurn + rng())
+      let v = Math.ceil(perTurn / iterationsPerTurn)
       if(v==0)
         return
       if (v < 0) {
@@ -321,7 +322,7 @@ export class MarketAgent {
     let total = this.totTurnInc(-1);
     let res = objMap(this.consumed,
       (v, good) => {
-        let r = (v / (total[good]) * happinessGainMultiplier * (this.income[good] ?? 0))
+        let r = (v / (total[good]) * happinessGainMultiplier * (consumerGoods.has(good)?consumerGoodsHappiness:1) * (this.income[good] ?? 0))
         if (!total[good])
           r = 0;
         return r

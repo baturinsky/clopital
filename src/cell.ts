@@ -123,7 +123,7 @@ export class Cell extends MarketAgent {
     while (point.c != point.from) {
       point = pathfindData[point.from.at]
       path.push(point.c)
-    } 
+    }
     return path.reverse()
   }
 
@@ -160,7 +160,7 @@ export const
           return b.water() || a.water() || a.rivers || b.rivers ? 1 : UNPPASSABLE;
         default:
           let cost = b.biome.travel ?? 1e9
-          if(b.a.length>0){
+          if (b.a.length > 0) {
             cost = Math.min(1, cost);
           }
           if (races[race] && b.biome.races.includes(race)) {
@@ -177,20 +177,33 @@ export const
     for (let k in c.resources) {
       if (c.resources[k]) {
         objAdd(income, biomeToAgent[k].income, c.resources[k])
-        ownRecipes = [...ownRecipes, ...biomeToAgent[k].ownRecipes];
+        ownRecipes = [
+          ...ownRecipes, 
+          ...biomeToAgent[k].ownRecipes          
+        ];
       }
     }
+    ownRecipes.push({ digging: -1, water: Object.keys(biomesByNames).indexOf(c.biome.name) })
 
-    if (!c.special && c.layer > rng(100)) { 
+    if (!c.special && c.layer > rng(100)) {
       c.special = randomElement(["iron", "copper"])
     }
 
     if (c.special) {
-      ownRecipes.push({ [minerals.includes(c.special) ? "ore" : "crops"]: -1, [c.special]: 1 })
+      ownRecipes.push({
+        [minerals.includes(c.special) ? "ore" : "crops"]: -1,
+        [c.special]: 1
+      })
     }
 
     income = objScale(objStripFalsy(income), incomePerResource);
+
+
     cap = objScale(income, cellCapPerIncome);
+
+    if (c.rivers) {
+      income.water = 1000;
+    }
 
 
     return {

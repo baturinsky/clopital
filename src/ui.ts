@@ -7,7 +7,7 @@ import { saveTitlePrefix } from "./saves";
 import { iterationsPerTurn, placeables } from "./setting";
 import { tabs, state, pointedCell, queen, selected } from "./state";
 import { u } from "./universe";
-import { cap1, clamp, debounce, dist, formatNumber, loop, objFilter, objMap, objScale, objStripFalsy, removeDuplicates } from "./util";
+import { cap1, clamp, debounce, dist, formatNumber, listSum, loop, objFilter, objMap, objScale, objStripFalsy, removeDuplicates } from "./util";
 
 declare var TIP: HTMLDivElement, INFO: HTMLDivElement, MID: HTMLDivElement, BTN: HTMLDivElement;
 
@@ -161,10 +161,13 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
 
   tradeTable = (agent: Agent) => {
     if (agent.queen())
-      return `Get next to the other herd and give them gifts to gain trust`
+      return `Get next to the other herd and give them gifts to gain their trust`
 
     if (!agent.cell.neighborhood.includes(queen().cell))
-      return `Should be near to give gifts<br/>${agent.happy() && queen().stock.magic > 100 ? `<button id=warp>${icon("warp")}warp to friend</button>` : ''}`
+      return `Should be near to give gifts<br/>${agent.happy() ?
+        (queen().stock.magic > 100 && queen().steps >= 1 ?
+          `<button id=warp>${icon("warp")}Summon alicorn</button>` : 'Alicorn asleep')
+        : ''}`
 
     let res = removeDuplicates([...Object.keys(queen().stock), ...Object.keys(agent.stock)]).filter(res => tradeables.has(res))
 
@@ -176,7 +179,10 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
         canGive = queen().stock[name] && give[1]
 
       if (canGive)
-        tableGive.push([`${fancyRecipe({ [name]: -give[0], happiness: give[1] })}`, `<button data-give="${name}">give</button>`])
+        tableGive.push([
+          `${give[0]}/${queen().stock[name]}${icon(name)}→${asList({ happiness: give[1] })
+          }`,
+          `<button data-give="${name}">give</button>`])
 
       if (canTake)
         tableTake.push([`<button data-take="${name}">take</button>`, `${fancyRecipe({ [name]: -take[0], happiness: take[1] })}`])
@@ -188,7 +194,7 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
 
   hideMenu = () => {
     menuOn = false;
-    updateDiv(Mid, "")
+    updateDiv(Mid, `Turn: ${state.turn}<br/> World Happiness: ${listSum(u.a, a => a.happiness)}${icon("happiness")}`)
   },
 
   showSavesMenu = () => {

@@ -27,6 +27,8 @@ export const
   AIR = 104,
   QUEEN = 48,
   SHADOW = 64,
+  RED_SHADOW = 65,
+  GREEN_SHADOW = 66,
   RAINBOW = 118
   ;
 
@@ -137,15 +139,15 @@ export const
       if (agent.anim || !agent.cell.seen)
         continue
       //drawOnCell(agent.cell, agent.happy() ? SHADOW + 1 : SHADOW)      
-      drawOnCell(agent.cell, SHADOW)
+      drawOnCell(agent.cell, agent.steps?GREEN_SHADOW:RED_SHADOW)
       if (selected() == agent && t % 800 < 400) {
         drawOnCell(agent.cell, BIGCURSOR)
       }
-      let h = flyers.includes(agent.race.name) ? -5 - (Math.sin(Date.now() / 500) * 2) : 0
+      let h = flyers.includes(agent.race.name) ? -5 - (Math.sin(Date.now() / 500) * 2) : 0;
       drawOnCell(agent.cell, agent.race?.sprite,
         [0, h])
 
-      if (agent.happy()){
+      if (agent.happy()) {
         drawOnCell(agent.cell, RAINBOW, [0, h - 10])
       }
 
@@ -206,6 +208,11 @@ export const
     Object.values(biomesByNames).forEach(b => b.sprites = makeBiomeSprites(b))
     sprites = loop(160, i => atlasSprite(i))
     outlined = loop(160, i => atlasSprite(i, "url(#OUTL)"))
+    ctx = canvasElementAndContext(innerWidth, innerHeight, C)[1]
+    resizeCanvas()
+  },
+
+  resizeCanvas = ()=>{
     ctx = canvasElementAndContext(innerWidth, innerHeight, C)[1]
   },
 

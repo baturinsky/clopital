@@ -21,7 +21,7 @@ export let state = {
   /**index of the selected actor */
   selected: 0,
   /** current turn */
-  turn: 0,
+  turn: 1,
   //locked: { } as GoodNumbers,
   tab: 0 as string|number,
   expectation: 0

@@ -41,15 +41,14 @@ export const biomesByNames = {
     travel: 1e9,
     habitability: 0
   },
-  peaks: {
-    color: "#fff",
-    prop: MESA2,
+  desert: {
+    color: "#f80",
+    prop: DUNES,
     travel: 2,
-    habitability: 0,
-    races: "goats",
-    special: { gems: 1 },
-    deposits: 3,
-    soil: 1
+    habitability: 1,
+    races: "zebras",
+    special: { cacao: 5 },
+    soil: 2
   },
   snowfield: {
     color: "#fff",
@@ -67,13 +66,42 @@ export const biomesByNames = {
     special: { moss: 1 },
     soil: 2
   },
+  steppe: {
+    color: "#af2",
+    prop: GRASS,
+    travel: 1,
+    habitability: 2,
+    races: ["zebras", "horses"],
+    special: { cotton: 3 },
+    soil: 4
+  },
+  taiga: {
+    color: "#fff",
+    prop: FIR,
+    travel: 3,
+    habitability: 1,
+    races: "deers",
+    special: { honey: 1 },
+    soil: 2,
+    trees: 2
+  },
+  forest: {
+    color: "#0a0",
+    prop: TREE,
+    travel: 2,
+    habitability: 2,
+    races: ["deers", "horses"],
+    special: { apples: 1 },
+    soil: 3,
+    trees: 3
+  },
   plains: {
     color: "#2c0",
     prop: GRASS,
     travel: 1,
     habitability: 2,
     races: "horses",
-    special: { wheat: 5 },
+    special: { wheat: 5, cotton: 2 },
     specialx: 3,
     soil: 6
   },
@@ -86,24 +114,6 @@ export const biomesByNames = {
     races: "unicorns",
     special: { sugarcane: 3 },
   },
-  desert: {
-    color: "#f80",
-    prop: DUNES,
-    travel: 2,
-    habitability: 1,
-    races: "zebras",
-    special: { cacao: 5 },
-    soil: 2
-  },
-  steppe: {
-    color: "#af2",
-    prop: GRASS,
-    travel: 1,
-    habitability: 2,
-    races: ["zebras", "horses"],
-    special: { cotton: 1 },
-    soil: 4
-  },
   jungles: {
     color: "#060",
     prop: PALM,
@@ -114,34 +124,15 @@ export const biomesByNames = {
     soil: 3,
     trees: 4
   },
-  forest: {
-    color: "#0a0",
-    prop: TREE,
-    travel: 2,
-    habitability: 2,
-    races: ["deers", "horses"],
-    special: { apples: 1 },
-    soil: 3,
-    trees: 3
-  },
-  taiga: {
+  peaks: {
     color: "#fff",
-    prop: FIR,
-    travel: 3,
-    habitability: 1,
-    races: "deers",
-    special: { honey: 1 },
-    soil: 2,
-    trees: 2
-  },
-  ocean: {
-    color: "#03b",
-    prop: WAVES,
-    seaTravel: 2,
+    prop: MESA2,
+    travel: 2,
     habitability: 0,
-    races: "seahorses",
-    special: { pearls: .3 },
-    deepwater: 1
+    races: "goats",
+    special: { gems: 1 },
+    deposits: 3,
+    soil: 1
   },
   sea: {
     color: "#04c",
@@ -150,6 +141,15 @@ export const biomesByNames = {
     habitability: 0,
     races: "seahorses",
     special: { oil: 1 },
+    deepwater: 1
+  },
+  ocean: {
+    color: "#03b",
+    prop: WAVES,
+    seaTravel: 2,
+    habitability: 0,
+    races: "seahorses",
+    special: { pearls: .3 },
     deepwater: 1
   },
 } as { [name: string]: Biome };

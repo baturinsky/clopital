@@ -6,8 +6,7 @@ import { generateUniverse, nextTurn, nexTurnAndSaveAndShowResults } from "./main
 import { hideMenu, menuOn, Mid, showSavesMenu, updateDiv, updateTip } from "./ui";
 import { animate, animations } from "./animation";
 import { loadAll, saveAll, savePrefix, saveTitlePrefix } from "./saves";
-import { Agent } from "./agent";
-import { centerOn } from "./renderer";
+import { centerOn, resizeCanvas } from "./renderer";
 //import { audio_play, audio_create_song, music_data, audio_init } from "./sonant";
 //import { CPlayer, sonata } from "./voxby";
 import { pl_synth_init, song } from "./pl-synth";
@@ -59,6 +58,8 @@ export const
             loop(30, nextTurn)
             select(queen())
           }, 10)
+
+          update({ turn: 1 })
 
         },
         X: hideMenu,
@@ -119,9 +120,14 @@ export const
       if (id == "warp") {
         queen().gain("magic", -100)
         queen().visit(selected().cell)
-        queen().steps = 0
+        queen().steps--
+        select(queen())
       }
 
+    }
+
+    onresize = () => {
+      resizeCanvas()
     }
 
     C.onpointerdown = C.onpointermove = C.onpointerup = C.onpointerleave = e => {
@@ -137,7 +143,7 @@ export const
       shift = e.shiftKey
 
       if (e.type == "pointermove") {
-        if (buttonsDown[1] || buttonsDown[2]) {
+        if (buttonsDown[0] || buttonsDown[1]) {
           let delta = [e.movementX, e.movementY] as Vec2;
           shiftViewBy(delta);
         } else {
@@ -156,22 +162,20 @@ export const
         buttonsDown[e.button] = 1;
         if (e.button == 0) {
 
-          /*audio_init()
-          audio_play(audio_create_song(...music_data), 1, 1);*/
-
-
-
-
           let a = pointedCell()?.a
 
-          if (!e.shiftKey && a?.length > 0) {
+          if (a?.length > 0) {
             let ind = a.indexOf(selected());
             if (!selected() || a.length == 0 || ind == -1) {
               select(a[0])
             } else {
               select(a[(ind + 1) % a.length])
             }
-          } else if (selected() && selected().happy()) {
+          }
+        }
+
+        if (e.button == 2) {
+          if (selected() && selected().happy()) {
             selected().dest = pointedCell()
             selected()?.go()
             select()
@@ -220,18 +224,24 @@ export const
 
 
 onkeydown = e => {
+  if (e.code == "KeyS" && e.shiftKey && u) {
+    u.c.forEach(c => c.seen = true)
+    debouncedPrerender()
+  }
+  if (e.code == "KeyA" && e.shiftKey && u) {
+    selected().happiness++;
+  }
   if (DEBUG) {
-    if (e.code == "KeyS" && e.shiftKey && u) {
-      u.c.forEach(c => c.seen = true)
-      debouncedPrerender()
-    }
-    if (e.code == "KeyA" && e.shiftKey && u) {
-      u.a.forEach(a => a.happiness = 1000)
-    }
     if (e.code == "KeyI" && e.shiftKey && u) {
+      console.log(
+        selected().recipes.map((recipe) => [recipe.recipe, selected().util(recipe) * selected().max(recipe)])
+      )
+
       console.log(selected().recipes.map((recipe) =>
         [JSON.stringify(recipe.recipe), selected().util(recipe) * selected().max(recipe)]));
+      
       console.log(objMap(selected().stock, k => selected().mutil(k)));
+
       selected().iterate()
     }
 

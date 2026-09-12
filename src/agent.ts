@@ -61,7 +61,7 @@ export class Agent extends MarketAgent {
     this.name = japaneseName()
     u.a.push(this);
 
-    this.happiness = ~~rng(size) + 50;
+    this.happiness = ~~rng(500) + 50;
 
     this.initMarket();
     this.recomp()

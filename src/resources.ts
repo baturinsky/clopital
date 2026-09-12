@@ -11,7 +11,7 @@ export const
 
   //moving = ["walking", "flying", "swimming"],
 
-  minerals = ["oil", "gems", "iron", "copper", "stone", "coal"],
+  minerals = ["oil", "gems", "iron", "copper", "stone", "coal", "pearls"],
   
   plants = ["cotton", "rubber"],
 
@@ -19,11 +19,11 @@ export const
 
   items = ["fertilisers", "gems", "tools", "lumber", "engines", "fabric", "hats", "iron", "beds", "fuel"],
 
-  consumerGoods = ["apples", "wheat", "honey", "jam", "pie", "cacao", "chocolate", "gems", "tools", "lumber", "engines", "fabric", "hats", "iron", "beds", "fuel"],
+  consumerGoods = new Set(["apples", "bread", "honey", "jam", "pie", "cacao", "chocolate", "gems", "pearls", "tools", "lumber", "engines", "fabric", "hats", "iron", "beds", "fuel"]),
 
   //majorNeeds = ["food", "comfort", "fun"],
 
-  tradeables = new Set([...food, ...items, ...minerals]),
+  tradeables = new Set([...food, ...items, ...minerals, "water"]),
 
   resources = objMap({
     unknown: 106,
@@ -113,7 +113,7 @@ export const
     tab3: 115,
     tab4: 119,
 
-    pie: 84,
+    pie: [84, "#f0f"],
     bread: [84, "#400"]
 
   }, convertResources) as {

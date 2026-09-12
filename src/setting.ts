@@ -6,7 +6,7 @@ import { objMap, objScale } from "./util"
 
 export const
   iterationsPerTurn = 7,
-  cellCapPerIncome = 20,
+  cellCapPerIncome = 100,
   consumptionMultiplier = .5,
   incomePerResource = 100,
 
@@ -30,7 +30,7 @@ export const
       ]
     },
     deposits: {
-      income: { deposits: 1 },
+      income: { deposits: 3 },
       ownRecipes: [
         { deposits: -1, digging: -1, thinking: -1, ore: 1 },
         //{ thinking: -1, spelunking: 1 },
@@ -38,7 +38,7 @@ export const
       ]
     },
     deepwater: {
-      income: { deepwater: 1 },
+      income: { deepwater: 3 },
       ownRecipes: [
         { deepwater: -1, seahorsing: -1, seaweed: 3 },
         { deepwater: -1, seahorsing: -1, water: 3 },
@@ -129,7 +129,7 @@ export const
     },
     unicorns: {
       job: "unicorning",
-      income: { gems: -1 },
+      income: { gems: -.5 },
       recipes: [
         { unicorning: -1, magic: 1 },
         { unicorning: -3, thinking: 2 },
@@ -137,7 +137,7 @@ export const
     },
     pegasi: {
       job: "pegasing",
-      income: { fabric: -1 },
+      income: { fabric: -.5 },
       //moving: "flying",
       recipes: [
         { pegasing: -1, water: 1 }
@@ -145,25 +145,25 @@ export const
     },
     zebras: {
       job: "zebring",
-      income: { jam: -1 },
+      income: { jam: -.5 },
       recipes: [
         { zebring: -1, cooking: 3 }
       ],
     },
     deers: {
       job: "deering",
-      income: { salt: -1 },
+      income: { salt: -.5 },
     },
     goats: {
       job: "goating",
-      income: { tools: -1 },
+      income: { tools: -.5 },
       recipes: [
         { goating: -1, digging: 3 },
       ],
     },
     seahorses: {
       job: "seahorsing",
-      income: { lumber: -1 },
+      income: { lumber: -.5 },
       recipes: [
         { seahorsing: -1, diving: 2 },
       ],
@@ -197,7 +197,7 @@ export const
         food: -.3, 
         fun: -.2, 
         comfort: -.1, 
-        ...Object.fromEntries(consumerGoods.map(t => [t, -.02])),
+        ...Object.fromEntries([...consumerGoods].map(t => [t, -.05])),
         ...race.income ?? {},
       }
 
