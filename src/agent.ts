@@ -34,7 +34,7 @@ export class Agent extends MarketAgent {
 
   pathfindData() {
     if (this.cell != this._pathfindDataCell || !this._pathfindData) {
-      this._pathfindData = this.cell.pathfind(this.race.name, 15)
+      this._pathfindData = this.cell.pathfind(this.race.name, 20)
       this._pathfindDataCell = this.cell
     }
     return this._pathfindData
@@ -86,12 +86,14 @@ export class Agent extends MarketAgent {
     if (transfer.place instanceof Agent)
       path ??= transfer.place.pathTo(this.cell) as Cell[];
 
-    path ??= [this.cell, transfer.place.cell]
+    if(!path)
+      return
+    //path ??= [this.cell, transfer.place.cell]
 
     let points = path?.map(c => c.topLeft()) as Vec2[];
 
     if (points.length < 3)
-      points.unshift(sum(points[0], [rng(5) - 2, -rng(5) - 2]))
+      points.push(sum(points[points.length-1], [0, 3]))
 
     let rev = [...points].reverse();
     stepDuration += 500 / points.length;
@@ -141,6 +143,7 @@ export class Agent extends MarketAgent {
     this.steps = 5
     this.transfers = []
     this.consumed = {}
+    this.uses = {}
 
     loop(iterationsPerTurn, () => this.iterate())
 

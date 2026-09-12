@@ -83,7 +83,12 @@ button {
 
 button:hover,
 button.h {
-  border-color: #fdd;
+  background: #fff;
+}
+
+button:active{
+  box-shadow: 0 0 10px #fff;
+  transform: scale(1.2);
 }
 
 

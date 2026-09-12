@@ -193,12 +193,12 @@ export const
       race.biomes = []
       race.income = {
         [race.job]: 10, 
-        ...race.income ?? {},
         fertilisers: .3, 
         food: -.3, 
         fun: -.2, 
         comfort: -.1, 
-        ...Object.fromEntries(consumerGoods.map(t => [t, -.02]))
+        ...Object.fromEntries(consumerGoods.map(t => [t, -.02])),
+        ...race.income ?? {},
       }
 
       //race.income = objMap(race.income, k => k > 0 ? k : k)

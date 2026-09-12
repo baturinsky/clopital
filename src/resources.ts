@@ -35,7 +35,7 @@ export const
     ore: [83, "#00f,,#008"],
     coal: [83, "#000"],
     iron: [84, "#888,"],
-    copper: [84, "#f60,"],
+    copper: [84, "#f80,"],
     //huts: [84, "#800,"],
     salt: [83, "#fff,,#aaa"],
     trees: FIR,
@@ -88,7 +88,7 @@ export const
     chocolate: [112, "#820"],
     axing: 109,
     grass: [105, "#4a4"],
-    sugarcane: [90, "#0a0,#0a0"],
+    sugarcane: [90, "#8f8,#88f"],
     seaweed: [90, "#f0f,#0aa"],
     magic: 94,
     warp: 94,
@@ -107,14 +107,14 @@ export const
     engines: [92, "#444"],
     electronics: [92, "#0a0"],
 
-    tab0: [80, "#008"],
-    tab1: [80, "#aaa,,#aaa"],
+    tab0: 80,
+    tab1: [91, "#fca"],
     tab2: 95,
     tab3: 115,
-    tab4: [115, "#aaa,,#aaa"],
+    tab4: 119,
 
     pie: 84,
-    bread: [84, "#822"],
+    bread: [84, "#400"]
 
   }, convertResources) as {
     [key: string]: {

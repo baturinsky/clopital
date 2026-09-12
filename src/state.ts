@@ -8,7 +8,7 @@ import { cap1, clamp, debounce, fixed, japaneseName, loop, objStripFalsy, Vec2 }
 declare const DEBUG: boolean
 declare var TIP: HTMLDivElement, INFO: HTMLDivElement, MID: HTMLDivElement, BTN: HTMLDivElement;
 
-export const  tabs = ["jobs done", "possible jobs", "needs", "trades and local jobs", "present"];
+export const  tabs = ["actions done", "possible actions", "needs", "trades and land actions", "present"];
 
 
 export let state = {
@@ -46,6 +46,9 @@ export const
   select = (a: Agent = selected()) => {
     if (!a)
       return;
+    delete a._pathfindData
+    a.pathfindData()
+    
     update({ selected: u.a.indexOf(a) })
     centerOn(a.cell)
 
@@ -69,5 +72,5 @@ export const
 
   /** Calculate loyal agents */
   updateExpectation = () => {
-    update({ expectation: 5 + ~~(u.a.filter(a => a.village() || a.happiness > 999).length/3) })
+    update({ expectation:  ~~(u.a.filter(a => a.village() || a.happiness > 999).length/3) })
   }

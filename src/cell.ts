@@ -40,7 +40,7 @@ export class Cell extends MarketAgent {
   /** neighbors and itself*/
   neighborhood!: Cell[]
 
-  seen?: boolean = true
+  seen?: boolean
 
   settlement?: MarketAgent
 
@@ -160,6 +160,9 @@ export const
           return b.water() || a.water() || a.rivers || b.rivers ? 1 : UNPPASSABLE;
         default:
           let cost = b.biome.travel ?? 1e9
+          if(b.a.length>0){
+            cost = Math.min(1, cost);
+          }
           if (races[race] && b.biome.races.includes(race)) {
             cost /= 2;
           }

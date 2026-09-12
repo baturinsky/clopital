@@ -142,7 +142,7 @@ export class MarketAgent {
 
   /** Applies the recipe with the given multiplier and proxies */
   useRecipe(recipe: RecipeX, times?: number) {
-    times ??= this.max(recipe)
+    times ??= this.recipeUseMultiplier(recipe)
 
     //let rn = recipeXName(recipe);
     let rn = JSON.stringify(recipe.recipe)
@@ -339,7 +339,7 @@ export class MarketAgent {
             let maxUses = this.max(recipe);
             if (maxUses < 1)
               return
-            this.useRecipe(recipe, Math.ceil(maxUses / 8))
+            this.useRecipe(recipe, this.recipeUseMultiplier(recipe))
             recipeUsed++;
           }
         })
@@ -360,7 +360,7 @@ export class MarketAgent {
   }
 
   recipeUseMultiplier(recipe:RecipeX){
-    return Math.ceil(this.max(recipe) / 4)    
+    return Math.ceil(this.max(recipe) / 8)    
   }
 
   /** Total income/expense per turn, considering size

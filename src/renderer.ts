@@ -26,7 +26,10 @@ export const
   SAIL = 103,
   AIR = 104,
   QUEEN = 48,
-  SHADOW = 65;
+  SHADOW = 64,
+  RAINBOW = 118
+  ;
+
 
 let worldPhoto: HTMLCanvasElement,
   previousWorldPhoto: HTMLCanvasElement | undefined,
@@ -88,7 +91,7 @@ export const
   wobbleFlight = (p: Vec2, amplitude = 6) => sum(p, [0, amplitude * (1 + Math.sin(Date.now() / 500)) / 2]),
 
   renderLoop = () => {
-    if(!u)
+    if (!u)
       return requestAnimationFrame(renderLoop)
 
     let t = Date.now();
@@ -97,7 +100,7 @@ export const
 
     blinkAlpha = (2 + Math.sin(t / 100)) / 3;
 
-    if(document.Next)
+    if (document.Next)
       Next.style.transform = `scale(${queen().steps == 0 ? 1 + blinkAlpha / 10 : 1})`
 
     if (state.targetTLA) {
@@ -133,12 +136,18 @@ export const
     for (let agent of u.a) {
       if (agent.anim || !agent.cell.seen)
         continue
-      drawOnCell(agent.cell, agent.happy() ? SHADOW + 1 : SHADOW)
+      //drawOnCell(agent.cell, agent.happy() ? SHADOW + 1 : SHADOW)      
+      drawOnCell(agent.cell, SHADOW)
       if (selected() == agent && t % 800 < 400) {
         drawOnCell(agent.cell, BIGCURSOR)
       }
+      let h = flyers.includes(agent.race.name) ? -5 - (Math.sin(Date.now() / 500) * 2) : 0
       drawOnCell(agent.cell, agent.race?.sprite,
-        [0, flyers.includes(agent.race.name) ? -5 - (Math.sin(Date.now() / 500) * 2) : 0])
+        [0, h])
+
+      if (agent.happy()){
+        drawOnCell(agent.cell, RAINBOW, [0, h - 10])
+      }
 
       let animationProbability =
         100 *
@@ -251,7 +260,7 @@ export const
     return line2;
   },
 
-  drawRadials = ()=>{
+  drawRadials = () => {
     let wps = [worldPhoto.width, worldPhoto.height] as Vec2;
     cx.save()
     cx.strokeStyle = "#fff4";

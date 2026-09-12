@@ -84,7 +84,7 @@ export const biomesByNames = {
     habitability: 1,
     soil: 3,
     races: "unicorns",
-    special: { sugarcane: 1 },
+    special: { sugarcane: 3 },
   },
   desert: {
     color: "#f80",
@@ -110,7 +110,7 @@ export const biomesByNames = {
     travel: 4,
     habitability: 1,
     races: "zebras",
-    special: { rubber: 3 },
+    special: { rubber: 3, sugarcane: 3 },
     soil: 3,
     trees: 4
   },
