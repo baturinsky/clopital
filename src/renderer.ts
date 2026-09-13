@@ -102,7 +102,7 @@ export const
 
     blinkAlpha = (2 + Math.sin(t / 100)) / 3;
 
-    if (document.Next)
+    if (Next)
       Next.style.transform = `scale(${queen().steps == 0 ? 1 + blinkAlpha / 10 : 1})`
 
     if (state.targetTLA) {
@@ -135,7 +135,8 @@ export const
 
     updateAnimations(dt)
 
-    for (let agent of u.a) {
+    let order = selected()?[...u.a.filter(a=>a!=selected()), selected()]:u.a
+    for (let agent of order) {
       if (agent.anim || !agent.cell.seen)
         continue
       //drawOnCell(agent.cell, agent.happy() ? SHADOW + 1 : SHADOW)      

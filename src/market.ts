@@ -15,7 +15,7 @@ const loop = <T>(l: number, f: (i: number) => T) => [...new Array(l)].map((v, i)
 export type GoodNumbers = { [id in string]: number };
 export type Transfer = [MarketAgent, string, number]
 
-const utilityBase = 0.95, utilityBaseLog = Math.log(utilityBase), DEFAULT_STOCK_CAP = 1e24
+const utilityBase = 0.9, utilityBaseLog = Math.log(utilityBase), DEFAULT_STOCK_CAP = 1e24
 
 /** Cached marginal utility numbers */
 const marginalUtilityLookup = loop(100000, n => 1e6 * Math.pow(utilityBase, n))

@@ -89,7 +89,7 @@ export const
     axing: 109,
     grass: [105, "#4a4"],
     sugarcane: [90, "#8f8,#88f"],
-    seaweed: [90, "#f0f,#0aa"],
+    seaweed: [90, "#f0f,#f44"],
     magic: 94,
     warp: 94,
     energy: [94, "#00f,#00f"],

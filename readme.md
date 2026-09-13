@@ -36,4 +36,14 @@ And, finally, if you want, you can manually command them to do some resource con
 
 At the core of the game is a simple data-driven economic simulation. 
 with a relation between herds, goods, and land described with simple formulas.
-Each herd and hex produce and consume a cer
+Each herd and hex produce and consume a certain amount of resources. 
+
+Some resources are more abstract ("working" or "crops"), some are material items which can be bartered and such.
+
+Herds have a library of "actions" to convert some resources into the others.
+Some of those actions are tied to specific hexes, such as, you can only convert abastract "crops" into the specific "apples" on the hexes with apples.
+
+Herds decide which action they use, based on the number of items they have currently - 
+The less they have of something, the more valuable this item seems to them. 
+
+Herds also can trade with other herds in range, at the cost of some "travel" resource. Same "travel" is used to move around.

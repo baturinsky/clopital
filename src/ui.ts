@@ -194,7 +194,7 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
 
   hideMenu = () => {
     menuOn = false;
-    updateDiv(Mid, `Turn: ${state.turn}<br/> World Happiness: ${listSum(u.a, a => a.happiness)}${icon("happiness")}`)
+    updateDiv(Mid, `Turn: ${state.turn} Friends: ${u.a.filter(u=>u.happy()).length-1}/${u.a.length}<br/> World Happiness: ${listSum(u.a, a => a.happiness)}${icon("happiness")}`)
   },
 
   showSavesMenu = () => {

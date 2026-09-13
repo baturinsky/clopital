@@ -50,7 +50,7 @@ export const
         New: () => {
           state.seed = SEED.value as any
           state.land = LAND.value as any
-          updateDiv(Mid, "In the begining, alicorn was alone...")
+          updateDiv(Mid, "In the beginning, alicorn was alone...")
           setTimeout(() => {
             generateUniverse()
             select(queen())
