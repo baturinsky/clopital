@@ -152,7 +152,7 @@ export const
       }
 
       let animationProbability =
-        100 *
+        30 *
         agent.transfers?.length /
         (10 + dist(agent.cell.center(), pointedCell()?.center())) /
         (resAnimations + 100)

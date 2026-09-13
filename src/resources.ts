@@ -23,7 +23,7 @@ export const
 
   //majorNeeds = ["food", "comfort", "fun"],
 
-  tradeables = new Set([...food, ...items, ...minerals, "water"]),
+  tradeables = new Set([...food, ...plants, ...items, ...minerals, "water"]),
 
   resources = objMap({
     unknown: 106,
@@ -102,7 +102,7 @@ export const
     digging: 110,
 
     fabric: [91, "#f0f"],
-    hats: [98, "#fff"],
+    hats: [98, "#f0a"],
 
     engines: [92, "#444"],
     electronics: [92, "#0a0"],

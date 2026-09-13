@@ -8,7 +8,7 @@ import { cap1, clamp, debounce, fixed, japaneseName, loop, objStripFalsy, Vec2 }
 declare const DEBUG: boolean
 declare var TIP: HTMLDivElement, INFO: HTMLDivElement, MID: HTMLDivElement, BTN: HTMLDivElement;
 
-export const  tabs = ["actions done", "possible actions", "needs", "trades and land actions", "present"];
+export const  tabs = ["actions done", "possible actions", "needs", "trades and land actions", "gifts"];
 
 
 export let state = {

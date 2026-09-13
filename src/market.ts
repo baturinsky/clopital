@@ -15,12 +15,12 @@ const loop = <T>(l: number, f: (i: number) => T) => [...new Array(l)].map((v, i)
 export type GoodNumbers = { [id in string]: number };
 export type Transfer = [MarketAgent, string, number]
 
-const utilityBase = 0.97, utilityBaseLog = Math.log(utilityBase), DEFAULT_STOCK_CAP = 1e24
+const utilityBase = 0.95, utilityBaseLog = Math.log(utilityBase), DEFAULT_STOCK_CAP = 1e24
 
 /** Cached marginal utility numbers */
 const marginalUtilityLookup = loop(100000, n => 1e6 * Math.pow(utilityBase, n))
 
-const distanceTax = .001, happinessGainMultiplier = 15, consumerGoodsHappiness=3
+const distanceTax = .001, happinessGainMultiplier = 15, consumerGoodsHappiness = 3
 
 export const
   marginalUtility = (amount: number) =>
@@ -116,7 +116,7 @@ export class MarketAgent {
   /**Compile recipes from places. For Agent, automatically pick up the places from cells */
   recomp() {
     let place = this.places[this.iterations % this.places.length] as Cell;
-    this.recipes = [this, ...(place.biome.name =="bedrock"?[]:[place])].map(place =>
+    this.recipes = [this, ...(place.biome.name == "bedrock" ? [] : [place])].map(place =>
       place.ownRecipes?.map(recipe => ({ place, recipe } as RecipeX))
     ).flat(1) as RecipeX[]
   }
@@ -226,6 +226,8 @@ export class MarketAgent {
 
   barter(their: MarketAgent, distance = 0) {
 
+    //if(this.stock.travel < this.size*3)      return;
+
     /** Calculating the best goods to trade */
     let myBestSeller = this.bestSeller(their), theirBestSeller = their.bestSeller(this);
 
@@ -277,8 +279,7 @@ export class MarketAgent {
 
   /** Transfer goods from one agent to another */
   give(receiver: MarketAgent, good: string, amount: number) {
-    if (amount > this.stock[good])
-      debugger
+    //if (amount > this.stock[good])      debugger
 
     this.addTransfer(receiver, good, -amount)
     receiver.addTransfer(this, good, amount)
@@ -290,8 +291,7 @@ export class MarketAgent {
   /** Gain or lose goods */
   gain(good: string, amount: number) {
     this.stock[good] = clamp(0, (this.stock[good] ?? 0) + ~~amount, this.size * (this.cap[good] ?? DEFAULT_STOCK_CAP));
-    if (this.stock[good] < 0)
-      debugger
+    if (this.stock[good] < 0)      debugger
   }
 
   iterate() {
@@ -307,7 +307,7 @@ export class MarketAgent {
   gainIterationIncome() {
     objForEach(this.totTurnInc(), (perTurn: number, good: string) => {
       let v = Math.ceil(perTurn / iterationsPerTurn)
-      if(v==0)
+      if (v == 0)
         return
       if (v < 0) {
         if ((this.stock[good] ?? 0) < this.size - v)
@@ -319,10 +319,11 @@ export class MarketAgent {
   }
 
   happinessGain() {
+    let queenMultiplier = (queen() == this as any) ? .01 : 1;
     let total = this.totTurnInc(-1);
     let res = objMap(this.consumed,
       (v, good) => {
-        let r = (v / (total[good]) * happinessGainMultiplier * (consumerGoods.has(good)?consumerGoodsHappiness:1) * (this.income[good] ?? 0))
+        let r = (v / (total[good]) * queenMultiplier * happinessGainMultiplier * (consumerGoods.has(good) ? consumerGoodsHappiness : 1) * (this.income[good] ?? 0))
         if (!total[good])
           r = 0;
         return r
@@ -347,6 +348,11 @@ export class MarketAgent {
       } while (recipeUsed && --limit)
     } else {
       let limit = 30;
+      /*if(this.name == "Mumaau" && this.recipes.find(r=>r.recipe.pearls && r.recipe.ore)){
+        let r = this.recipes.find(r=>r.recipe.ore>0) as RecipeX;
+        debugger
+        console.log(this.util(r), this.max(r))
+      }*/
       while (limit--) {
         let [recipe, v] = bestBy(this.recipes, (recipe) =>
           this.util(recipe) * this.max(recipe)
@@ -360,8 +366,8 @@ export class MarketAgent {
     }
   }
 
-  recipeUseMultiplier(recipe:RecipeX){
-    return Math.ceil(this.max(recipe) / 8)    
+  recipeUseMultiplier(recipe: RecipeX) {
+    return Math.ceil(this.max(recipe) / 8)
   }
 
   /** Total income/expense per turn, considering size

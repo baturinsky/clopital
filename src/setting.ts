@@ -26,13 +26,13 @@ export const
     trees: {
       income: { trees: 1 },
       ownRecipes: [
-        { trees: -1, workingHard: -1, lumber: 1 },
+        { trees: -1, workingHard: -1, lumber: 2 },
       ]
     },
     deposits: {
       income: { deposits: 3 },
       ownRecipes: [
-        { deposits: -1, digging: -1, thinking: -1, ore: 1 },
+        { deposits: -1, digging: -1, thinking: -1, ore: 3 },
         //{ thinking: -1, spelunking: 1 },
         { ore: -1, stone: 1 },
       ]
@@ -59,7 +59,7 @@ export const
       { working: -1, magic: -5, workingHard: 3 },
       { working: -1, thinking: 1 },
       { working: -1, cooking: 1 },
-      { working: -1, travel: 1 },
+      { working: -1, travel: 2 },
       { working: -3, electronics: -1, thinking: 20 },
       { working: -10, thinking: -10, engines: -1, energy: -10, workingHard: 50 },
 
@@ -69,7 +69,7 @@ export const
       { workingHard: -10, thinking: -10, tools: -1, crafting: 40 },
       { working: -1, thinking: -2, engines: -1, fuel: -3, crafting: 15 },
 
-      { vehicles: -1, fuel: -5, travel: 30 },
+      { vehicles: -1, fuel: -5, travel: 40 },
       { vehicles: -1, fuel: -5, diving: 30 },
       { engines: -1, fuel: -5, energy: 30 },
       { magic: -1, fertilisers: 1 },
@@ -129,7 +129,7 @@ export const
     },
     unicorns: {
       job: "unicorning",
-      income: { gems: -.5 },
+      income: { gems: -.2 },
       recipes: [
         { unicorning: -1, magic: 1 },
         { unicorning: -3, thinking: 2 },
@@ -137,7 +137,7 @@ export const
     },
     pegasi: {
       job: "pegasing",
-      income: { fabric: -.5 },
+      income: { fabric: -.2 },
       //moving: "flying",
       recipes: [
         { pegasing: -1, water: 1 }
@@ -145,25 +145,25 @@ export const
     },
     zebras: {
       job: "zebring",
-      income: { jam: -.5 },
+      income: { jam: -.2 },
       recipes: [
         { zebring: -1, cooking: 3 }
       ],
     },
     deers: {
       job: "deering",
-      income: { salt: -.5 },
+      income: { salt: -.2 },
     },
     goats: {
       job: "goating",
-      income: { tools: -.5 },
+      income: { tools: -.2 },
       recipes: [
         { goating: -1, digging: 3 },
       ],
     },
     seahorses: {
       job: "seahorsing",
-      income: { lumber: -.5 },
+      income: { lumber: -.2 },
       recipes: [
         { seahorsing: -1, diving: 2 },
       ],
@@ -179,10 +179,10 @@ export const
     },
     manufacture: {
     },*/
-    village: {
+    /*village: {
     },
     dome: {
-    }
+    }*/
   } as { [id: string]: Race },
 
   initSetting = () => {

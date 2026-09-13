@@ -88,7 +88,7 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
       lines.push(
         "!income/turn",
         asList(cell.income),
-        "!can",
+        "!land jobs",
         `<div class=tc>${cell.ownRecipes.map(fancyRecipe).join("</br>")}</div>`,
         ...Object.keys(cell.uses).length ?
           [

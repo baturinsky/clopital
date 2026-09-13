@@ -7,7 +7,7 @@ import { state, select, selected, updateExpectation as updateExpectation } from 
 import { u, Universe } from './universe';
 import { initSetting } from './setting';
 import { hideMenu, showButtons, showSavesMenu, updateTip } from './ui';
-import { loop } from './util';
+import { loop, setSeed } from './util';
 import { saveAll } from './saves';
 import { audio_play, audio_create_song, music_data, audio_init } from './sonant';
 
@@ -43,6 +43,7 @@ const init = () => {
 
 export const
   nextTurn = () => {
+    setSeed(state.seed*1e4 + state.turn)
     u.a.forEach(a => a.nextTurn())
     u.c.forEach(c => c.nextTurn())
     updateExpectation();

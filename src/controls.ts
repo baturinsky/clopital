@@ -55,7 +55,7 @@ export const
           updateDiv(Mid, "<h1>PREPARING WORLD...</h1>")
           setTimeout(() => {
             hideMenu()
-            loop(30, nextTurn)
+            loop(10, nextTurn)
             select(queen())
           }, 10)
 
@@ -239,12 +239,18 @@ onkeydown = e => {
 
       console.log(selected().recipes.map((recipe) =>
         [JSON.stringify(recipe.recipe), selected().util(recipe) * selected().max(recipe)]));
-      
+
       console.log(objMap(selected().stock, k => selected().mutil(k)));
 
       selected().iterate()
     }
 
+  }
+
+  let k = e.code.substring(5);
+  if (k>0 && k < 6) {
+    state.tab = k - 1;
+    select()
   }
 
   switch (e.code) {
@@ -259,8 +265,8 @@ onkeydown = e => {
         showSavesMenu()
       break
     case "Tab":
-      update({ tab: (state.tab as number + 1) % 5 })
-      select()
+      let a = u.a.filter(a => a.happy())
+      select(a[(a.indexOf(selected()) + 1) % a.length])
       break
   }
 }
