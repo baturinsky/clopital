@@ -50,16 +50,16 @@ export const
         New: () => {
           state.seed = SEED.value as any
           state.land = LAND.value as any
-          generateUniverse()
-          select(queen())
-          updateDiv(Mid, "<h1>PREPARING WORLD...</h1>")
+          updateDiv(Mid, "In the begining, alicorn was alone...")
           setTimeout(() => {
+            generateUniverse()
+            select(queen())
             hideMenu()
             loop(10, nextTurn)
             select(queen())
+            update({ turn: 1 })
           }, 10)
 
-          update({ turn: 1 })
 
         },
         X: hideMenu,

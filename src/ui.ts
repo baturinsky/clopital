@@ -204,7 +204,7 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
 Seed:<input type=number id=SEED value=${state.seed}></input>
 Land:<input type=range id=LAND value=${state.land} min=1 max=7 />
 <button id=New>New game</button>`,
-      htmlTable(loop(13,
+      `<h4>Saves</h4>` + htmlTable(loop(13,
         i => [
           i || 'auto',
           i && u ? `<button data-save=${i}>save</button >` : '---',

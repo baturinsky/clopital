@@ -179,7 +179,7 @@ export class Agent extends MarketAgent {
     let p = this.pathTo(this.dest);
 
     if (p) {
-      p = p.slice(1, this.steps + 1)
+      p = p.slice(0, this.steps + 1)
       this.steps -= p?.length;
       this.gain("travel", -this.size);
       p.forEach(c => this.visit(c))

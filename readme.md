@@ -30,42 +30,10 @@ You also can instantly summon Alicorn to any happy herd at the price of some Ali
 
 You can ask some resources from the happy herd at the price of a bit of their happiness.
 
-And, finally, if you want, you can manually command herd to do some resource conversion action, but there s no need to micromanage them like this - they aree adult horses and can figure out what to do themselves.
+And, finally, if you want, you can manually command them to do some resource conversion action, but there's no need to micromanage them like this - they aree adult horses and can figure out what to do themselves.
 
 # How the game works
 
 At the core of the game is a simple data-driven economic simulation. 
 with a relation between herds, goods, and land described with simple formulas.
-Each herd and hex produce and consume a certain amount of resources. 
-
-Some resources are more abstract ("working" or "crops"), some are material items which can be bartered and such.
-
-Herds have a library of "actions" to convert some resources into the others.
-Some of those actions are tied to specific hexes, such as, you can only convert abastract "crops" into the specific "apples" on the hexes with apples.
-
-Herds decide which action they use, based on the number of items they have currently - 
-The less they have of something, the more valuable this item seems to them. 
-
-Herds also can trade with other herds in range, at the cost of some "travel" resource. Same "travel" is used to move around.
-
-# UI
-Herd info is split into five tabs.
-1. "Actions done" - which actions has the herd chosen last turn?
-2. "Possible actions" - all possible herd actions, but WITHOUT the actions related to working the land (mining, growing, etc.). If the herd is friendly, you can make it use any of the available actions.
-3. "Needs" - the needs that herd has and if they were covered last turn
-4. "Trades and land actions" - exchanges with other herds and resource spending on/gained from hexes.
-5. "Present" - here a tour alicorn can give items to nearby herds or ask them back (from friendly herds).
-Also, the button for warping to friend is here.
-
-Cell info shows which resource cell it has and which actions the herd can do on it.
-Most of the cell resources are abstract intermediate ones, and they stay in the cell's "inventory."
-The herd working it receives only the final products, such as the specific crop or mineral.
-
-# What I plan for the full version
-
-1. Fixed bugs
-2. Balanced economy
-3. Research
-4. Buildings and roads
-
-Whether or not there will be a full version, and what there will be in it, depends mostly on your feedback.
+Each herd and hex produce and consume a cer
