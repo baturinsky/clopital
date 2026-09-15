@@ -96,14 +96,18 @@ export const
     if (!u)
       return requestAnimationFrame(renderLoop)
 
+    if (queen().maxStepsRemaining() < 1)
+      Next.classList.add("grow-shrink-animation")
+    else
+      Next.classList.remove("grow-shrink-animation")
+
     let t = Date.now();
     dt = t - lastT;
     lastT += dt;
 
     blinkAlpha = (2 + Math.sin(t / 100)) / 3;
 
-    if (Next)
-      Next.style.transform = `scale(${queen().steps == 0 ? 1 + blinkAlpha / 10 : 1})`
+    //if (Next)   Next.style.transform = `scale(${queen().steps == 0 ? 1 + blinkAlpha / 10 : 1})`
 
     if (state.targetTLA) {
       //console.log(state.topLeftAt, state.targetTLA, dt);
@@ -135,12 +139,12 @@ export const
 
     updateAnimations(dt)
 
-    let order = selected()?[...u.a.filter(a=>a!=selected()), selected()]:u.a
+    let order = selected() ? [...u.a.filter(a => a != selected()), selected()] : u.a
     for (let agent of order) {
       if (agent.anim || !agent.cell.seen)
         continue
       //drawOnCell(agent.cell, agent.happy() ? SHADOW + 1 : SHADOW)      
-      drawOnCell(agent.cell, agent.steps?GREEN_SHADOW:RED_SHADOW)
+      drawOnCell(agent.cell, agent.steps ? GREEN_SHADOW : RED_SHADOW)
       if (selected() == agent && t % 800 < 400) {
         drawOnCell(agent.cell, BIGCURSOR)
       }
@@ -192,8 +196,7 @@ export const
       p.forEach((step, i) => {
         i > 0 && drawOnCell(
           step,
-          //resourceIcon(a.race.moving + (i > a.steps ? "Far" : "")))
-          resourceIcon("walk" + (i > a.maxSteps() ? "Far" : "")))
+          resourceIcon("walk" + (i > a.maxStepsRemaining() ? "Far" : "")))
       })
     }
   },
@@ -213,7 +216,7 @@ export const
     resizeCanvas()
   },
 
-  resizeCanvas = ()=>{
+  resizeCanvas = () => {
     ctx = canvasElementAndContext(innerWidth, innerHeight, C)[1]
   },
 

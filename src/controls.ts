@@ -12,7 +12,7 @@ import { centerOn, resizeCanvas } from "./renderer";
 import { pl_synth_init, song } from "./pl-synth";
 import { CPlayer, sonata } from "./voxby";
 
-declare var C: HTMLCanvasElement, SEED: HTMLInputElement, LAND: HTMLInputElement;
+declare var C: HTMLCanvasElement, SEED: HTMLInputElement, LAND: HTMLInputElement, Next: HTMLButtonElement;
 declare const DEBUG: boolean
 declare var TIP: HTMLDivElement, INFO: HTMLDivElement, MID: HTMLDivElement, BTN: HTMLDivElement;
 
@@ -187,7 +187,7 @@ export const
             console.log(pointedCell());
           }
         }
-
+        
       }
 
       if (e.type == "pointerup") {
@@ -248,7 +248,7 @@ onkeydown = e => {
   }
 
   let k = e.code.substring(5);
-  if (k>0 && k < 6) {
+  if (k > 0 && k < 6) {
     state.tab = k - 1;
     select()
   }

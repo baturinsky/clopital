@@ -92,7 +92,7 @@ button:active{
 }
 
 
-.icon img {
+.icon .img canvas {
   margin: 0 0 0 3px;
   transform: scale(1.5) translateY(1px);
   filter: drop-shadow(1px 1px);
@@ -182,11 +182,22 @@ h1 {
   padding-bottom: 30px;
 }
 
-h1 .icon:first-child img{
-  transform: scale(-1.5, 1.5);
-  filter: invert(м);
-}
-
 input {
   width: 70px;
+}
+
+@keyframes grow-shrink {
+  0% {
+    scale: 90%;
+  }
+
+  100% {
+    scale: 110%;
+  }
+}
+
+.grow-shrink-animation
+{
+  animation: .3s infinite alternate;
+  animation-name: grow-shrink;
 }

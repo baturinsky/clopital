@@ -26,11 +26,16 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
   },
 
   updateDiv = (slot: number, ...text: (string | undefined)[]) => {
-    [TIP, INFO, MID][slot].innerHTML = text.filter(v => v).map(t =>
+    let div = [TIP, INFO, MID][slot];
+    let buf = document.createElement("div");
+    buf.innerHTML = text.filter(v => v).map(t =>
       t == "btn" ? agentButtons() :
         t?.charAt(0) == "!" ? `<div class=ptl>${t?.substring(1)}</div>` :
           `<div class=pnl class=tab${state.tab}>${t ?? " "}</div>`
     ).join('')
+    buf.id = div.id;
+    drawIcons(buf);
+    div.parentElement?.replaceChild(buf, div);
     //drawIcons();
   },
 
@@ -38,9 +43,21 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
     return `<div class=abtn>${loop(5, t => `<button id=${"tab" + t} class=${t == state.tab ? "h" : ""}>${icon("tab" + t, tabs[t])}</button>`).join('')}</div>`
   },
 
+  drawIcons = (div: HTMLElement) => {
+    let icons = div.querySelectorAll("[data-icon]") as any as HTMLElement[]
+    for (let icon of icons) {
+      let n = icon.dataset.icon
+      icon.children[0].innerHTML = ""
+      icon.children[0].appendChild(resourceIcon(n as string))
+    }
+  },
+
   ttx = (tip: string) => tip == "notip" ? '' : `<span class=ttx>${tip}</span>`,
 
-  icon = (name: string, tip?: string) => `<span class=icon><img src=${resourceIconDataUrl(name)}>${ttx(tip ?? name)}</span>`,
+  iconDataUrl = (name: string, tip?: string) => `<span class=icon><img src=${resourceIconDataUrl(name)}>${ttx(tip ?? name)}</span>`,
+
+  icon = (name: string, tip?: string) => `<span data-icon="${name}" class=icon><span class=img></span>${ttx(tip ?? name)}</span>`,
+
 
   asList = (a?: GoodNumbers) => a ? `${Object.entries(a).map(([k, v]) => goodSpan(k, v),).join('')}` : undefined,
 
@@ -194,7 +211,7 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
 
   hideMenu = () => {
     menuOn = false;
-    updateDiv(Mid, `Turn: ${state.turn} Friends: ${u.a.filter(u=>u.happy()).length-1}/${u.a.length}<br/> World Happiness: ${listSum(u.a, a => a.happiness)}${icon("happiness")}`)
+    updateDiv(Mid, `Turn: ${state.turn} Friends: ${u.a.filter(u => u.happy()).length - 1}/${u.a.length}<br/> World Happiness: ${listSum(u.a, a => a.happiness)}${icon("happiness")}`)
   },
 
   showSavesMenu = () => {

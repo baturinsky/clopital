@@ -1,15 +1,23 @@
 {
-	"compilerOptions": {
-		"target": "esnext",
-		"module": "es2022",
-		"moduleResolution": "bundler",
-		"allowJs": true,
-		"checkJs": true,
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "es2022",
+    "moduleResolution": "bundler",
+    "allowJs": true,
+    "checkJs": true,
+    "skipLibCheck": true,
 
-		/* Preact Config */
-		"jsx": "react-jsx",
-		"jsxImportSource": "preact",
-		"skipLibCheck": true
-	},
-	"include": ["node_modules/vite/client.d.ts", "**/*", "../unused/solver.ts"]
+    /* Preact Config */
+    "jsx": "react",
+    "jsxFactory": "el",
+    "jsxFragmentFactory": "el",
+
+    "allowImportingTsExtensions": true
+
+  },
+  "include": [
+    "node_modules/vite/client.d.ts",
+    "**/*",
+    "../unused/solver.ts"
+  ]
 }

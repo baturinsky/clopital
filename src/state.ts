@@ -6,7 +6,7 @@ import { u } from "./universe";
 import { cap1, clamp, debounce, fixed, japaneseName, loop, objStripFalsy, Vec2 } from "./util";
 
 declare const DEBUG: boolean
-declare var TIP: HTMLDivElement, INFO: HTMLDivElement, MID: HTMLDivElement, BTN: HTMLDivElement;
+declare var TIP: HTMLDivElement, INFO: HTMLDivElement, MID: HTMLDivElement, BTN: HTMLDivElement, Next: HTMLButtonElement;
 
 export const  tabs = ["actions done", "possible actions", "needs", "trades and land actions", "gifts"];
 

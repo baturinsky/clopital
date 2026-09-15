@@ -1,11 +1,13 @@
 import { defineConfig, UserConfig } from 'vite';
 import { roadrollerPlugin } from "js13k-vite-plugins";
+import { viteSingleFile } from "vite-plugin-singlefile"
+
 
 export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
 
   return {
     plugins: [
-      roadrollerPlugin(),
+      ...mode == "min"?[roadrollerPlugin()]:[viteSingleFile()]
     ],
     base: '',
     define: {
@@ -14,7 +16,7 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
 
     build: {
       minify: mode == "min" ? 'terser' : false,
-      terserOptions: hardTerse,
+      terserOptions: mode == "min" ? hardTerse: {},
       cssMinify: mode == "min",
       modulePreload: { polyfill: false },
       emptyOutDir: true,

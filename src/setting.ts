@@ -223,6 +223,5 @@ export const
   }
 
 
-export const placeables = Object.keys(races).slice(8)
-console.log(placeables);
+//export const placeables = Object.keys(races).slice(8)
 

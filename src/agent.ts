@@ -135,7 +135,8 @@ export class Agent extends MarketAgent {
     return super.barter(their, distance)
   }
 
-  maxSteps() {
+  /** How many steps unit has left, considering step limit and travel resource */
+  maxStepsRemaining() {
     return Math.min(this.steps, ~~(this.stock.travel / this.size));
   }
 
@@ -174,7 +175,7 @@ export class Agent extends MarketAgent {
 
   go() {
     this.visit(this.cell);
-    if (this.maxSteps() < 1 || this.cell == this.dest)
+    if (this.maxStepsRemaining() < 1 || this.cell == this.dest)
       return
 
     let p = this.pathTo(this.dest);
