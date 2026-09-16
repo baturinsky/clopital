@@ -1,4 +1,3 @@
-import { atlas } from "./main";
 import { ww, photoScale, wh, TWO_PI, worldCoord, photoShift } from "./root";
 import { Biome, biomeMatrix, BiomeName, biomesByNames, HUTS, HUTS2, MESA, WAVES } from "./biomes"
 import { pointedCell, queen, queenCell, selected, state, update } from "./state";
@@ -11,13 +10,13 @@ import { GoodNumbers } from "./market";
 import { resources } from "./resources";
 import { shift } from "./controls";
 import { flyers } from "./races";
+import { resourceIcon, makeBiomeSprites, atlasSprite, sprites, initSprites } from "./sprites";
 
 declare const DEBUG: boolean
 
 export const
   layerThickness = 4,
   mapRevealDuration = 700,
-  AtlasSpriteSize = 16,
   BIGCURSOR = 16,
   CURSOR = 18,
   WALK = 100,
@@ -39,12 +38,10 @@ let worldPhoto: HTMLCanvasElement,
   ctx: CanvasRenderingContext2D,
   /** Currently active context (ctx unless it's prerender)*/
   cx: CanvasRenderingContext2D,
-  sprites: HTMLCanvasElement[],
-  props: HTMLCanvasElement[], huts: HTMLCanvasElement[],
   outlined: HTMLCanvasElement[],
   letters: HTMLCanvasElement[],
   letterWidth = 6,
-  filters = new Set(),
+  
   revealingMap = 0,
   blinkAlpha = 0,
   dt = 1,
@@ -205,13 +202,9 @@ export const
     if (dist(targetTLA, state.topLeftAt) > 50)
       update({ targetTLA })
   },
-  atlasSprite = (id: number, filter?: string) =>
-    cutSpriteFromAtlas((id % AtlasSpriteSize) * AtlasSpriteSize, ~~(id / AtlasSpriteSize) * AtlasSpriteSize, AtlasSpriteSize, AtlasSpriteSize, filter)
-  ,
   initRenderer = () => {
     Object.values(biomesByNames).forEach(b => b.sprites = makeBiomeSprites(b))
-    sprites = loop(160, i => atlasSprite(i))
-    outlined = loop(160, i => atlasSprite(i, "url(#OUTL)"))
+    initSprites()
     ctx = canvasElementAndContext(innerWidth, innerHeight, C)[1]
     resizeCanvas()
   },
@@ -351,88 +344,9 @@ export const
       }
     })
   },
-  constructFilter = (rgbReplace: RGBA[]) => {
-    let name = JSON.stringify(rgbReplace)
-    if (!filters.has(name)) {
-      let f = `<filter id="f${name}"><feColorMatrix type=matrix 
-      values="${[0, 1, 2, 3].map(i =>
-        `${rgbReplace[0][i]} ${rgbReplace[1][i]} ${rgbReplace[2][i]} ${i == 3 ? 1 : 0} 0`).join(' ')}" /></filter>`
-      DEFS.innerHTML += f;
-    }
-    return `url(#f${name})`
-  },
-  cutSpriteFromAtlas = (x: number, y: number, w: number, h: number, filter?: string) => {
-    let [sprite, sx] = canvasElementAndContext(w, h)
-    sx.filter = filter ?? "";
-    sx.drawImage(atlas, x, y, w, h, 0, 0, w, h)
-    return sprite
-  },
-  makeBiomeSprites = (biome: Biome) => {
-    return [...new Array(6)].map((v, i) =>
-      cutSpriteFromAtlas(240, 0, 16, 22, constructFilter([
-        scale(biome.rgba, 1.3/* - .05 * i - (i > 2 ? .2 : 0)*/),
-        scale(biome.rgba, .5),
-        scale(biome.rgba, .3)
-      ])))
-  },
 
 
   drawImageCentered = (image: HTMLCanvasElement, pos: Vec2) => {
     cx.drawImage(image, pos[0] - image.width, pos[1] - image.height)
-  },
+  }
 
-  spriteCache = (ind: number, filter?: string) => {
-    //console.log(ind, filter);
-    let n = `${ind}@${filter}`;
-    spriteCacheData[n] ??= atlasSprite(ind, filter);
-    return spriteCacheData[n];
-  },
-
-  spriteCopy = (a: HTMLCanvasElement) => {
-    let [sprite, sc] = canvasElementAndContext(a.width, a.height)
-    sc.drawImage(a, 0, 0);
-    return sprite
-  },
-
-  /** If name is resource name, returns resource icon. 
-   * If it is number, returns numbered sprite
-   * If it is number @ text, returns filtered sprite */
-  resourceIcon = (name: string): HTMLCanvasElement => {
-
-    let sprite: HTMLCanvasElement, split = name.split("@") as [number, string];
-
-    if (split[0] * 0 == 0) {
-      sprite = spriteCopy(spriteCache(...split))
-    } else {
-      if (DEBUG) {
-        if (!resources[name])
-          console.log("!" + name);
-      }
-      let r = resources[name] ?? resources["unknown"];
-      r.sc ??= spriteCache(
-        r.s,
-        r.c && constructHexFilter(...r.c))
-
-      sprite = spriteCopy(r.sc)
-    }
-    //sprite.style.transform = `scale(${devicePixelRatio * 2})`
-    return sprite
-  },
-
-  iconDataUrls: { [id: string]: string } = {},
-
-  resourceIconDataUrl = (name: string) => {
-    if (!iconDataUrls[name])
-      iconDataUrls[name] = resourceIcon(name).toDataURL()
-    return iconDataUrls[name]
-  },
-
-  constructHexFilter = (...color: string[]) => constructFilter(
-    [hexToRgb(color[0] ?? "#f00"),
-    hexToRgb(color[1] ?? "#0f0"),
-    hexToRgb(color[2] ?? "#00f")]),
-
-  spriteOf = (a: Agent) => sprites[a.race?.sprite]
-
-
-const spriteCacheData: { [id: string]: HTMLCanvasElement } = {}

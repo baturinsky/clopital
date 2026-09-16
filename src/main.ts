@@ -10,7 +10,6 @@ import { hideMenu, showButtons, showSavesMenu, updateTip } from './ui';
 import { loop, setSeed } from './util';
 import { saveAll } from './saves';
 import { audio_play, audio_create_song, music_data, audio_init } from './sonant';
-import { testTcx } from './test.tsx';
 
 
 declare var C: HTMLCanvasElement, SEED: HTMLInputElement, LAND: HTMLInputElement, Next: HTMLButtonElement;
@@ -62,5 +61,3 @@ export const
 
 
 
-
-console.log(testTcx());

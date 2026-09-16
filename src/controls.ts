@@ -130,9 +130,15 @@ export const
       resizeCanvas()
     }
 
+    let lastMousePos;
+
     C.onpointerdown = C.onpointermove = C.onpointerup = C.onpointerleave = e => {
+
       if (!u)
         return
+
+      //console.log(e.type);
+      
       let canvasMousePos = [e.offsetX, e.offsetY] as Vec2;
       let photoMousePos = sub(scale(canvasMousePos, 1 / state.scale), state.topLeftAt);
       let worldMousePos = [photoMousePos[0] / photoScale[0], photoMousePos[1] / photoScale[1]]
@@ -141,10 +147,16 @@ export const
       let tilePointed = floor(worldMousePos[0]) + floor(worldMousePos[1] - .1) * ww + (floor(worldMousePos[0]) < 0 ? ww : 0)
 
       shift = e.shiftKey
+      let mousePos = [e.clientX, e.clientY] as Vec2;
 
       if (e.type == "pointermove") {
+        /*console.log("nn", JSON.stringify(buttonsDown));
+        console.log("em", e.movementX, e.movementY);*/
+        lastMousePos ??= mousePos;
         if (buttonsDown[0] || buttonsDown[1]) {
-          let delta = [e.movementX, e.movementY] as Vec2;
+          let delta = sub(mousePos, lastMousePos) as Vec2;
+          //delta = [e.movementX, e.movementY]
+          console.log(delta);
           shiftViewBy(delta);
         } else {
           if (u.c[tilePointed]?.seen && !e.shiftKey) {
@@ -156,10 +168,12 @@ export const
         }
       }
 
+      lastMousePos = mousePos;
+
       if (e.type == "pointerdown") {
 
-
         buttonsDown[e.button] = 1;
+
         if (e.button == 0) {
 
           let a = pointedCell()?.a
@@ -247,7 +261,7 @@ onkeydown = e => {
 
   }
 
-  let k = e.code.substring(5);
+  let k = Number(e.code.substring(5));
   if (k > 0 && k < 6) {
     state.tab = k - 1;
     select()
