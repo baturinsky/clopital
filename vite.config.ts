@@ -1,12 +1,13 @@
 import { defineConfig, UserConfig } from 'vite';
 import { roadrollerPlugin } from "js13k-vite-plugins";
 import { viteSingleFile } from "vite-plugin-singlefile"
-
+import plainText from 'vite-plugin-plain-text';
 
 export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
 
   return {
     plugins: [
+      plainText([/\.md$/]),
       ...mode == "min"?[roadrollerPlugin()]:[viteSingleFile()]
     ],
     base: '',

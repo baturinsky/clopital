@@ -1,4 +1,4 @@
-import { clamp, debounce, floor, loop, objMap, scale, sub, sum, Vec2 } from "./util";
+import { clamp, debounce, floor, loop, objMap, repeat, scale, sub, sum, Vec2 } from "./util";
 import { neighborhood, photoScale, worldCoord, ww } from "./root";
 import { debouncedPrerender, pointedCell, queen, queenCell, select, selected, state, update } from "./state";
 import { u } from "./universe";
@@ -55,7 +55,9 @@ export const
             generateUniverse()
             select(queen())
             hideMenu()
-            loop(10, nextTurn)
+            nextTurn()
+            //nextTurn()
+            //loop(3, ()=>queen().nextTurn())
             select(queen())
             update({ turn: 1 })
           }, 10)
@@ -105,7 +107,7 @@ export const
       }
 
       if (data.recipe) {
-        selected().useRecipe({ place: selected(), recipe: JSON.parse(data.recipe) })
+        selected().useRecipe({ place: selected(), recipe: JSON.parse(data.recipe.replaceAll("`",`"`)) })
         select()
       }
 
@@ -156,7 +158,6 @@ export const
         if (buttonsDown[0] || buttonsDown[1]) {
           let delta = sub(mousePos, lastMousePos) as Vec2;
           //delta = [e.movementX, e.movementY]
-          console.log(delta);
           shiftViewBy(delta);
         } else {
           if (u.c[tilePointed]?.seen && !e.shiftKey) {

@@ -11,15 +11,23 @@ body {
   color: #400;
 }
 
+#INFO {
+  max-width: 400px;
+}
+
+#INFO pnl {
+  min-width: 400px;
+}
+
+
 #TIP,
 #INFO {
   position: absolute;
   top: -10px;
-  max-width: 340px;
   height: 100vh;
   pointer-events: none;
   user-select: none;
-  
+
 }
 
 #TIP {
@@ -32,7 +40,6 @@ body {
   margin: 5px;
   border: #4004 solid;
   border-width: 2px 4px;
-  min-width: 330px;
   max-height: 70vh;
   overflow-y: auto;
   overflow-x: hidden;
@@ -40,6 +47,7 @@ body {
   text-align: center;
 }
 
+/** Tab select buttons */
 .ptl {
   margin-bottom: -24px;
   font-size: 80%;
@@ -86,13 +94,14 @@ button.h {
   background: #fff;
 }
 
-button:active{
+button:active {
   box-shadow: 0 0 10px #fff;
   transform: scale(1.2);
 }
 
 
 .icon .img canvas {
+  position: relative;
   margin: 0 0 0 3px;
   transform: scale(1.5) translateY(1px);
   filter: drop-shadow(1px 1px);
@@ -105,6 +114,7 @@ button:active{
   white-space: nowrap;
 }
 
+/** Tooltip */
 .ttx {
   visibility: hidden;
   position: absolute;
@@ -116,19 +126,19 @@ button:active{
 }
 
 
-
-.good,
-button {
-}
-
 .abtn {
   text-align: center;
 }
 
-.abtn button{
+.abtn button {
   padding-bottom: 5px;
 }
 
+
+.CS {
+  display: flex;
+  flex-direction: row;
+}
 
 .tc {
   columns: 2;
@@ -149,17 +159,13 @@ td {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
+  max-height: 100vh;
 }
 
 #X {
   position: absolute;
   right: 0;
   top: 0;
-}
-
-button *[data-icon] canvas {
-  padding: 5px;
-  pointer-events: none;
 }
 
 #INFO.u>*:first-child {
@@ -196,8 +202,7 @@ input {
   }
 }
 
-.grow-shrink-animation
-{
+.grow-shrink-animation {
   animation: .3s infinite alternate;
   animation-name: grow-shrink;
 }

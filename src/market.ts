@@ -5,7 +5,7 @@ import { consumerGoods, tradeables } from "./resources";
 import { neighborBy } from "./root";
 import { iterationsPerTurn } from "./setting";
 import { queen, state } from "./state";
-import { addToKey, bestBy, clamp, listSum, numTween, objAdd, objFilter, objForEach, objMap, objScale, objScaleI, objScaleIR, rng, vecTween, worstBy } from "./util";
+import { addToKey, bestBy, clamp, listSum, numTween, objAdd, objFilter, objForEach, objMap, objScale, objScaleI, objScaleIR, repeat, rng, vecTween, worstBy } from "./util";
 
 const FASTRECIPEPICK = false;
 
@@ -15,16 +15,30 @@ const loop = <T>(l: number, f: (i: number) => T) => [...new Array(l)].map((v, i)
 export type GoodNumbers = { [id in string]: number };
 export type Transfer = [MarketAgent, string, number]
 
-const utilityBase = 0.9, utilityBaseLog = Math.log(utilityBase), DEFAULT_STOCK_CAP = 1e24
+const
+  utilityBase = 0.93,
+  utilityBaseLog = Math.log(utilityBase),  
+  DEFAULT_STOCK_CAP = 1e24
 
 /** Cached marginal utility numbers */
-const marginalUtilityLookup = loop(100000, n => 1e6 * Math.pow(utilityBase, n))
+const marginalUtilityLookup:number[] = []
 
-const distanceTax = .001, happinessGainMultiplier = 15, consumerGoodsHappiness = 3
+for (let i = 0; i < 1e5; i++) {
+  let v = 1e3 * Math.pow(utilityBase, i)
+  if (!v)
+    break;
+  marginalUtilityLookup[i] = v;
+}
+
+const marginalUtilityLookupSize = marginalUtilityLookup.length; 
+
+console.log(marginalUtilityLookupSize);
+
+const distanceTax = .005, happinessGainMultiplier = 15, consumerGoodsHappiness = 3
 
 export const
   marginalUtility = (amount: number) =>
-    amount > 100000 ? 0 : marginalUtilityLookup[~~amount],
+    amount > marginalUtilityLookupSize ? 0 : marginalUtilityLookup[~~amount],
   totalUtility = (amount: number) =>
     (utilityBase ** amount - 1) / utilityBaseLog,
   totalStockUtility = (agent: MarketAgent) =>
@@ -66,23 +80,28 @@ export class MarketAgent {
   /** To tell agents apart */
   name!: string
 
-  /** Ways of convert one goods into the others */
-  //recipes: GoodNumbers[] = []
-
+  /** Ways of convert one goods into the others, and where (locally, or on one of the hexes nearby) */
   recipes: RecipeX[] = []
+
   ownRecipes: GoodNumbers[] = []
   places: MarketAgent[] = []
 
+  /** History of the  */
   transfers = [] as RecipeX[]
 
   /** How much of this good market receives (or loses) per day, per size  */
   income: GoodNumbers = {}
 
+  /** Whitelist of what this agent would trade away */
   sells?: Set<string>
+
+  /** Whitelist of what this agent would accept in trade */
   buys?: Set<string>
 
   /** How much of this good market currently has */
   stock: GoodNumbers = {}
+
+  /** Maximum value of a good in stock */
   cap: GoodNumbers = {}
 
   //trades = {} as any;
@@ -290,8 +309,9 @@ export class MarketAgent {
 
   /** Gain or lose goods */
   gain(good: string, amount: number) {
-    this.stock[good] = clamp(0, (this.stock[good] ?? 0) + ~~amount, this.size * (this.cap[good] ?? DEFAULT_STOCK_CAP));
-    if (this.stock[good] < 0)      debugger
+    this.stock[good] = clamp(0, (this.stock[good] ?? 0) + ~~amount,
+      this.size * (this.cap[good] ?? DEFAULT_STOCK_CAP));
+    if (this.stock[good] < 0) debugger
   }
 
   iterate() {

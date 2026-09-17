@@ -14,11 +14,6 @@ import { cap1, clamp, dist, japaneseName, listSum, loop, objMap, randomElement, 
 /** Scale when saving Consume rolling average */
 export const craScale = 10000;
 
-/*export const agentLocation = (a: MarketAgent) => {
-  let c = (a as Agent).cell ?? u.c[a.id]
-  return c
-}*/
-
 declare var Build: HTMLDivElement
 
 export let resAnimations = 0
@@ -30,7 +25,10 @@ export class Agent extends MarketAgent {
   steps = 0
   anim?: MovementAnimation
   happiness: number
+
+  /**Pathfinding data cache */
   _pathfindData?: { [id: string]: PathPoint }
+  /** Where pathfind data was calculated. If agent is in the other cell, it should be updated */
   _pathfindDataCell?: Cell
 
   pathfindData() {
@@ -41,6 +39,7 @@ export class Agent extends MarketAgent {
     return this._pathfindData
   }
 
+  /** If Agent is happy enough to be controlled */
   happy() {
     return this.queen() || this.happiness > 999;
   }
@@ -87,14 +86,14 @@ export class Agent extends MarketAgent {
     if (transfer.place instanceof Agent)
       path ??= transfer.place.pathTo(this.cell) as Cell[];
 
-    if(!path)
+    if (!path)
       return
     //path ??= [this.cell, transfer.place.cell]
 
     let points = path?.map(c => c.topLeft()) as Vec2[];
 
     if (points.length < 3)
-      points.push(sum(points[points.length-1], [0, 3]))
+      points.push(sum(points[points.length - 1], [0, 3]))
 
     let rev = [...points].reverse();
     stepDuration += 500 / points.length;
@@ -165,7 +164,7 @@ export class Agent extends MarketAgent {
   }
 
   totalHappinessGain() {
-    let res = Math.round(listSum(Object.values(this.happinessGain()))??0)
+    let res = Math.round(listSum(Object.values(this.happinessGain())) ?? 0)
     return res
   }
 
@@ -251,8 +250,8 @@ export class Agent extends MarketAgent {
   giftCalc(good: string, give: boolean) {
     let giver = give ? queen() : this;
     let mu = marginalUtility(this.stock[good] ?? 0)
-    let amount = Math.ceil(giver.stock[good] / 10);
-    let value = ~~(mu * amount * (give ? .9 : 1.1) / 1e6);
+    let amount = Math.ceil(giver.stock[good] / 20);
+    let value = ~~((mu * amount * (give ? .9 : 1.1))**.45);
     if (!give)
       value++;
     if (!value)

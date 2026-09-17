@@ -71,7 +71,8 @@ export const
 
       { vehicles: -1, fuel: -5, travel: 40 },
       { vehicles: -1, fuel: -5, diving: 30 },
-      { engines: -1, fuel: -5, energy: 30 },
+      { engines: -1, fuel: -10, energy: 100 },
+      { fuel: -1, energy: 3 },
       { magic: -1, fertilisers: 1 },
 
       { crafting: -1, iron: -1, tools: 3 },

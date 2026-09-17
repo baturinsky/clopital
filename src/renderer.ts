@@ -303,7 +303,7 @@ export const
       cx.lineCap = "round"
 
       for (let riverLayer of [0, 1]) {
-        cx.strokeStyle = ["#4444", "#0093F0"][riverLayer];
+        cx.strokeStyle = ["#4444", "#0af"][riverLayer];
         u.rivers.forEach(river => drawLine(
           river,
           4,

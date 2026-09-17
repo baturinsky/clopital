@@ -15,22 +15,23 @@
     "dist": "npm run min && npm run noexif && npm run packfli"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2",
-    "esbuild": "^0.17.14",
-    "vite-plugin-top-level-await": "^1.6.0",
-    "vite-plugin-wasm": "^3.5.0",
     "@faffweasel/strip-metadata": "^0.1.0",
     "@kitajs/ts-html-plugin": "^4.1.4",
     "@ts-docs/jsx-to-str": "^0.1.11",
     "bestzip": "^3.0.2",
+    "concurrently": "^8.2.2",
+    "esbuild": "^0.17.14",
     "htm": "^3.1.1",
     "is-mobile": "^5.0.0",
     "js13k-vite-plugins": "^1.0.4",
     "node-unrar-js": "^2.0.2",
     "vite": "^7.1.9",
     "vite-plugin-glsl": "^1.5.3",
-    "vite-plugin-singlefile": "^2.3.0"
+    "vite-plugin-singlefile": "^2.3.0",
+    "vite-plugin-top-level-await": "^1.6.0",
+    "vite-plugin-wasm": "^3.5.0"
   },
   "dependencies": {
+    "vite-plugin-plain-text": "^1.4.2"
   }
 }

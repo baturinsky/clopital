@@ -43,6 +43,7 @@ export const
   },
   hexToRgb = (h: string) => [1, 2, 3, 4].map(i => (parseInt(h[i] ?? "f", 16)) / 15) as RGBA,
   loop = <T>(l: number, f: (i: number) => T) => [...new Array(l)].map((v, i) => f(i)),
+  repeat = <T>(l: number, f: (i: number) => T) => [...new Array(l)].forEach((v, i) => f(i)),
   bestBy = <T, V>(list: T[], evaluator: (v: T) => V = (a: any) => a) =>
     list.reduce((best, k) => {
       let v = evaluator(k);

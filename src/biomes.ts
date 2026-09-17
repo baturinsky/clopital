@@ -42,7 +42,7 @@ export const biomesByNames = {
     habitability: 0
   },
   desert: {
-    color: "#f80",
+    color: "#fd0",
     prop: DUNES,
     travel: 2,
     habitability: 1,
@@ -67,7 +67,7 @@ export const biomesByNames = {
     soil: 2
   },
   steppe: {
-    color: "#af2",
+    color: "#ce2",
     prop: GRASS,
     travel: 1,
     habitability: 2,
@@ -86,7 +86,7 @@ export const biomesByNames = {
     trees: 2
   },
   forest: {
-    color: "#0a0",
+    color: "#4a4",
     prop: TREE,
     travel: 2,
     habitability: 2,
@@ -96,7 +96,7 @@ export const biomesByNames = {
     trees: 3
   },
   plains: {
-    color: "#2c0",
+    color: "#7f0",
     prop: GRASS,
     travel: 1,
     habitability: 2,
@@ -115,7 +115,7 @@ export const biomesByNames = {
     special: { sugarcane: 3 },
   },
   jungles: {
-    color: "#060",
+    color: "#0b0",
     prop: PALM,
     travel: 4,
     habitability: 1,
@@ -135,7 +135,7 @@ export const biomesByNames = {
     soil: 1
   },
   sea: {
-    color: "#04c",
+    color: "#0af",
     prop: WAVES,
     seaTravel: 1,
     habitability: 0,
@@ -144,7 +144,7 @@ export const biomesByNames = {
     deepwater: 1
   },
   ocean: {
-    color: "#03b",
+    color: "#08e",
     prop: WAVES,
     seaTravel: 2,
     habitability: 0,

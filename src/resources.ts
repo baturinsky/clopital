@@ -35,7 +35,7 @@ export const
     ore: [83, "#00f,,#008"],
     coal: [83, "#000"],
     iron: [84, "#888,"],
-    copper: [84, "#f80,"],
+    copper: [84, "#f80,#fff,#fff"],
     //huts: [84, "#800,"],
     salt: [83, "#fff,,#aaa"],
     trees: FIR,
@@ -48,6 +48,7 @@ export const
 
     travel: [100, "#00f"],
     walk: [100, "#fff"],
+    //walkFar: [100, "#f80"],
     horseshoes: [100, "#666"],
     diving: [100, "#048"],
 
@@ -65,7 +66,7 @@ export const
     fuel: [93, ",,#0f0"],
     cotton: [82, "#fff"],
     apples: [99, "#f00"],
-    pearls: [114, "#aaa"],
+    pearls: [114, "#ddd"],
 
     vehicles: 116,
     beds: [117, "#a40,,#fff"],
@@ -77,7 +78,6 @@ export const
 
     happiness: 95,
 
-    walkFar: [100, "#f80"],
     /*flyingFar: [101, "#f80"],
     swimmingFar: [102, "#f80"],*/
 
@@ -106,6 +106,9 @@ export const
 
     engines: [92, "#444"],
     electronics: [92, "#0a0"],
+
+    walkFar: [120, "#f80"],
+    time: [120, "#fff"],
 
     tab0: 80,
     tab1: [91, "#fca"],

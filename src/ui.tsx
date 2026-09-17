@@ -6,11 +6,20 @@ import { saveTitlePrefix } from "./saves";
 import { resourceIcon, resourceIconDataUrl } from "./sprites";
 import { tabs, state, pointedCell, queen, selected } from "./state";
 import { u } from "./universe";
+import { plainText as changelog } from "../changelog.md"
 import { cap1, clamp, debounce, dist, formatNumber, listSum, loop, objFilter, objMap, objScale, objStripFalsy, removeDuplicates, RGBA } from "./util";
+
+console.log(changelog);
+
+const specialTags = {
+  icon: (prop: { of: string, tip?: string }) => icon(prop.of, prop.tip)
+} as { [id: string]: (prop: any) => any }
 
 export function el(tag: string, args: any, ...children: string[]) {
   if (typeof tag == "function")
     return children.join('')
+  if (specialTags[tag])
+    return specialTags[tag]({ ...args, children })
   return `<${tag}${args ? Object.entries(args).map(([a, b]) => ` ${a}="${b}"`).join(" ") : ""}>${children.join('')}</${tag}>`;
 }
 
@@ -82,7 +91,7 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
 
   goodSpan = (good: any, value: number | string) =>
     <span class="good">
-      {icon(good, "notip")}
+      <icon of={good} tip="notip" />
       {formatNumber(value)}
       {ttx(good)}
     </span>,
@@ -122,21 +131,22 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
     let lines = []
 
     if (cell) {
-      lines.push(`${agentTitle(cell)}${asList(objStripFalsy(cell?.stock))}`)
+      lines.push(
+        asDivs([
+          `${agentTitle(cell)}${asList(objStripFalsy(cell?.stock))}`,
+          `${icon("time")}${asList(cell.income)}`,
+          doubleColumn(cell.ownRecipes.map(fancyRecipe))
+        ])
+      )
 
+
+      if (Object.keys(cell.uses).length)
+        lines.push(
+          ["!jobs this turn",
+            recipeUsedStats(cell)],
+        )
       cell.a.forEach(a => lines.push(agentTitle(a)))
 
-      lines.push(
-        "!income/turn",
-        asList(cell.income),
-        "!land jobs",
-        `<div class=tc>${cell.ownRecipes.map(fancyRecipe).join("</br>")}</div>`,
-        ...Object.keys(cell.uses).length ?
-          [
-            "!jobs this turn",
-            recipeUsedStats(cell)] : [],
-
-      )
       //lines.push(asList(objStripFalsy(cell.resources)))
     }
 
@@ -172,8 +182,10 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
           doubleColumn(agent.ownRecipes.map(
             r => {
               let uses = selected().recipeUseMultiplier({ place: selected(), recipe: r })
+              let retext = JSON.stringify(r).replaceAll('"', "`")
+              //console.log(retext);
               return (selected().happy() && uses > 0 ?
-                <button data-recipe={JSON.stringify(r)}>{fancyRecipe(objScale(r, uses))}</button> :
+                <button data-recipe={retext}>{fancyRecipe(objScale(r, uses))}</button> :
                 fancyRecipe(r)) as string
             }
           ))
@@ -234,6 +246,7 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
         canTake = agent.stock[name] && take[1] && agent.happy(),
         canGive = queen().stock[name] && give[1]
 
+
       if (canGive)
         tableGive.push([
           `${give[0]}/${queen().stock[name]}${icon(name)}→${asList({ happiness: give[1] })
@@ -279,9 +292,13 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
                 <button data-x={i}>X</button>,
                 localStorage[saveTitlePrefix + i]] : []
           ]
-        ))
-        }
-      </>
+        ))}
+        <h4>CHANGELOG</h4>
+        <pre>
+{changelog}</pre>
+
+      </>,
+
 
     )
   }

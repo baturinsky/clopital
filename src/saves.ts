@@ -5,7 +5,7 @@ import { races } from "./setting"
 import { state, select, queen, selected } from "./state"
 import { updateTip } from "./ui"
 import { u } from "./universe"
-import { GoodNumbers } from "./market"
+import { GoodNumbers, RecipeX } from "./market"
 import { objFilter, objMap } from "./util"
 
 declare const DEBUG: boolean
@@ -21,6 +21,7 @@ type AgentSaveFormat = {
   consumed: any,
   //happinessG: any,
   race: string
+  transfers: { place: string, recipe: GoodNumbers }[]
   stock: GoodNumbers
   seen: boolean
   uses: GoodNumbers
@@ -78,7 +79,12 @@ export const
 
       data.s.forEach((v, i) => u.c[i].seen = !!v)
 
-      setTimeout(()=>select(selected()),20)
+      setTimeout(() => select(selected()), 20)
+
+      for (let a of u.a) {
+        a.transfers = a.transfers?.map(loadRecipeX) ?? []
+      }
+
 
       return true;
     }
@@ -106,7 +112,8 @@ export const
         ...saveAsIs(v),
         dest: v.dest?.at,
         cell: v.cell.at,
-        race: v.race.name
+        race: v.race.name,
+        transfers: v.transfers?.map(saveRecipeX)
       }
         : {}
     }
@@ -123,6 +130,21 @@ export const
         cell: u.c[v.cell as number],
         dest: u.c[v.dest as any],
         race: races[v.race as string],
+        transfers: v.transfers
       } : {}
     } as Partial<Agent>)
-  }
+  },
+
+  agentToId = (a: Agent | Cell) => a instanceof Agent ? "a" + u.a.indexOf(a) : "c" + a.at,
+
+  idToAgent = (id: string) => {
+    let a = (id.charAt(0) == "a" ? u.a : u.c)[id.slice(1) as any as number]
+    if (a == undefined)
+      debugger
+    return a
+  },
+
+  saveRecipeX = (r: RecipeX) => ({ place: agentToId(r.place), recipe: r.recipe }),
+
+  loadRecipeX = (r: { place: any, recipe: GoodNumbers }) =>
+    ({ place: idToAgent(r.place), recipe: r.recipe })

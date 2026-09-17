@@ -16,3 +16,7 @@ declare namespace JSX {
     children: {}; // The prop name used for children
   }
 }
+
+declare module '*.md' {
+    export const plainText: string
+}

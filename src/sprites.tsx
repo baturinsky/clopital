@@ -63,17 +63,16 @@ export const iconDataUrls: { [id: string]: string } = {},
     return iconDataUrls[name]
   },
 
-  constructHexFilter = (...color: string[]) => constructFilter(
+  hexToRGBATransform = (...color: string[]) => 
     [hexToRgb(color[0] ?? "#f00"),
     hexToRgb(color[1] ?? "#0f0"),
-    hexToRgb(color[2] ?? "#00f")]),
+    hexToRgb(color[2] ?? "#00f")] as RGBA[],
 
   spriteOf = (a: Agent) => sprites[a.race?.sprite],
 
   safariRecolor = (rgbReplace: RGBA[]) => {
     let name = JSON.stringify(rgbReplace)
     if (!filters[name]) {
-      console.log(rgbReplace);
       filters[name] = (c: HTMLCanvasElement) => {
         let cx = c.getContext("2d") as CanvasRenderingContext2D,
           imageData = cx.getImageData(0, 0, c.width, c.height),
@@ -121,10 +120,9 @@ export const iconDataUrls: { [id: string]: string } = {},
     return filters[name]
   },
 
-  spriteCache = (ind: number, filter?: CanvasFilter) => {
-    //console.log(ind, filter);
-    let n = `${ind}@${filter}`;
-    spriteCacheData[n] ??= atlasSprite(ind, filter);
+  spriteCache = (ind: number, rgbReplace?: RGBA[]) => {
+    let n = `${ind}@${rgbReplace}`;
+    spriteCacheData[n] ??= atlasSprite(ind, rgbReplace && constructFilter(rgbReplace));
     return spriteCacheData[n];
   },
 
@@ -139,28 +137,21 @@ export const iconDataUrls: { [id: string]: string } = {},
    * If it is number @ text, returns filtered sprite */
   resourceIcon = (name: string): HTMLCanvasElement => {
 
-    let sprite: HTMLCanvasElement, split = name.split("@") as [number, string];
+    let sprite: HTMLCanvasElement;
 
-    if (split[0] * 0 == 0) {
-      sprite = spriteCopy(spriteCache(...split))
-    } else {
-      if (DEBUG) {
-        if (!resources[name])
-          console.log("!" + name);
-      }
-      let r = resources[name] ?? resources["unknown"];
-      r.sc ??= spriteCache(
-        r.s,
-        r.c && constructHexFilter(...r.c))
-
-      sprite = spriteCopy(r.sc)
+    if (DEBUG) {
+      if (!resources[name])
+        console.log("!" + name);
     }
+    let r = resources[name] ?? resources["unknown"];
+    r.sc ??= spriteCache(
+      r.s,
+      r.c && hexToRGBATransform(...r.c))
+
+    sprite = spriteCopy(r.sc)
     //sprite.style.transform = `scale(${devicePixelRatio * 2})`
     return sprite
   }
-
-
-
 
 
 const spriteCacheData: { [id: string]: HTMLCanvasElement } = {}

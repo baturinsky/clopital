@@ -12,6 +12,7 @@
     "jsxFactory": "el",
     "jsxFragmentFactory": "el",
 
+    "rewriteRelativeImportExtensions":true,
     "allowImportingTsExtensions": true
 
   },
