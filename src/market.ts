@@ -24,7 +24,8 @@ const
 const marginalUtilityLookup:number[] = []
 
 for (let i = 0; i < 1e5; i++) {
-  let v = 1e3 * Math.pow(utilityBase, i)
+  //let v = 1e3 * Math.pow(utilityBase, i)
+  let v = 1e3 / (100 + i)
   if (!v)
     break;
   marginalUtilityLookup[i] = v;
@@ -44,7 +45,7 @@ export const
   totalStockUtility = (agent: MarketAgent) =>
     listSum(Object.keys(agent.stock).map(k => totalGoodUtility(agent, k))),
   totalGoodUtility = (agent: MarketAgent, good: string) =>
-    totalUtility(~~((agent.stock[good] ?? 0) / agent.size)),
+    totalUtility(~~((agent.stock[good] ?? 0) / agent.sizeFactor)),
   //recipeXName = (r: RecipeX) => `${r.place.id ?? ""}@${JSON.stringify(r.recipe)}`,
   reportRecipeStats = (a: Agent) => {
     console.log(`${a.name} used recipes:\n`);
@@ -73,6 +74,11 @@ export class MarketAgent {
 
   size = 1
   iterations = 0
+
+  /** At what amount of resource it can be consumed */
+  get consumeIfAbove(){
+    return this.size
+  }
 
   /** over how many turns we calculate rolling average */
   ravg = 100
@@ -107,20 +113,17 @@ export class MarketAgent {
   //trades = {} as any;
 
   consumed = {} as any;
+
   /** Happiness gained */
-  happinessG = {} as any
+  happinessGained = {} as any
 
-  /** Resources which agent does not use themselves, 
-   * so they will be given to worker if this agent is proxied */
-  //out!: Set<string>
+  get sizeFactor(){
+    //return 100 + this.size
+    return 1
+  }
 
-  /** Consume rolling average */
-  //cra = {} as any
-  //id: number
 
   constructor(params: MarketAgentParameters = {}) {
-    //this.id = params.id ?? ++state.lastId
-    //this.minit(params)
   }
 
   /** Init market parameters */
@@ -145,8 +148,8 @@ export class MarketAgent {
    * If working in worlplace, use the sum of stock
   */
   mutil(good: string, place?: MarketAgent, travelPerUnit = 0) {
-    let v = marginalUtility(this.common(good, place) / this.size) -
-      (travelPerUnit ? marginalUtility((this.stock.travel ?? 0) / this.size) * travelPerUnit : 0)
+    let v = marginalUtility(this.common(good, place) / this.sizeFactor) -
+      (travelPerUnit ? marginalUtility((this.stock.travel ?? 0) / this.sizeFactor) * travelPerUnit : 0)
     return v
   }
 
@@ -310,7 +313,7 @@ export class MarketAgent {
   /** Gain or lose goods */
   gain(good: string, amount: number) {
     this.stock[good] = clamp(0, (this.stock[good] ?? 0) + ~~amount,
-      this.size * (this.cap[good] ?? DEFAULT_STOCK_CAP));
+      this.cap[good] ?? DEFAULT_STOCK_CAP);      
     if (this.stock[good] < 0) debugger
   }
 
@@ -330,7 +333,7 @@ export class MarketAgent {
       if (v == 0)
         return
       if (v < 0) {
-        if ((this.stock[good] ?? 0) < this.size - v)
+        if ((this.stock[good] ?? 0) < this.consumeIfAbove - v)
           return
         addToKey(this.consumed, good, -v);
       }
