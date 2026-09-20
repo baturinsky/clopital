@@ -23,13 +23,17 @@ export function el(tag: string, args: any, ...children: string[]) {
   return `<${tag}${args ? Object.entries(args).map(([a, b]) => ` ${a}="${b}"`).join(" ") : ""}>${children.join('')}</${tag}>`;
 }
 
-declare var TIP: HTMLDivElement, INFO: HTMLDivElement, MID: HTMLDivElement, BTN: HTMLDivElement;
+declare var TIP: HTMLDivElement, INFO: HTMLDivElement, MID: HTMLDivElement, BTN: HTMLDivElement, CHANGELOG: HTMLDivElement;
 
 export let menuOn = false;
 
-export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
+CHANGELOG.innerHTML = <>
+  <h4>CHANGELOG</h4>
+  {changelog.replaceAll("\n", "<br/>")}
+</> as string;
 
-  //tabs = ["jobs", "gifts", "possible", "income", "trades"],
+
+export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
 
   showButtons = () => {
     BTN.innerHTML =
@@ -51,7 +55,6 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
     buf.id = div.id;
     drawIcons(buf);
     div.parentElement?.replaceChild(buf, div);
-    //drawIcons();
   },
 
   agentButtons = () => {
@@ -134,17 +137,17 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
       lines.push(
         asDivs([
           `${agentTitle(cell)}${asList(objStripFalsy(cell?.stock))}`,
-          `${icon("time")}${asList(cell.income)}`,
-          doubleColumn(cell.ownRecipes.map(fancyRecipe))
+          //`${icon("time")}${asList(cell.income)}`,
+          //doubleColumn(cell.ownRecipes.map(fancyRecipe))
         ])
       )
 
 
-      if (Object.keys(cell.uses).length)
+      /*if (Object.keys(cell.uses).length)
         lines.push(
           ["!jobs this turn",
             recipeUsedStats(cell)],
-        )
+        )*/
       cell.a.forEach(a => lines.push(agentTitle(a)))
 
       //lines.push(asList(objStripFalsy(cell.resources)))
@@ -267,12 +270,14 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
 
   hideMenu = () => {
     menuOn = false;
+    CHANGELOG.innerHTML = ""
     updateDiv(Mid,
       `Turn: ${state.turn} Friends: ${u.a.filter(u => u.happy()).length - 1}/${u.a.length}<br/> World Happiness: ${listSum(u.a, a => a.happiness)}${icon("happiness")}`)
   },
 
   showSavesMenu = () => {
     menuOn = true;
+
     updateDiv(Mid,
       <>
         <h1>Clopital</h1>
@@ -293,10 +298,6 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
                 localStorage[saveTitlePrefix + i]] : []
           ]
         ))}
-        <h4>CHANGELOG</h4>
-        <pre>
-{changelog}</pre>
-
       </>,
 
 

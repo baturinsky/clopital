@@ -4,18 +4,20 @@ import { asArray, objMap } from "./util";
 export const
   convertResources = (raw: any) => {
     raw = asArray(raw);
-    return { s: raw[0], c: raw[1]?.split(",") }
+    return { 
+      spriteAtlasInd: raw[0], 
+      hexColor: raw[1] }
   },
 
-  jobs = ["working","workingHard","digging"],
+  jobs = ["working", "workingHard", "digging"],
 
   //moving = ["walking", "flying", "swimming"],
 
   minerals = ["oil", "gems", "iron", "copper", "stone", "coal", "pearls"],
-  
+
   plants = ["cotton", "rubber"],
 
-  food = ["grass", "seaweed", "wheat", "sugarcane", "apples", "honey", "bread", "jam", "cacao", "chocolate","pie"],
+  food = ["grass", "seaweed", "wheat", "sugarcane", "apples", "honey", "bread", "jam", "cacao", "chocolate", "pie"],
 
   items = ["fertilisers", "gems", "tools", "lumber", "engines", "fabric", "hats", "iron", "beds", "fuel"],
 
@@ -97,11 +99,11 @@ export const
     cooking: [96, "#fff"],
     fertilisers: [89, "#620,#220"],
     sugar: [89, "#fff,#aaa"],
-    thinking: [91, "#fca"],
+    thinking: [91, "#fca,#fca,#000"],
     //spelunking: [91, "#006"],
     digging: 110,
 
-    fabric: [91, "#f0f"],
+    fabric: [91, "#f08,#804,#f08"],
     hats: [98, "#f0a"],
 
     engines: [92, "#444"],
@@ -111,7 +113,7 @@ export const
     time: [120, "#fff"],
 
     tab0: 80,
-    tab1: [91, "#fca"],
+    tab1: [91, "#fca,#fca,#440"],
     tab2: 95,
     tab3: 115,
     tab4: 119,
@@ -122,12 +124,12 @@ export const
   }, convertResources) as {
     [key: string]: {
       /**sprite */
-      s: number
+      spriteAtlasInd: number
       /** color */
-      c?: string[],
-      sc?: HTMLCanvasElement
+      hexColor: string,
+      canvas?: HTMLCanvasElement
     }
   }
 
 
-  //console.log(jobs,food,items,majorNeeds);
+//console.log(jobs,food,items,majorNeeds);

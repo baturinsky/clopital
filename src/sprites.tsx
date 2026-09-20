@@ -63,14 +63,17 @@ export const iconDataUrls: { [id: string]: string } = {},
     return iconDataUrls[name]
   },
 
-  hexToRGBATransform = (...color: string[]) => 
-    [hexToRgb(color[0] ?? "#f00"),
+  hexToRGBATransform = (...color: string[]) => {
+    let r = [hexToRgb(color[0] ?? "#f00"),
     hexToRgb(color[1] ?? "#0f0"),
-    hexToRgb(color[2] ?? "#00f")] as RGBA[],
+    hexToRgb(color[2] ?? "#00f")] as RGBA[]
+    return r
+  },
 
   spriteOf = (a: Agent) => sprites[a.race?.sprite],
 
   safariRecolor = (rgbReplace: RGBA[]) => {
+    rgbReplace.push([0, 0, 0, 1])
     let name = JSON.stringify(rgbReplace)
     if (!filters[name]) {
       filters[name] = (c: HTMLCanvasElement) => {
@@ -81,10 +84,9 @@ export const iconDataUrls: { [id: string]: string } = {},
         for (let i = 0; i < buffer.length; i += 4) {
           let colors = [0, 0, 0, 0], slice = buffer.slice(i, i + 4);
           slice.forEach(
-            (s, channel) => (rgbReplace[channel] ?? [0, 0, 0, 1]).
-              forEach((v, j) => colors[j] += clamp(0, v * s, 255))
+            (s, channel) => rgbReplace[channel].
+              forEach((v, j) => colors[j] = clamp(0, colors[j] + v * s, 255))
           )
-          colors[3] = slice[3];
           buffer.set(colors, i)
         }
         let [newCanvas, newContext] = canvasElementAndContext(c.width, c.height);
@@ -122,7 +124,7 @@ export const iconDataUrls: { [id: string]: string } = {},
 
   spriteCache = (ind: number, rgbReplace?: RGBA[]) => {
     let n = `${ind}@${rgbReplace}`;
-    spriteCacheData[n] ??= atlasSprite(ind, rgbReplace && constructFilter(rgbReplace));
+    spriteCacheData[n] ??= atlasSprite(ind, rgbReplace ? constructFilter(rgbReplace) : undefined);
     return spriteCacheData[n];
   },
 
@@ -144,11 +146,12 @@ export const iconDataUrls: { [id: string]: string } = {},
         console.log("!" + name);
     }
     let r = resources[name] ?? resources["unknown"];
-    r.sc ??= spriteCache(
-      r.s,
-      r.c && hexToRGBATransform(...r.c))
+    r.canvas ??= spriteCache(
+      r.spriteAtlasInd,
+      r.hexColor ? hexToRGBATransform(...r.hexColor.split(",")) : undefined
+    )
 
-    sprite = spriteCopy(r.sc)
+    sprite = spriteCopy(r.canvas)
     //sprite.style.transform = `scale(${devicePixelRatio * 2})`
     return sprite
   }

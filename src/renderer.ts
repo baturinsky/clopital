@@ -198,7 +198,7 @@ export const
     }
   },
   centerOn = (cell: Cell) => {
-    let targetTLA = sum(scale(cell.center(), -1), [innerWidth, innerHeight], .5 / state.scale)
+    let targetTLA = sum(scale(cell.center(), -1), [innerWidth-400, innerHeight], .5 / state.scale)
     if (dist(targetTLA, state.topLeftAt) > 50)
       update({ targetTLA })
   },

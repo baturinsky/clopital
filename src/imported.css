@@ -1,46 +1,62 @@
 body {
-  background: #024;
+  background: #012;
   overflow: hidden;
 }
 
 * {
   border: 0;
   margin: 0;
-  font-family: monospace;
+  font-family: 'Courier New', Courier, monospace;
   font-size: 18px;
-  color: #400;
+  --side-menu-width: 400px;
+}
+
+#MAIN {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: stretch;
+  pointer-events: none;
 }
 
 #INFO {
-  max-width: 400px;
+  max-width: var(--side-menu-width);
+  background: #0848;
+  max-height: 100vh;
+  border-left: #4004 solid;
+  color:#fff;
 }
 
 #INFO pnl {
-  min-width: 400px;
+  min-width: var(--side-menu-width);
 }
 
 
-#TIP,
 #INFO {
-  position: absolute;
-  top: -10px;
-  height: 100vh;
+  height: 100%;
   pointer-events: none;
   user-select: none;
-
 }
 
 #TIP {
+  position: fixed;
+  left: 0;
+  top: 0;
   pointer-events: none;
+  color: #fff;
 }
 
 .pnl {
-  background: #fffa;
+  /*background: #fffa;
+  border: #4004 solid;*/
   padding: 10px 2px;
   margin: 5px;
-  border: #4004 solid;
   border-width: 2px 4px;
-  max-height: 70vh;
+  max-height: 80%;
   overflow-y: auto;
   overflow-x: hidden;
   pointer-events: all;
@@ -49,24 +65,23 @@ body {
 
 /** Tab select buttons */
 .ptl {
-  margin-bottom: -24px;
   font-size: 80%;
-  text-align: right;
   padding: 0 10px;
 }
 
 #TIP {
-  right: 0;
-}
-
-#INFO {
   left: 0;
 }
 
+#INFO {
+  right: 0;
+}
+
+/** Main buttons */
 #BTN {
   position: fixed;
   bottom: 5px;
-  right: 5px;
+  right: calc(var(--side-menu-width) + 10px);
   text-align: right;
   pointer-events: none;
 }
@@ -91,7 +106,7 @@ button {
 
 button:hover,
 button.h {
-  background: #fff;
+  background: #bbb;
 }
 
 button:active {
@@ -104,12 +119,13 @@ button:active {
   position: relative;
   margin: 0 0 0 3px;
   transform: scale(1.5) translateY(1px);
-  filter: drop-shadow(1px 1px);
+  filter: drop-shadow(1px 1px #0008);
   pointer-events: all;
 }
 
 .good:hover .ttx,
 .icon:hover .ttx {
+  color: #400;
   visibility: visible;
   white-space: nowrap;
 }
@@ -126,8 +142,10 @@ button:active {
 }
 
 
+/** Tab switching buttons */
 .abtn {
   text-align: center;
+  background: #fffa;
 }
 
 .abtn button {
@@ -147,19 +165,25 @@ button:active {
 
 table {
   margin: auto;
+  color: #fff;
 }
 
 td {
   text-align: center;
 }
 
-
-#MID {
+#CHANGELOG {
   position: fixed;
   top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  max-height: 100vh;
+  left: 0;
+  max-width: 500px;
+  color: #fff;
+}
+
+#MID {
+  width: 100%;
+  color: #fff;
+  text-shadow: 1px 1px #000;
 }
 
 #X {
