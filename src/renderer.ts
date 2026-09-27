@@ -47,7 +47,7 @@ let worldPhoto: HTMLCanvasElement,
   dt = 1,
   lastT = Date.now();
 
-declare var DEFS: SVGElement, C: HTMLCanvasElement, Next: HTMLButtonElement;
+declare var C: HTMLCanvasElement, Next: HTMLButtonElement;
 
 export const
   calculatePropSlots =
@@ -93,10 +93,10 @@ export const
     if (!u)
       return requestAnimationFrame(renderLoop)
 
-    if (queen().maxStepsRemaining() < 1)
+    /*if (queen().maxStepsRemaining() < 1)
       Next.classList.add("grow-shrink-animation")
     else
-      Next.classList.remove("grow-shrink-animation")
+      Next.classList.remove("grow-shrink-animation")*/
 
     let t = Date.now();
     dt = t - lastT;

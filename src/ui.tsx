@@ -1,70 +1,78 @@
+//@ts-ignore
+import { plainText as changelog } from "../changelog.md"
 import { Agent } from "./agent";
 import { Cell } from "./cell";
 import { GoodNumbers, marginalUtility, MarketAgent } from "./market";
 import { tradeables } from "./resources";
 import { saveTitlePrefix } from "./saves";
 import { resourceIcon, resourceIconDataUrl } from "./sprites";
-import { tabs, state, pointedCell, queen, selected } from "./state";
+import { tabs, state, pointedCell, queen, selected, State } from "./state";
 import { u } from "./universe";
-import { plainText as changelog } from "../changelog.md"
 import { cap1, clamp, debounce, dist, formatNumber, listSum, loop, objFilter, objMap, objScale, objStripFalsy, removeDuplicates, RGBA } from "./util";
 
-console.log(changelog);
+import { h, render, Component, createRef, FunctionalComponent, JSX, createContext, Attributes, ComponentChildren, Ref } from "preact";
+import { useEffect, useRef, useState } from "preact/hooks";
+
+export let setState: (s: Partial<typeof state>) => any = (s: Partial<typeof state>) => { };
+
+export function GUI() {
+
+  let [uiState, setUIState] = useState<Partial<State>>()
+
+  setState = setUIState
+
+  return <>  <div id="BTN"></div>    
+
+    <div id="MAIN">
+      <div id="MID">
+        {changelogDiv()}
+        {state.page == "saves" ?
+          savesMenu() :
+          <div id="BTN">{buttonsDiv()}</div>
+        }
+      </div>
+      <div id="INFO"></div>
+    </div>
+  </>
+}
+
+
+
+const changelogDiv = () => <div id="CHANGELOG">
+  <h4>CHANGELOG</h4>
+  {changelog.split("\n").map(a => [a, <br />]).flat(1)}
+</div>
 
 const specialTags = {
   icon: (prop: { of: string, tip?: string }) => icon(prop.of, prop.tip)
 } as { [id: string]: (prop: any) => any }
 
-export function el(tag: string, args: any, ...children: string[]) {
-  if (typeof tag == "function")
-    return children.join('')
-  if (specialTags[tag])
-    return specialTags[tag]({ ...args, children })
-  return `<${tag}${args ? Object.entries(args).map(([a, b]) => ` ${a}="${b}"`).join(" ") : ""}>${children.join('')}</${tag}>`;
-}
-
-declare var TIP: HTMLDivElement, INFO: HTMLDivElement, MID: HTMLDivElement, BTN: HTMLDivElement, CHANGELOG: HTMLDivElement;
 
 export let menuOn = false;
 
-CHANGELOG.innerHTML = <>
-  <h4>CHANGELOG</h4>
-  {changelog.replaceAll("\n", "<br/>")}
-</> as string;
-
-
 export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
 
-  showButtons = () => {
-    BTN.innerHTML =
-      [/*"Build",*/ /*"Research",*/ "Menu", "Queen", "Next Turn"].map((v, i) =>
-        <button id={v.split(" ")[0]}>{v}</button>
-      ).join('')
+  buttonsDiv = () =>
+    ["Menu", "Queen", "Next Turn"].map((v, i) =>
+      <button id={v.split(" ")[0]}>{v}</button>
+    )
+  ,
 
-  },
+  bigDiv = (...text: any[]) => {
+    const iconsRef = useRef();
 
-  updateDiv = (slot: number, ...text: any[]) => {
-    let div = [TIP, INFO, MID][slot];
-    let buf = document.createElement("div");
-    buf.innerHTML = text.filter(v => v).
+    useEffect(() => {
+      if (iconsRef.current)
+        drawIcons(iconsRef.current);
+    }, []);
+
+    let blocks = text.filter(v => v).
       map(t =>
         t == "btn" ? agentButtons() :
           typeof t == "string" && t?.charAt(0) == "!" ? <div class="ptl">{t?.substring(1)}</div>
             : <div class={`pnl tab${state.tab}`}>{t ? t : " "}</div>
       ).join('')
-    buf.id = div.id;
-    drawIcons(buf);
-    div.parentElement?.replaceChild(buf, div);
-  },
-
-  agentButtons = () => {
-    return <div class="abtn">
-      {loop(5,
-        t => <button id={"tab" + t} class={t == state.tab ? "h" : ""}>
-          {icon("tab" + t, tabs[t])}
-        </button>
-      ).join('')}
-    </div>
+    return blocks
   },
 
   drawIcons = (div: HTMLElement) => {
@@ -76,7 +84,18 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
     }
   },
 
-  ttx = (tip: string) => tip == "notip" ? '' : `<span class=ttx>${tip}</span>`,
+
+  agentButtons = () =>
+    <div class="abtn">
+      {loop(5,
+        t => <button id={"tab" + t} class={t == state.tab ? "h" : ""}>
+          {icon("tab" + t, tabs[t])}
+        </button>
+      ).join('')}
+    </div>
+  ,
+
+  ttx = (tip: string) => tip == "notip" ? '' : <span class="ttx">{tip}</span>,
 
   iconDataUrl = (name: string, tip?: string) =>
     <span class="icon">
@@ -99,16 +118,6 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
       {ttx(good)}
     </span>,
 
-  /*drawIcons = debounce(() => {
-    requestAnimationFrame(() => {
-      let icons = document.querySelectorAll("[data-icon]") as any as HTMLElement[]
-      for (let icon of icons) {
-        let n = icon.dataset.icon
-        icon.children[0].innerHTML = ""
-        icon.children[0].appendChild(resourceIcon(n as string))
-      }
-    })
-  }, 30),*/
 
   fancyRecipe = (r: GoodNumbers) => {
     let [minus, plus] = [objFilter(r, v => v < 0), objFilter(r, v => !(v < 0))]
@@ -128,7 +137,7 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
       `<h4 data-a="${u.a.indexOf(agent)}">${icon(agent.race.name)}${agent.name}${full ? ` - ${agent.size > 1 ? agent.size : ""} ${agent.race.name} ${coloredHappiness(agent)}` : ''}</h4>` :
       `<h4 data-c="${agent.at}">${agent.name} ${agent.biome.name} ${agent.special ? `with ${agent.special}` : ''}</h4>`,
 
-  updateTip = () => {
+  tipDiv = () => {
     let cell = pointedCell()
 
     let lines = []
@@ -137,23 +146,12 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
       lines.push(
         asDivs([
           `${agentTitle(cell)}${asList(objStripFalsy(cell?.stock))}`,
-          //`${icon("time")}${asList(cell.income)}`,
-          //doubleColumn(cell.ownRecipes.map(fancyRecipe))
         ])
       )
-
-
-      /*if (Object.keys(cell.uses).length)
-        lines.push(
-          ["!jobs this turn",
-            recipeUsedStats(cell)],
-        )*/
       cell.a.forEach(a => lines.push(agentTitle(a)))
-
-      //lines.push(asList(objStripFalsy(cell.resources)))
     }
 
-    updateDiv(Tip, ...lines)
+    return lines
   },
 
   asDivs = (l: any[]) => l.map(a => <div>{a}</div>).join(''),
@@ -224,11 +222,10 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
     ]
   },
 
-
   writeHappiness = (agent: Agent) =>
     agent.queen() ? "" : <>{icon("happiness")}{agent.happiness}</>,
 
-  htmlTable = (divs: string[][]) => <table>{divs.map(line => <tr>{line.map(td => <td>{td}</td>).join('')}</tr>).join('')}</table>,
+  htmlTable = (divs: string[][]) => <table>{divs.map(line => <tr>{line.map(td => <td>{td}</td>)}</tr>)}</table>,
 
   tradeTable = (agent: Agent) => {
     if (agent.queen())
@@ -242,7 +239,7 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
 
     let res = removeDuplicates([...Object.keys(queen().stock), ...Object.keys(agent.stock)]).filter(res => tradeables.has(res))
 
-    let tableGive: any[][] = [], tableTake: string[][] = []
+    let tableGive: any[][] = [], tableTake: any[][] = []
 
     res.forEach(name => {
       let [give, take] = [agent.giftCalc(name, true), agent.giftCalc(name, false)],
@@ -259,32 +256,30 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
 
       if (canTake)
         tableTake.push([
-          <button data-take={name}>take</button> as string,
+          <button data-take={name}>take</button>,
           `${fancyRecipe({ [name]: -take[0], happiness: take[1] })}`
         ])
     })
 
-    return `${writeHappiness(agent)} (befriended at 1000)    
-    ${htmlTable([...tableGive, ...tableTake])}`
+    return <>
+      {writeHappiness(agent)} (befriended at 1000)
+      {htmlTable([...tableGive, ...tableTake])}`
+    </>
   },
 
-  hideMenu = () => {
-    menuOn = false;
-    CHANGELOG.innerHTML = ""
-    updateDiv(Mid,
-      `Turn: ${state.turn} Friends: ${u.a.filter(u => u.happy()).length - 1}/${u.a.length}<br/> World Happiness: ${listSum(u.a, a => a.happiness)}${icon("happiness")}`)
+  topInfo = () => {
+    return <>Turn: {state.turn} Friends: {u.a.filter(u => u.happy()).length - 1}/${u.a.length}<br />
+      World Happiness: {listSum(u.a, a => a.happiness)}{icon("happiness")}`</>
   },
 
-  showSavesMenu = () => {
-    menuOn = true;
-
-    updateDiv(Mid,
+  savesMenu = () => {
+    return [
       <>
         <h1>Clopital</h1>
         Seed:
         <input type="number" id="SEED" value={state.seed}></input> Land:
         <input type="range" id="LAND" value={state.land} min={1} max={7} /> <button id="New">New game</button>
-      </> as string,
+      </>,
       <>
         <h4>Saves</h4>
         {htmlTable(loop(13,
@@ -298,15 +293,6 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
                 localStorage[saveTitlePrefix + i]] : []
           ]
         ))}
-      </>,
-
-
-    )
+      </>
+    ]
   }
-
-
-/*showResearchMenu = (on = true) => {
-  menuOn = true;
-  updateDiv(Mid, "Research<button id=X>X</button>")
-}*/
-

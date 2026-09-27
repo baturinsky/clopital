@@ -1,15 +1,16 @@
 import { type Agent } from "./agent";
 import { Cell } from "./cell";
 import { centerOn, prerenderUniverse } from "./renderer";
-import { agentInfo, asList, Info, Tip, updateDiv, updateTip } from "./ui";
+import { agentInfo, Info, setState } from "./ui";
 import { u } from "./universe";
 import { cap1, clamp, debounce, fixed, japaneseName, loop, objStripFalsy, Vec2 } from "./util";
 
 declare const DEBUG: boolean
 declare var TIP: HTMLDivElement, INFO: HTMLDivElement, MID: HTMLDivElement, BTN: HTMLDivElement, Next: HTMLButtonElement;
 
-export const  tabs = ["actions done", "possible actions", "needs", "trades and land actions", "gifts"];
+export const tabs = ["actions done", "possible actions", "needs", "trades and land actions", "gifts"];
 
+type PageName = "saves" | "game";
 
 export let state = {
   scale: 4,
@@ -18,13 +19,15 @@ export let state = {
   topLeftAt: [0, 0] as Vec2,
   targetTLA: [0, 0] as Vec2,
   cellPointed: undefined as number | undefined,
+  clicked: undefined as number | undefined,
   /**index of the selected actor */
   selected: 0,
   /** current turn */
   turn: 1,
   //locked: { } as GoodNumbers,
-  tab: 0 as string|number,
-  expectation: 0
+  tab: 0 as string | number,
+  expectation: 0,
+  page: "saves" as PageName
 }
 
 
@@ -39,6 +42,7 @@ export const
     //tl[0] = clamp(-ww * .5 * photoScale[0] * state.scale, tl[0], ww * 1.8 * photoScale[0] * state.scale);
     //  tl[1] = clamp(-wh * .5 * photoScale[1] * state.scale, tl[1], wh * 1.8 * photoScale[1] * state.scale);
     state.topLeftAt = tl;
+    setState(state)
   },
   debouncedPrerender = debounce(() => prerenderUniverse()),
   pointedCell = () => u.c[state.cellPointed as any],
@@ -48,7 +52,7 @@ export const
       return;
     delete a._pathfindData
     a.pathfindData()
-    
+
     update({ selected: u.a.indexOf(a) })
     centerOn(a.cell)
 
@@ -60,9 +64,9 @@ export const
 
     //reportRecipeStats(a);
 
-    INFO.className = a.happy()?"h":"u";
+    /*INFO.className = a.happy() ? "h" : "u";
 
-    updateDiv(Info, ...agentInfo(a))
+    updateDiv(Info, ...agentInfo(a))*/
   },
   //agentPointed = () => pointedCell().a[0],
   queen = () => u?.a.find(a => a.queen()) as Agent,
@@ -72,5 +76,8 @@ export const
 
   /** Calculate loyal agents */
   updateExpectation = () => {
-    update({ expectation:  ~~(u.a.filter(a => a.village() || a.happiness > 999).length/3) })
+    update({ expectation: ~~(u.a.filter(a => a.village() || a.happiness > 999).length / 3) })
+  },
+  gotoPage = (page: PageName) => {
+    update({ page })
   }

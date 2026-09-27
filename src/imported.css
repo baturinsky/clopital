@@ -134,7 +134,7 @@ button:active {
 .ttx {
   visibility: hidden;
   position: absolute;
-  transform: translateY(-30px);
+  transform: translateY(-35px) translateX(-50%);
   z-index: 1;
   padding: 5px;
   background: #fffa;
@@ -178,12 +178,20 @@ td {
   left: 0;
   max-width: 500px;
   color: #fff;
+  text-align: left;
+}
+
+@media screen and (width <= 1500px) {
+  #CHANGELOG {
+    display: none;
+  }
 }
 
 #MID {
   width: 100%;
   color: #fff;
   text-shadow: 1px 1px #000;
+  text-align: center;
 }
 
 #X {
@@ -229,4 +237,12 @@ input {
 .grow-shrink-animation {
   animation: .3s infinite alternate;
   animation-name: grow-shrink;
+}
+
+#UI{
+  position: absolute;
+  top:0;
+  left:0;
+  width: 100vw;
+  height: 100dvh;
 }

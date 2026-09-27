@@ -1,4 +1,4 @@
-I'll  more detail later, but here is something.
+I'll add more detail later, but here is something.
 
 # Linear programming and economy
 
@@ -12,11 +12,11 @@ But at some point of making it, Linear Programming part got optimised out.
 
 # Rollup
 
-At some moment, I have hit the size limit, and start cuting features hard. I had ideas how to make buildings and research relatively cheap, but had no bytes even for simple implementations. So, I removed them and have designed around the gameplay without them.  I had even to remove the rivers.
+At some moment, I have hit the size limit, and start cuting features hard. I had ideas how to make buildings and research relatively cheap, but had no bytes even for the simple implementations. So, I removed them and have designed around the gameplay without them. I had even to remove the rivers.
 
-Then I have tried Rollup, and it saved my around 1.5 kb. Which is huge. It was too late to put back buildings and research, but it saved rivers and allowed to add a lot of small nice things.
+Then I have tried Rollup, and it saved me around 1.5 kb. Which is huge. It was too late to put back buildings and research, but it saved rivers and allowed to add a lot of small nice things.
 
-js13k-vite-plugins npm package can take care of rollup-ing code for you
+js13k-vite-plugins npm package can take care of rollup-ing code for you, though it seems to act up when I add or remove other package. So, I have removed it and replaced with AI-written rollup vite plugin, which you can see in vite config.
 
 # Art
 
@@ -32,3 +32,6 @@ My sprite sheet is 1346 bytes in webp, 1983 in gif and 3099 in png
 
 I used recolors to make various variants of the same sprites. All tiles in game is the same red tile, recolored differently. I do it, generating an SVG filter which replaced red, blue and green channels with respective  colors of choice. 
 One of the advantages of this method is that it works with CORS-protected images.
+
+Disadvantage is that it does not work in Safari. So, in post-jam version I am replacing this approach with the
+more traditional getImageData/putImageData.

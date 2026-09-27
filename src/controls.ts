@@ -1,15 +1,11 @@
-import { clamp, debounce, floor, loop, objMap, repeat, scale, sub, sum, Vec2 } from "./util";
+import { clamp, debounce, floor, len, loop, objMap, repeat, scale, sub, sum, Vec2 } from "./util";
 import { neighborhood, photoScale, worldCoord, ww } from "./root";
-import { debouncedPrerender, pointedCell, queen, queenCell, select, selected, state, update } from "./state";
+import { debouncedPrerender, gotoPage, pointedCell, queen, queenCell, select, selected, state, update } from "./state";
 import { u } from "./universe";
-import { generateUniverse, nextTurn, nexTurnAndSaveAndShowResults } from "./main";
-import { hideMenu, menuOn, Mid, showSavesMenu, updateDiv, updateTip } from "./ui";
+import { generateUniverse, nextTurn, nexTurnAndSaveAndShowResults } from ".";
 import { animate, animations } from "./animation";
 import { loadAll, saveAll, savePrefix, saveTitlePrefix } from "./saves";
 import { centerOn, resizeCanvas } from "./renderer";
-//import { audio_play, audio_create_song, music_data, audio_init } from "./sonant";
-//import { CPlayer, sonata } from "./voxby";
-import { pl_synth_init, song } from "./pl-synth";
 import { CPlayer, sonata } from "./voxby";
 
 declare var C: HTMLCanvasElement, SEED: HTMLInputElement, LAND: HTMLInputElement, Next: HTMLButtonElement;
@@ -21,7 +17,7 @@ let buttonsDown: number[] = [], pme = [] as any[];
 
 //declare var Build: HTMLDivElement;
 
-export let shift: boolean | undefined;
+export let shift: boolean | undefined, pointerDownPos: Vec2 | undefined, pointerDownTopLeft: Vec2 | undefined;
 
 export const
 
@@ -33,7 +29,7 @@ export const
 
   enableControls = () => {
 
-    onpointerdown = (e: MouseEvent) => {
+    addEventListener("pointerdown", (e: MouseEvent) => {
       if (e.button != 0)
         return
 
@@ -46,15 +42,14 @@ export const
       let f = ({
         Next: nexTurnAndSaveAndShowResults,
         Queen: () => select(queen()),
-        Menu: () => menuOn ? hideMenu() : showSavesMenu(),
+        Menu: () => gotoPage(state.page == "game" ? "saves" : "game"),
         New: () => {
           state.seed = SEED.value as any
           state.land = LAND.value as any
-          updateDiv(Mid, "In the beginning, alicorn was alone...")
           setTimeout(() => {
             generateUniverse()
             select(queen())
-            hideMenu()
+            gotoPage("game")
             nextTurn()
             //nextTurn()
             //loop(3, ()=>queen().nextTurn())
@@ -64,7 +59,7 @@ export const
 
 
         },
-        X: hideMenu,
+        X: () => gotoPage("game"),
         //Research: () => menuOn ? hideMenu() : showResearchMenu(),
         /*Build: () => {
           let c = selected()?.cell;
@@ -92,22 +87,22 @@ export const
 
       if (data.save) {
         saveAll(data.save)
-        hideMenu()
+        gotoPage("game")
       }
 
       if (data.load) {
         loadAll(data.load)
-        hideMenu()
+        gotoPage("game")
       }
 
       if (data.x) {
         delete localStorage[saveTitlePrefix + data.x]
         delete localStorage[savePrefix + data.x]
-        showSavesMenu()
+        gotoPage("saves")
       }
 
       if (data.recipe) {
-        selected().useRecipe({ place: selected(), recipe: JSON.parse(data.recipe.replaceAll("`",`"`)) })
+        selected().useRecipe({ place: selected(), recipe: JSON.parse(data.recipe.replaceAll("`", `"`)) })
         select()
       }
 
@@ -126,13 +121,17 @@ export const
         select(queen())
       }
 
-    }
+    })
 
-    onresize = () => {
+    addEventListener("resize", () => {
       resizeCanvas()
-    }
+    })
 
     let lastMousePos;
+
+    C.onclick = e => {
+      update({ clicked: state.cellPointed })
+    }
 
     C.onpointerdown = C.onpointermove = C.onpointerup = C.onpointerleave = e => {
 
@@ -140,7 +139,7 @@ export const
         return
 
       //console.log(e.type);
-      
+
       let canvasMousePos = [e.offsetX, e.offsetY] as Vec2;
       let photoMousePos = sub(scale(canvasMousePos, 1 / state.scale), state.topLeftAt);
       let worldMousePos = [photoMousePos[0] / photoScale[0], photoMousePos[1] / photoScale[1]]
@@ -156,15 +155,21 @@ export const
         console.log("em", e.movementX, e.movementY);*/
         lastMousePos ??= mousePos;
         if (buttonsDown[0] || buttonsDown[1]) {
-          let delta = sub(mousePos, lastMousePos) as Vec2;
+          //let delta = sub(mousePos, lastMousePos) as Vec2;
           //delta = [e.movementX, e.movementY]
-          shiftViewBy(delta);
+          //shiftViewBy(delta);
+          let delta = sub(mousePos, pointerDownPos as Vec2);
+          if (len(delta) > 6) {
+            update({
+              topLeftAt:
+                sum(pointerDownTopLeft as Vec2,
+                  delta, 1 / state.scale)
+            })
+          }
         } else {
           if (u.c[tilePointed]?.seen && !e.shiftKey) {
             let last = state.cellPointed;
             update({ cellPointed: tilePointed })
-            if (last != state.cellPointed)
-              updateTip()
           }
         }
       }
@@ -174,6 +179,11 @@ export const
       if (e.type == "pointerdown") {
 
         buttonsDown[e.button] = 1;
+
+        if (e.button == 0 || e.button == 1) {
+          pointerDownPos = mousePos
+          pointerDownTopLeft = state.topLeftAt
+        }
 
         if (e.button == 0) {
 
@@ -202,11 +212,13 @@ export const
             console.log(pointedCell());
           }
         }
-        
+
       }
 
       if (e.type == "pointerup") {
         buttonsDown[e.button] = 0;
+        pointerDownPos = undefined
+        pointerDownTopLeft = undefined
       }
 
       if (e.type == "pointerleave") {
@@ -233,7 +245,6 @@ export const
   },
 
   shiftViewBy = (delta: Vec2) => {
-    animations.length = 0
     update({ topLeftAt: sum(state.topLeftAt, delta, 1 / state.scale) })
   }
 
@@ -273,15 +284,11 @@ onkeydown = e => {
       nexTurnAndSaveAndShowResults()
       break;
     case "Escape":
-      if (menuOn)
-        hideMenu()
-      //else if(selected())        update({ selected: undefined })
-      else
-        showSavesMenu()
+      gotoPage(state.page == "game" ? "saves" : "game")
       break
     case "Tab":
       let a = u.a.filter(a => a.happy())
-      select(a[(a.indexOf(selected()) + 1) % a.length])
+      select(a[(a.indexOf(selected()) + (e.shiftKey ? a.length - 1 : 1)) % a.length])
       break
   }
 }
@@ -303,6 +310,7 @@ const playVoxby = () => {
   w.start();
 }
 
+/*
 const playpl = () => {
   let A = new AudioContext();
   let synth = pl_synth_init(A)
@@ -318,4 +326,4 @@ const playpl = () => {
 
   w.start();
 
-}
+}*/ 

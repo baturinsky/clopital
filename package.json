@@ -29,9 +29,11 @@
     "vite-plugin-glsl": "^1.5.3",
     "vite-plugin-singlefile": "^2.3.0",
     "vite-plugin-top-level-await": "^1.6.0",
+    "@preact/preset-vite": "^2.10.6",
     "vite-plugin-wasm": "^3.5.0"
   },
   "dependencies": {
+    "preact": "^10.29.8",
     "roadroller": "^2.1.0",
     "vite-plugin-plain-text": "^1.4.2"
   }

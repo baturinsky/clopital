@@ -222,3 +222,12 @@ function addRoads() {
           icon(name),
           canTake ? `<button data-take="${name}">${formatNumber(-take[0])}</button>` : "",
           canTake ? goodSpan("happiness", -take[1]) : ""*/
+
+
+export function el(tag: string, args: any, ...children: string[]) {
+  if (typeof tag == "function")
+    return children.join('')
+  if (specialTags[tag])
+    return specialTags[tag]({ ...args, children })
+  return `<${tag}${args ? Object.entries(args).map(([a, b]) => ` ${a}="${b}"`).join(" ") : ""}>${children.join('')}</${tag}>`;
+}

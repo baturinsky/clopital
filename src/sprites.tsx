@@ -1,9 +1,8 @@
 import { Agent } from "./agent";
 import { Biome } from "./biomes";
-import { atlas } from "./main";
+import { atlas } from ".";
 import { canvasElementAndContext } from "./renderer";
 import { resources } from "./resources";
-import { el } from "./ui";
 import { RGBA, scale, hexToRgb, loop, clamp } from "./util";
 
 declare const DEBUG: boolean
@@ -24,7 +23,10 @@ export const iconDataUrls: { [id: string]: string } = {},
   atlasSprite = (id: number, filter?: CanvasFilter) =>
     cutSpriteFromAtlas((id % AtlasSpriteSize) * AtlasSpriteSize, ~~(id / AtlasSpriteSize) * AtlasSpriteSize, AtlasSpriteSize, AtlasSpriteSize, filter)
   ,
-  _constructFilter = (rgbReplace: RGBA[]) => {
+  constructSVGFilter = (rgbReplace: RGBA[]) => {
+    if (!DEFS) {
+      document.body.innerHTML += <svg><defs id="DEFS"></defs></svg>
+    }
     let name = JSON.stringify(rgbReplace)
     if (!filters[name]) {
       let f = `<filter id="f${name}"><feColorMatrix type=matrix 

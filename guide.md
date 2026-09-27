@@ -1,6 +1,8 @@
 # Goal
 
-The goal is to explore, befriend all herds, and have a high level of overall happiness.   For that, you need to arrange a trade network, so herds, which harvest important resources, spread them to the others.
+The goal is to explore, befriend all herds, and have a high level of overall happiness. For that, you need to arrange a trade network, so herds, which harvest important resources, spread them to the others.
+The ultimate goal would be to have all herds cover all their consumer needs fully, 
+but I'm not sure it's possible in this version.
 
 # Herds
 

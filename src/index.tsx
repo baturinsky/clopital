@@ -6,10 +6,11 @@ import { initRenderer, prerenderUniverse, renderLoop } from "./renderer";
 import { state, select, selected, updateExpectation as updateExpectation } from "./state";
 import { u, Universe } from './universe';
 import { initSetting } from './setting';
-import { hideMenu, showButtons, showSavesMenu, updateTip } from './ui';
 import { loop, setSeed } from './util';
 import { saveAll } from './saves';
 import { audio_play, audio_create_song, music_data, audio_init } from './sonant';
+import { render } from 'preact';
+import { GUI } from './ui';
 
 
 declare var C: HTMLCanvasElement, SEED: HTMLInputElement, LAND: HTMLInputElement, Next: HTMLButtonElement;
@@ -19,7 +20,6 @@ export const
   generateUniverse = () => {
     new Universe(state.seed, state.land)
     prerenderUniverse()
-    showButtons()
   };
 
 onload = () => {
@@ -39,7 +39,7 @@ const init = () => {
 
   renderLoop()
 
-  showSavesMenu()
+  render(<GUI />, document.getElementById("UI") as HTMLDivElement);
 }
 
 
@@ -50,12 +50,10 @@ export const
     u.c.forEach(c => c.nextTurn())
     updateExpectation();
     state.turn ++;
-    hideMenu()
   },
   nexTurnAndSaveAndShowResults = () => {
     nextTurn()
     select()
-    updateTip()
     saveAll()
   }
 

@@ -1,9 +1,8 @@
 import { Agent, craScale } from "./agent"
 import { type Cell } from "./cell"
-import { generateUniverse } from "./main"
+import { generateUniverse } from "."
 import { races } from "./setting"
 import { state, select, queen, selected } from "./state"
-import { updateTip } from "./ui"
 import { u } from "./universe"
 import { GoodNumbers, RecipeX } from "./market"
 import { objFilter, objMap } from "./util"
@@ -35,14 +34,12 @@ export const
 
   saveAll = (slot: string | number = 0) => {
     //state.namesLeft = namePool.length
-    updateTip()
     let data = {
       ...state,
       c: objMap(objFilter(u.c, c => c.woke), (c: Cell) => save(c)),
       a: u.a.map(agent => save(agent)),
       s: u.c.map(c => c.seen ? 1 : 0)
     }
-
 
 
     if (DEBUG) {

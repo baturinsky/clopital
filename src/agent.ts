@@ -7,7 +7,6 @@ import { cellNeighborhood } from "./root";
 import { iterationsPerTurn, races } from "./setting";
 import { resourceIcon, spriteOf } from "./sprites";
 import { debouncedPrerender, queen, select, selected, state, update } from "./state";
-import { hideMenu } from "./ui";
 import { u } from "./universe";
 import { cap1, clamp, dist, japaneseName, listSum, loop, objMap, randomElement, removeFromList, rng, sum, Vec2 } from "./util";
 
@@ -265,7 +264,6 @@ export class Agent extends MarketAgent {
     queen().give(this, good, amount);
     this.happiness += value
     select()
-    hideMenu()
   }
 
   /*isBuilding() {

@@ -8,9 +8,8 @@
     "skipLibCheck": true,
 
     /* Preact Config */
-    "jsx": "react",
-    "jsxFactory": "el",
-    "jsxFragmentFactory": "el",
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
 
     "rewriteRelativeImportExtensions":true,
     "allowImportingTsExtensions": true

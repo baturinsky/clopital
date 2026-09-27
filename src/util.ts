@@ -89,9 +89,10 @@ export const
   objScaleIR = (a: any, scale: number) => objMap(a, v => ~~(v * scale + rng())),
   objStripFalsy = <T>(a: T): T => objFilter(a, v => v),
   rotateList = (a: any[], d: number) => [...a.slice(a.length - d - 2), ...a.slice(0, d)],
-  formatNumber = (x: number|string) => {
-    if(!Number.isFinite(x))
+  formatNumber = (x: number | string) => {
+    if (!Number.isFinite(x))
       return x;
+    x = Number(x);
     let p = Math.abs(x);
     return (x < 0 ? "-" : "") +
       (p < 1e4 ? ~~(p * 1e3) / 1e3 :
