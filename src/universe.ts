@@ -161,7 +161,6 @@ export class Universe {
           race = "unicorns"
         if (rng()<1/8){
           race = "pegasi"
-          console.log("P");
         }
         if (race) {
           new Agent(cell, race, rng(1000) + 100);

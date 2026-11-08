@@ -17,11 +17,11 @@ export type Transfer = [MarketAgent, string, number]
 
 const
   utilityBase = 0.93,
-  utilityBaseLog = Math.log(utilityBase),  
+  utilityBaseLog = Math.log(utilityBase),
   DEFAULT_STOCK_CAP = 1e24
 
 /** Cached marginal utility numbers */
-const marginalUtilityLookup:number[] = []
+const marginalUtilityLookup: number[] = []
 
 for (let i = 0; i < 1e5; i++) {
   //let v = 1e3 * Math.pow(utilityBase, i)
@@ -31,7 +31,7 @@ for (let i = 0; i < 1e5; i++) {
   marginalUtilityLookup[i] = v;
 }
 
-const marginalUtilityLookupSize = marginalUtilityLookup.length; 
+const marginalUtilityLookupSize = marginalUtilityLookup.length;
 
 console.log(marginalUtilityLookupSize);
 
@@ -55,7 +55,9 @@ export const
       ])))
   },
   utilities = (a: MarketAgent) =>
-    Object.fromEntries(Object.keys(a.stock).map(k => [k, a.mutil(k)]));
+    Object.fromEntries(Object.keys(a.stock).map(k => [k, a.mutil(k)])),
+  gains = (r: GoodNumbers) => objFilter(r, v => v > 0),
+  losses = (r: GoodNumbers) => objScale(objFilter(r, (v, k) => v < 0), -1);
 
 
 export type RecipeX = {
@@ -76,7 +78,7 @@ export class MarketAgent {
   iterations = 0
 
   /** At what amount of resource it can be consumed */
-  get consumeIfAbove(){
+  get consumeIfAbove() {
     return this.size
   }
 
@@ -117,7 +119,7 @@ export class MarketAgent {
   /** Happiness gained */
   happinessGained = {} as any
 
-  get sizeFactor(){
+  get sizeFactor() {
     //return 100 + this.size
     return 1
   }
@@ -313,7 +315,7 @@ export class MarketAgent {
   /** Gain or lose goods */
   gain(good: string, amount: number) {
     this.stock[good] = clamp(0, (this.stock[good] ?? 0) + ~~amount,
-      this.cap[good] ?? DEFAULT_STOCK_CAP);      
+      this.cap[good] ?? DEFAULT_STOCK_CAP);
     if (this.stock[good] < 0) debugger
   }
 

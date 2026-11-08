@@ -1,4 +1,4 @@
-import { clamp, debounce, floor, len, loop, objMap, repeat, scale, sub, sum, Vec2 } from "./util";
+import { clamp, debounce, dist, floor, len, loop, objMap, repeat, scale, sub, sum, Vec2 } from "./util";
 import { neighborhood, photoScale, worldCoord, ww } from "./root";
 import { debouncedPrerender, gotoPage, pointedCell, queen, queenCell, select, selected, state, update } from "./state";
 import { u } from "./universe";
@@ -7,13 +7,14 @@ import { animate, animations } from "./animation";
 import { loadAll, saveAll, savePrefix, saveTitlePrefix } from "./saves";
 import { centerOn, resizeCanvas } from "./renderer";
 import { CPlayer, sonata } from "./voxby";
+import { MouseEventHandler } from "preact";
 
 declare var C: HTMLCanvasElement, SEED: HTMLInputElement, LAND: HTMLInputElement, Next: HTMLButtonElement;
 declare const DEBUG: boolean
-declare var TIP: HTMLDivElement, INFO: HTMLDivElement, MID: HTMLDivElement, BTN: HTMLDivElement;
 
+const minimalDistanceForDrag = 6;
 
-let buttonsDown: number[] = [], pme = [] as any[];
+let buttonsDown: number[] = [];
 
 //declare var Build: HTMLDivElement;
 
@@ -27,92 +28,86 @@ export const
     Build.innerHTML = a?.isBuilding() ? "Remove" : "Build";
   },*/
 
+  buttonEffect = {
+    "Next Turn": () => nexTurnAndSaveAndShowResults(),
+    Queen: () => select(queen()),
+    Menu: () => {
+      gotoPage(state.page == "game" ? "saves" : "game")
+    },
+    New: () => {
+      setTimeout(() => {
+        generateUniverse()
+        select(queen())
+        gotoPage("game")
+        nextTurn()
+        //nextTurn()
+        //loop(3, ()=>queen().nextTurn())
+        select(queen())
+        update({ turn: 1 })
+      }, 10)
+
+
+    },
+    X: () => gotoPage("game"),
+    Research: () => gotoPage(state.page == "research" ? "game" : "research"),
+    /*Build: () => {
+      let c = selected()?.cell;
+
+      if (selected().isBuilding())
+        selected().remove();
+      else
+        new Agent(c, c.water() ? "dome" : "village")
+
+      updateBuildButton()
+    },*/
+    giveToSelected: (to: string) =>
+      selected().giftApply(to, true),
+
+    takeFromSelected: (from: string) =>
+      selected().giftApply(from, false),
+
+    save: (slot: number) => {
+      saveAll(slot)
+      gotoPage("game")
+    },
+
+    load: (slot: number) => {
+      loadAll(slot)
+      gotoPage("game")
+    },
+
+    deleteSave: (slot: number) => {
+      delete localStorage[saveTitlePrefix + slot]
+      delete localStorage[savePrefix + slot]
+      gotoPage("saves")
+    },
+
+    useRecipe: (recipe: string) => {
+      selected().useRecipe({ place: selected(), recipe: JSON.parse(recipe.replaceAll("`", `"`)) })
+      select()
+    },
+
+    agent: (agent: number) => {
+      select(u.a[agent])
+    }
+
+  },
+
+
   enableControls = () => {
 
     addEventListener("pointerdown", (e: MouseEvent) => {
       if (e.button != 0)
         return
 
-      //playpl()
-
       let element = e.target as HTMLElement,
         button = element.closest("button") as HTMLButtonElement,
         id = button?.id, data = element.closest("button")?.dataset ?? {};
-
-      let f = ({
-        Next: nexTurnAndSaveAndShowResults,
-        Queen: () => select(queen()),
-        Menu: () => gotoPage(state.page == "game" ? "saves" : "game"),
-        New: () => {
-          state.seed = SEED.value as any
-          state.land = LAND.value as any
-          setTimeout(() => {
-            generateUniverse()
-            select(queen())
-            gotoPage("game")
-            nextTurn()
-            //nextTurn()
-            //loop(3, ()=>queen().nextTurn())
-            select(queen())
-            update({ turn: 1 })
-          }, 10)
-
-
-        },
-        X: () => gotoPage("game"),
-        //Research: () => menuOn ? hideMenu() : showResearchMenu(),
-        /*Build: () => {
-          let c = selected()?.cell;
-
-          if (selected().isBuilding())
-            selected().remove();
-          else
-            new Agent(c, c.water() ? "dome" : "village")
-
-          updateBuildButton()
-        },*/
-      } as { [button: string]: Function })[id]
-      f && f()
 
       if (id?.substring(0, 3) == "tab") {
         state.tab = id.substring(3);
         select()
       }
-
-      if (data.give)
-        selected().giftApply(data.give, true)
-
-      if (data.take)
-        selected().giftApply(data.take, false)
-
-      if (data.save) {
-        saveAll(data.save)
-        gotoPage("game")
-      }
-
-      if (data.load) {
-        loadAll(data.load)
-        gotoPage("game")
-      }
-
-      if (data.x) {
-        delete localStorage[saveTitlePrefix + data.x]
-        delete localStorage[savePrefix + data.x]
-        gotoPage("saves")
-      }
-
-      if (data.recipe) {
-        selected().useRecipe({ place: selected(), recipe: JSON.parse(data.recipe.replaceAll("`", `"`)) })
-        select()
-      }
-
-      if (element.dataset.a) {
-        select(u.a[element.dataset.a as any])
-      }
-
-      /*if (element.dataset.c) {
-        centerOn(u.c[element.dataset.c as any])
-      }*/
 
       if (id == "warp") {
         queen().gain("magic", -100)
@@ -129,9 +124,6 @@ export const
 
     let lastMousePos;
 
-    C.onclick = e => {
-      update({ clicked: state.cellPointed })
-    }
 
     C.onpointerdown = C.onpointermove = C.onpointerup = C.onpointerleave = e => {
 
@@ -159,12 +151,13 @@ export const
           //delta = [e.movementX, e.movementY]
           //shiftViewBy(delta);
           let delta = sub(mousePos, pointerDownPos as Vec2);
-          if (len(delta) > 6) {
+          if (len(delta) >= minimalDistanceForDrag) {
             update({
               topLeftAt:
                 sum(pointerDownTopLeft as Vec2,
                   delta, 1 / state.scale)
             })
+            animations.length = 0;
           }
         } else {
           if (u.c[tilePointed]?.seen && !e.shiftKey) {
@@ -178,25 +171,11 @@ export const
 
       if (e.type == "pointerdown") {
 
-        buttonsDown[e.button] = 1;
+        buttonsDown[e.button] = Date.now();
 
         if (e.button == 0 || e.button == 1) {
           pointerDownPos = mousePos
           pointerDownTopLeft = state.topLeftAt
-        }
-
-        if (e.button == 0) {
-
-          let a = pointedCell()?.a
-
-          if (a?.length > 0) {
-            let ind = a.indexOf(selected());
-            if (!selected() || a.length == 0 || ind == -1) {
-              select(a[0])
-            } else {
-              select(a[(ind + 1) % a.length])
-            }
-          }
         }
 
         if (e.button == 2) {
@@ -216,9 +195,36 @@ export const
       }
 
       if (e.type == "pointerup") {
+
+        let dt = Date.now() - buttonsDown[e.button];
+
+        console.log(dt);
+
+        if (pointerDownPos && dist(mousePos, pointerDownPos) < minimalDistanceForDrag) {
+          update({ clicked: state.cellPointed })
+          console.log("click");
+
+          if (e.button == 0) {
+
+            let a = pointedCell()?.a
+
+            if (a?.length > 0) {
+              let ind = a.indexOf(selected());
+              if (!selected() || a.length == 0 || ind == -1) {
+                select(a[0])
+              } else {
+                select(a[(ind + 1) % a.length])
+              }
+            }
+          }
+
+        }
+
         buttonsDown[e.button] = 0;
         pointerDownPos = undefined
         pointerDownTopLeft = undefined
+
+
       }
 
       if (e.type == "pointerleave") {

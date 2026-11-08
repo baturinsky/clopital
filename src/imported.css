@@ -1,14 +1,21 @@
+@charset "UTF-8";
+
+:root {
+  --side-menu-width: 500px;
+}
+
+
 body {
   background: #012;
   overflow: hidden;
+  font-family: Verdana, Helvetica, sans-serif;
+  text-shadow: 1px 1px #000;
 }
 
 * {
   border: 0;
   margin: 0;
-  font-family: 'Courier New', Courier, monospace;
   font-size: 18px;
-  --side-menu-width: 400px;
 }
 
 #MAIN {
@@ -23,23 +30,22 @@ body {
   pointer-events: none;
 }
 
-#INFO {
-  max-width: var(--side-menu-width);
-  background: #0848;
-  max-height: 100vh;
-  border-left: #4004 solid;
-  color:#fff;
-}
-
-#INFO pnl {
-  min-width: var(--side-menu-width);
-}
-
-
-#INFO {
-  height: 100%;
-  pointer-events: none;
+#SIDEBAR {
+  height: 100lvh;
+  display: flex;
+  flex-direction: column;
   user-select: none;
+  pointer-events: all;
+  width: var(--side-menu-width);
+  max-height: 100vh;
+  color: #fff;
+
+  background-image: repeating-linear-gradient(#026 1px, #024 2px);
+}
+
+#SIDEBAR pnl {
+  min-width: var(--side-menu-width);
+  padding: .2rem;
 }
 
 #TIP {
@@ -56,11 +62,11 @@ body {
   padding: 10px 2px;
   margin: 5px;
   border-width: 2px 4px;
-  max-height: 80%;
   overflow-y: auto;
   overflow-x: hidden;
   pointer-events: all;
   text-align: center;
+  scrollbar-color: #048 #024;
 }
 
 /** Tab select buttons */
@@ -73,22 +79,26 @@ body {
   left: 0;
 }
 
-#INFO {
-  right: 0;
-}
 
 /** Main buttons */
 #BTN {
-  position: fixed;
-  bottom: 5px;
-  right: calc(var(--side-menu-width) + 10px);
+  position: relative;
+  right: 1rem;
+  top: 95vh;
   text-align: right;
   pointer-events: none;
+  display: flex;
+  justify-content: flex-end;
 }
 
 #BTN button {
   padding: 5px;
   margin: 3px;
+}
+
+#BTN button:last-child {
+  transform: scale(1.2);
+  margin-left: 1rem;
 }
 
 
@@ -97,16 +107,21 @@ button#Next {
 }
 
 button {
-  border: 1px solid #aaa;
-  border-right: 1px solid #fff;
-  border-top: 1px solid #fff;
+  border: 1px solid #036;
+  border-right-color: #08a;
+  border-top-color: #08a;
   pointer-events: all;
-  background: #fffa;
+  background: #06a;
+  color: #fff;
 }
 
-button:hover,
-button.h {
-  background: #bbb;
+button:hover {
+  background: #0af;
+}
+
+.agent-tab-buttons button.selected {
+  background: #036;
+  border-bottom-color: #036;
 }
 
 button:active {
@@ -143,12 +158,12 @@ button:active {
 
 
 /** Tab switching buttons */
-.abtn {
+.agent-tab-buttons {
   text-align: center;
-  background: #fffa;
+  background: #fff4;
 }
 
-.abtn button {
+.agent-tab-buttons button {
   padding-bottom: 5px;
 }
 
@@ -176,19 +191,21 @@ td {
   position: fixed;
   top: 0;
   left: 0;
-  max-width: 500px;
+  max-width: 350px;
   color: #fff;
   text-align: left;
 }
 
-@media screen and (width <= 1500px) {
+@media screen and (width <=1500px) {
   #CHANGELOG {
     display: none;
   }
 }
 
 #MID {
+  position: relative;
   width: 100%;
+  height: 100%;
   color: #fff;
   text-shadow: 1px 1px #000;
   text-align: center;
@@ -200,11 +217,11 @@ td {
   top: 0;
 }
 
-#INFO.u>*:first-child {
+#SIDEBAR.unhappy>*:first-child {
   background: #faaa;
 }
 
-#INFO.h>*:first-child {
+#SIDEBAR.happy>*:first-child {
   background: #afaa;
 }
 
@@ -239,10 +256,51 @@ input {
   animation-name: grow-shrink;
 }
 
-#UI{
+#UI {
   position: absolute;
-  top:0;
-  left:0;
+  top: 0;
+  left: 0;
   width: 100vw;
   height: 100dvh;
+  pointer-events: none;
+}
+
+table.transfers td {
+  text-align: left;
+}
+
+table.transfers tr.odd0 td{
+  background: #88f4;
+}
+
+table.transfers tr.odd1 td{
+  background: #88a4;
+}
+
+table.transfers .r{
+  text-align: right;
+}
+
+table.transfers td.arrow{
+  background: transparent;
+}
+
+.happines-gain {
+  display: grid;
+  grid-template-columns: 1fr 3fr 2fr 1fr 3fr 2fr;
+  margin-bottom: 1rem;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+}
+
+.grid2 div:nth-child(odd){
+  text-align: right;
+  margin-right: 1rem;
+}
+
+.grid2 div:nth-child(even){
+  text-align: left;
 }

@@ -1,27 +1,27 @@
 //@ts-ignore
+import { useSyncExternalStore } from "preact/compat";
+//@ts-ignore
 import { plainText as changelog } from "../changelog.md"
 import { Agent } from "./agent";
 import { Cell } from "./cell";
-import { GoodNumbers, marginalUtility, MarketAgent } from "./market";
+import { buttonEffect } from "./controls";
+import { gains, GoodNumbers, losses, marginalUtility, MarketAgent } from "./market";
 import { tradeables } from "./resources";
 import { saveTitlePrefix } from "./saves";
 import { resourceIcon, resourceIconDataUrl } from "./sprites";
-import { tabs, state, pointedCell, queen, selected, State } from "./state";
+import { tabs, state, pointedCell, queen, selected, State, select, store, update } from "./state";
 import { u } from "./universe";
-import { cap1, clamp, debounce, dist, formatNumber, listSum, loop, objFilter, objMap, objScale, objStripFalsy, removeDuplicates, RGBA } from "./util";
+import { cap1, clamp, debounce, dist, formatNumber, listSum, loop, objEvery, objFilter, objMap, objScale, objStripFalsy, removeDuplicates, RGBA } from "./util";
 
-import { h, render, Component, createRef, FunctionalComponent, JSX, createContext, Attributes, ComponentChildren, Ref } from "preact";
-import { useEffect, useRef, useState } from "preact/hooks";
-
-export let setState: (s: Partial<typeof state>) => any = (s: Partial<typeof state>) => { };
+export let setState: (s: Partial<typeof state>) => any = (s: Partial<typeof state>) => {
+  alert()
+};
 
 export function GUI() {
 
-  let [uiState, setUIState] = useState<Partial<State>>()
+  useSyncExternalStore(store.subscribe, store.getState);
 
-  setState = setUIState
-
-  return <>  <div id="BTN"></div>    
+  return <>  <div id="BTN"></div>
 
     <div id="MAIN">
       <div id="MID">
@@ -31,16 +31,19 @@ export function GUI() {
           <div id="BTN">{buttonsDiv()}</div>
         }
       </div>
-      <div id="INFO"></div>
+      {state.page != "saves" &&
+        <div id="SIDEBAR" className={selected()?.happy() ? "happy" : "unhappy"}>
+          {agentInfo(selected())}
+        </div>}
     </div>
   </>
 }
 
 
 
-const changelogDiv = () => <div id="CHANGELOG">
+const changelogDiv = () => state.page == "saves" && <div id="CHANGELOG">
   <h4>CHANGELOG</h4>
-  {changelog.split("\n").map(a => [a, <br />]).flat(1)}
+  {changelog.split("\n").map((a: string) => [a, <br />]).flat(1)}
 </div>
 
 const specialTags = {
@@ -54,88 +57,71 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
 
   buttonsDiv = () =>
     ["Menu", "Queen", "Next Turn"].map((v, i) =>
-      <button id={v.split(" ")[0]}>{v}</button>
+      <button onClick={() => (buttonEffect as any)[v]()}>{v}</button>
     )
   ,
 
-  bigDiv = (...text: any[]) => {
-    const iconsRef = useRef();
-
-    useEffect(() => {
-      if (iconsRef.current)
-        drawIcons(iconsRef.current);
-    }, []);
-
-    let blocks = text.filter(v => v).
-      map(t =>
-        t == "btn" ? agentButtons() :
-          typeof t == "string" && t?.charAt(0) == "!" ? <div class="ptl">{t?.substring(1)}</div>
-            : <div class={`pnl tab${state.tab}`}>{t ? t : " "}</div>
-      ).join('')
-    return blocks
+  icon = (name: string, tip?: string) => {
+    return <span data-icon={name} class="icon">
+      <span class="img" ref={(dom) => {
+        if (dom) {
+          dom.replaceChildren(resourceIcon(name))
+        }
+      }}></span>
+      {ttx(tip ?? name)}
+    </span>
   },
 
-  drawIcons = (div: HTMLElement) => {
-    let icons = div.querySelectorAll("[data-icon]") as any as HTMLElement[]
-    for (let icon of icons) {
-      let n = icon.dataset.icon
-      icon.children[0].innerHTML = ""
-      icon.children[0].appendChild(resourceIcon(n as string))
-    }
-  },
-
-
-  agentButtons = () =>
-    <div class="abtn">
+  agentButtons = () => {
+    let r = <div class="agent-tab-buttons">
       {loop(5,
-        t => <button id={"tab" + t} class={t == state.tab ? "h" : ""}>
+        t => <button id={"tab" + t} class={t == state.tab ? "selected" : ""}>
           {icon("tab" + t, tabs[t])}
         </button>
-      ).join('')}
-    </div>
+      )}
+    </div>;
+    return r
+  }
   ,
 
   ttx = (tip: string) => tip == "notip" ? '' : <span class="ttx">{tip}</span>,
 
-  iconDataUrl = (name: string, tip?: string) =>
-    <span class="icon">
-      <img src={resourceIconDataUrl(name)} />{ttx(tip ?? name)}
-    </span>,
 
-  icon = (name: string, tip?: string) =>
-    <span data-icon={name} class="icon">
-      <span class="img"></span>
-      {ttx(tip ?? name)}
-    </span>,
-
-
-  asList = (a?: GoodNumbers) => a ? `${Object.entries(a).map(([k, v]) => goodSpan(k, v),).join('')}` : undefined,
+  asList = (a?: GoodNumbers) => a ? Object.entries(a).map(([k, v]) => goodSpan(k, v),) : undefined,
 
   goodSpan = (good: any, value: number | string) =>
     <span class="good">
-      <icon of={good} tip="notip" />
+      {icon(good, "notip")}
       {formatNumber(value)}
       {ttx(good)}
     </span>,
 
 
   fancyRecipe = (r: GoodNumbers) => {
-    let [minus, plus] = [objFilter(r, v => v < 0), objFilter(r, v => !(v < 0))]
-    let s: string | undefined;
-    if (Object.keys(minus).length) {
-      s = `${asList(objScale(minus, -1))}→</span>${asList(plus)}`
+    let s;
+    if (!objEvery(r, v => v > 0)) {
+      s = <>{asList(losses(r))}→{asList(gains(r))}</>
     } else {
       s = asList(r)
     }
     return s
   },
 
-  coloredHappiness = (agent: Agent) => `<span style="color:${agent.happy() ? "#080" : "#a00"}">${goodSpan("happiness", agent.happiness)}</span>`,
+  coloredHappiness = (agent: Agent) => <span style={{ color: agent.happy() ? "#080" : "#a00" }}>{goodSpan("happiness", agent.happiness)}</span>,
 
-  agentTitle = (agent: Agent | Cell, full = true): string =>
-    agent instanceof Agent ?
-      `<h4 data-a="${u.a.indexOf(agent)}">${icon(agent.race.name)}${agent.name}${full ? ` - ${agent.size > 1 ? agent.size : ""} ${agent.race.name} ${coloredHappiness(agent)}` : ''}</h4>` :
-      `<h4 data-c="${agent.at}">${agent.name} ${agent.biome.name} ${agent.special ? `with ${agent.special}` : ''}</h4>`,
+  cellTitle = (cell: Cell) =>
+    <h4 data-c="${agent.at}">{cell.name} {cell.biome.name} {cell.special ? `with ${cell.special}` : ''}</h4>,
+
+  agentTitle = (agent: Agent) =>
+    <span onClick={() => select(agent)}>{icon(agent.race?.name)}{agent.name}</span>,
+
+  agentFullTitle = (agent: Agent) =>
+    <span onClick={() => select(agent)}>
+      {icon(agent.race?.name)}{agent.name} - {agent.size > 1 ? agent.size : ""} {agent.race.name} {coloredHappiness(agent)}
+    </span>,
+
+  agentOrCellTitle = (agent: Agent | Cell) =>
+    agent instanceof Agent ? agentTitle(agent) : cellTitle(agent),
 
   tipDiv = () => {
     let cell = pointedCell()
@@ -145,7 +131,7 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
     if (cell) {
       lines.push(
         asDivs([
-          `${agentTitle(cell)}${asList(objStripFalsy(cell?.stock))}`,
+          `${cellTitle(cell)}${asList(objStripFalsy(cell?.stock))} `,
         ])
       )
       cell.a.forEach(a => lines.push(agentTitle(a)))
@@ -154,88 +140,126 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
     return lines
   },
 
-  asDivs = (l: any[]) => l.map(a => <div>{a}</div>).join(''),
+  asDivs = (l: any[]) => l.map(a => <div>{a}</div>),
 
   doubleColumn = (a: any[]) => {
     return <div class="tc">{asDivs(a)}</div>
   },
 
-  recipeUsedStats = (a: MarketAgent) => asDivs(Object.entries(a.uses ?? {}).map(([k, v]) => {
-    let recipeStr = k,
-      recipe = JSON.parse(recipeStr)
-    return fancyRecipe(objScale(recipe, v))
-  })),
+
+  recipeUsedStats = (a: MarketAgent) =>
+    asDivs(Object.entries(a.uses ?? {}).map(([k, v]) => {
+      let recipeStr = k,
+        recipe = JSON.parse(recipeStr)
+      return fancyRecipe(objScale(recipe, v))
+    })),
 
   ifAnything = (...l: any[]) => l[1] ? l : [],
 
-  agentInfo = (agent: Agent) => {
-    return [
-      `${agentTitle(agent)}${asList(objStripFalsy(agent.stock))}`,
-      "btn",
-      ...
-      [
-        () => [
-          ...ifAnything("!produced", asList(agent.totTurnInc(1))),
-          ...ifAnything('!' + tabs[0], recipeUsedStats(agent))
-        ],
-        () =>
-          ['!' + tabs[1],
-          doubleColumn(agent.ownRecipes.map(
-            r => {
-              let uses = selected().recipeUseMultiplier({ place: selected(), recipe: r })
-              let retext = JSON.stringify(r).replaceAll('"', "`")
-              //console.log(retext);
-              return (selected().happy() && uses > 0 ?
-                <button data-recipe={retext}>{fancyRecipe(objScale(r, uses))}</button> :
-                fancyRecipe(r)) as string
-            }
-          ))
-          ],
-        () => [
-          '!happiness change',
-          `Had ${agent.happiness} + ${agent.totalHappinessGain()} from covered needs - wanted ${agent.expectation()} = ${icon("happiness")}${agent.nextHappiness()}`,
-          ...ifAnything('!' + tabs[2], agent.consumed ? doubleColumn(
+  agentTabsRenderers = [
+    (agent: Agent) => <>
+      {asList(agent.totTurnInc(1))}
+      {recipeUsedStats(agent)}
+    </>,
+    (agent: Agent) =>
+      doubleColumn(agent.ownRecipes.map(
+        r => {
+          let uses = selected().recipeUseMultiplier({ place: selected(), recipe: r })
+          let retext = JSON.stringify(r).replaceAll('"', "`")
+          //console.log(retext);
+          return (selected().happy() && uses > 0 ?
+            <button onClick={() => buttonEffect.useRecipe(retext)}>{fancyRecipe(objScale(r, uses))}</button> :
+            fancyRecipe(r))
+        }
+      ))
+    ,
+    (agent: Agent) =>
+      <>
+        <div>Happiness for covered needs</div>
+        <div class="happines-gain">
+          <div></div><div></div><div>{icon("happiness")}</div>
+          <div></div><div></div><div>{icon("happiness")}</div>
+          {(agent.consumed ?
             Object.entries(agent.totTurnInc(-1)).map(
               ([good, _]) => <>
-                {icon(good)}
-                {agent.consumed[good] ?? 0}
-                /
-                {~~(-agent.totTurnInc(-1)[good]).toFixed(2)}
-                {goodSpan("happiness", (agent.happinessGain()[good] as number ?? 0).toFixed(2))}
+                <div>{icon(good)}</div>
+                <div>{agent.consumed[good] ?? 0}
+                  /
+                  {~~(-agent.totTurnInc(-1)[good]).toFixed(2)}</div>
+                <div>
+                  {(agent.happinessGain()[good] as number ?? 0).toFixed(2)}
+                </div>
               </>
             )
-          ) : "?")
-        ],
-        () =>
-          [
-            '!' + tabs[4],
-            asDivs(agent.transfers
-              .sort((a, b) => a.place instanceof Agent && !(b.place instanceof Agent) ? -1 : 1)
-              .map(t => `${agentTitle(t.place as any, false)} ${fancyRecipe(t.recipe)}`)
-            )
-          ],
-        () => [
-          ...ifAnything('!' + tabs[3], tradeTable(agent))
-        ],
+            : "?")}
+        </div>
+        <div class="grid2">
+          {asDivs(
+            [
+              "Had", <>{icon("happiness")} {agent.happiness - agent.totalHappinessGain() + agent.expectation()}</>,
+              "From needs covered", <>{icon("happiness")} {agent.totalHappinessGain()}</>,
+              "From expectations", <>{icon("happiness")} {- agent.expectation()}</>,
+              "Now", <>{icon("happiness")} {agent.happiness}</>
+            ]
+          )}
+        </div>
+      </>
+    ,
+    (agent: Agent) =>
+      <table class="transfers"><tbody>{
+        agent.transfers
+          .sort((a, b) => a.place instanceof Agent && !(b.place instanceof Agent) ? -1 : 1)
+          .map((t, i) =>
+            <>
+              <tr class={"odd" + (i % 2)}>
+                <td class="r">{asList(losses(t.recipe))}</td><td class="arrow">▶</td>
+                <td width="3rem" rowSpan={2}>{agentOrCellTitle(t.place)}</td>
+              </tr>
+              <tr class={"odd" + (i % 2)}><td class="r">{asList(gains(t.recipe))}</td><td class="arrow">◀</td></tr>
+            </>
+          )
+      }</tbody></table>
 
-      ][state.tab as number || 0]()
-    ]
+    ,
+    (agent: Agent) =>
+      tradeTable(agent)
+    ,
+
+  ],
+
+  agentInfo = (agent: Agent) => {
+    if (!agent)
+      return;
+    let r = <>
+      {agentFullTitle(agent)}
+      <div>{asList(objStripFalsy(agent.stock))}</div>
+      {agentButtons()}
+      <div class="pnl">
+        {agentTabsRenderers[Number(state.tab ?? 0)](agent)}
+      </div>
+    </>
+    return r;
   },
 
   writeHappiness = (agent: Agent) =>
     agent.queen() ? "" : <>{icon("happiness")}{agent.happiness}</>,
 
-  htmlTable = (divs: string[][]) => <table>{divs.map(line => <tr>{line.map(td => <td>{td}</td>)}</tr>)}</table>,
+  htmlTable = (divs: string[][]) =>
+    <table>
+      {divs.map(line => <tr>{line.map(td => <td>{td}</td>)}</tr>)}
+    </table>,
 
   tradeTable = (agent: Agent) => {
     if (agent.queen())
       return `Get next to the other herd and give them gifts to gain their trust`
 
-    if (!agent.cell.neighborhood.includes(queen().cell))
-      return `Should be near to give gifts<br/>${agent.happy() ?
-        (queen().stock.magic > 100 && queen().steps >= 1 ?
-          <button id="warp">{icon("warp")}Summon alicorn</button> : 'Alicorn asleep')
-        : ''}`
+    if (!agent.cell.neighborhood.includes(queen().cell)) {
+      return <>Should be near to give gifts<br />
+        {agent.happy() &&
+          (queen().stock.magic > 100 && queen().steps >= 1 ?
+            <button id="warp">{icon("warp")}Summon alicorn</button> : 'Alicorn asleep')
+        }</>
+    }
 
     let res = removeDuplicates([...Object.keys(queen().stock), ...Object.keys(agent.stock)]).filter(res => tradeables.has(res))
 
@@ -249,21 +273,24 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
 
       if (canGive)
         tableGive.push([
-          `${give[0]}/${queen().stock[name]}${icon(name)}→${asList({ happiness: give[1] })
-          }`,
-          <button data-give={name}>give</button>
+          <>
+            {give[0]}/{queen().stock[name]}{icon(name)}→{asList({ happiness: give[1] })}
+          </>,
+          <button onClick={() => buttonEffect.giveToSelected(name)}>give</button>
         ])
 
       if (canTake)
         tableTake.push([
-          <button data-take={name}>take</button>,
-          `${fancyRecipe({ [name]: -take[0], happiness: take[1] })}`
+          <button onClick={() => buttonEffect.takeFromSelected(name)}>take</button>,
+          <>
+            {asList({ happiness: -take[1] })}→{-take[0]}{icon(name)}
+          </>
         ])
     })
 
     return <>
-      {writeHappiness(agent)} (befriended at 1000)
-      {htmlTable([...tableGive, ...tableTake])}`
+      {writeHappiness(agent)}(befriended at 1000)
+      {htmlTable(tableGive)}{htmlTable(tableTake)}
     </>
   },
 
@@ -277,19 +304,23 @@ export const ARROW = 65, Tip = 0, Info = 1, Mid = 2,
       <>
         <h1>Clopital</h1>
         Seed:
-        <input type="number" id="SEED" value={state.seed}></input> Land:
-        <input type="range" id="LAND" value={state.land} min={1} max={7} /> <button id="New">New game</button>
+        <input type="number" id="SEED" value={state.seed} 
+        onInput={e=>update({seed:Number(e.currentTarget.value)})}
+         ></input> Land:
+        <input type="range" id="LAND" value={state.land} 
+        onInput={e=>update({land:Number(e.currentTarget.value)})}
+        min={1} max={7} /> <button id="New">New game</button>
       </>,
       <>
         <h4>Saves</h4>
         {htmlTable(loop(13,
-          i => [
+          (i: number) => [
             i || 'auto',
-            i && u ? <button data-save={i}>save</button > : '---',
+            i && u ? <button onClick={() => buttonEffect.save(i)}>save</button > : '---',
             ...localStorage[saveTitlePrefix + i] ?
               [
-                <button data-load={i}>load</button>,
-                <button data-x={i}>X</button>,
+                <button onClick={() => buttonEffect.load(i)}>load</button>,
+                <button onClick={() => buttonEffect.deleteSave(i)}>X</button>,
                 localStorage[saveTitlePrefix + i]] : []
           ]
         ))}

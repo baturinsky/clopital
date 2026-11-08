@@ -1,16 +1,14 @@
 import { type Agent } from "./agent";
 import { Cell } from "./cell";
 import { centerOn, prerenderUniverse } from "./renderer";
-import { agentInfo, Info, setState } from "./ui";
 import { u } from "./universe";
 import { cap1, clamp, debounce, fixed, japaneseName, loop, objStripFalsy, Vec2 } from "./util";
 
 declare const DEBUG: boolean
-declare var TIP: HTMLDivElement, INFO: HTMLDivElement, MID: HTMLDivElement, BTN: HTMLDivElement, Next: HTMLButtonElement;
 
 export const tabs = ["actions done", "possible actions", "needs", "trades and land actions", "gifts"];
 
-type PageName = "saves" | "game";
+type PageName = "saves" | "game" | "research";
 
 export let state = {
   scale: 4,
@@ -33,20 +31,17 @@ export let state = {
 
 export type State = typeof state;
 
-let lastCell: Cell | undefined;
 
 export const
   update = (d: Partial<State> = {}) => {
     Object.assign(state, d);
     let tl = state.topLeftAt;
-    //tl[0] = clamp(-ww * .5 * photoScale[0] * state.scale, tl[0], ww * 1.8 * photoScale[0] * state.scale);
-    //  tl[1] = clamp(-wh * .5 * photoScale[1] * state.scale, tl[1], wh * 1.8 * photoScale[1] * state.scale);
     state.topLeftAt = tl;
-    setState(state)
+    store.setState(state)
   },
   debouncedPrerender = debounce(() => prerenderUniverse()),
-  pointedCell = () => u.c[state.cellPointed as any],
-  selected = () => u.a[state.selected],
+  pointedCell = () => u?.c[state.cellPointed as any],
+  selected = () => u?.a[state.selected],
   select = (a: Agent = selected()) => {
     if (!a)
       return;
@@ -81,3 +76,21 @@ export const
   gotoPage = (page: PageName) => {
     update({ page })
   }
+
+
+const listeners = new Set<() => void>();
+
+export const store = {
+  getState: () => state,
+  setState: (patch: Partial<State>) => {
+    state = { ...state, ...patch };    
+    //listeners.forEach((l) => l());
+    debouncedBroadcast()
+  },
+  subscribe: (l: () => void) => {
+    listeners.add(l);
+    return () => listeners.delete(l);
+  },
+};
+
+let debouncedBroadcast = debounce(()=>listeners.forEach((l) => l()), 50)
