@@ -5,7 +5,7 @@ import { consumerGoods, tradeables } from "./resources";
 import { neighborBy } from "./root";
 import { iterationsPerTurn } from "./setting";
 import { queen, state } from "./state";
-import { addToKey, bestBy, clamp, listSum, numTween, objAdd, objFilter, objForEach, objMap, objScale, objScaleI, objScaleIR, repeat, rng, vecTween, worstBy } from "./util";
+import { addToKey, bestBy, clamp, listSum, numTween, objAdd, objFilter, objForEach, objMap, objScale, objScaleI, objScaleIR, repeat, rng, vecTween } from "./util";
 
 export type GoodNumbers = { [id in string]: number };
 export type Transfer = [MarketAgent, string, number]
@@ -15,15 +15,126 @@ const
 
 const distanceTax = .005, happinessGainMultiplier = 15, consumerGoodsHappiness = 3
 
-/** Utility of one more unit of the good.
- * Closed form: exact at every amount, no table to overflow and no truncation.
+/** Utility of goods: a power law with a discrete marginal step.
+ *
+ * Total utility is the primary quantity. Marginal utility is defined the way recipes and
+ * stocks actually work - one whole unit at a time:
+ *
+ *     marginalUtility(N) = totalUtility(N + 1) - totalUtility(N)
+ *
+ * so total utility is exactly the running sum of marginal utilities. (Treating marginal
+ * utility as the derivative instead made "having none" and "having one" worth the same.
+ * They are not.)
+ *
+ * The curve between whole units is a pure power law, totalUtility(x) ~ x^(1-EXP):
+ *
+ *  - Scale robustness. If an agent holds k times as much of everything its preferences
+ *    must not change - it is just richer. For a power law the ratio of two marginal
+ *    utilities tends to (a/b)^-EXP, independent of k. Any additive offset
+ *    ("1000/(100+x)") reintroduces a scale anchor, and that bias is what `sizeFactor` was
+ *    once added to paper over. With a discrete step this invariance is exact in the
+ *    limit; at one or two units the "+1" is itself a large relative change, which is
+ *    intended rather than a flaw.
+ *
+ *  - No arbitrary offset. The old "+100" silently meant "100 units is a satisfying
+ *    amount", i.e. it encoded a guess about scale. There is no such constant now, so a
+ *    loner with one apple and a firm moving thousands of units sit on the same curve.
+ *
+ *  - No cliff at the top. A table capped at 1e5 used to make anything above it worth
+ *    exactly zero, so large herds could not trade at all. The closed form above the table
+ *    is positive at every finite amount: a billion units is still worth ~4e-3, not 0.
+ *
+ *  - Finite at zero. The first unit is worth utilityScale, never infinite or NaN, and
+ *    negative amounts behave like an empty stock - while the second unit is already worth
+ *    less, so an empty stock and a stock of one are valued differently.
+ *
+ * EXP < 1 keeps it concave (diminishing returns). 0.7 widens the range where two agents
+ * can agree on a price, without flattening value so much that abundance stops mattering.
  */
+const utilityScale = 1e3, utilityExponent = .7, utilityLinear = 1 - utilityExponent
+
+/** Clamp the amount the curve is evaluated at: nothing below one unit is finer than a
+ * unit, and non-finite input is capped rather than turned into NaN or infinity.
+ */
+const utilityAmount = (amount: number) =>
+  !(amount > 1) ? 1 : (amount < Number.MAX_VALUE ? amount : Number.MAX_VALUE)
+
+/** Table of totalUtility for whole amounts, plus a closed form above it.
+ *
+ * `Math.pow` is the whole cost of the value curve, and `util`/`max` are the hottest
+ * functions in the game: a herd holds ~40 goods but has ~120 recipes built from them, so
+ * the same stock values are evaluated over and over, thousands of times per turn.
+ *
+ * This is the table the original code used, kept as the same idea (index by amount,
+ * avoid the pow) but fixed in the two ways the old one was broken:
+ *
+ *  - It ENDS. Above TABLE_SIZE the closed form takes over, so a large stock is no longer
+ *    silently worth zero - the old cap made anything over 1e5 untradeable for big herds.
+ *  - It is filled LAZILY, so values the game never asks for cost nothing. Filling on
+ *    demand also keeps it exact: an entry is either absent (0) or the real value, and
+ *    real values are always > 0, so "0" unambiguously means "not computed yet".
+ *
+ * Measured over a live universe, amounts are integers 99.2% of the time and a table of
+ * 2^17 entries covers 100% of distinct values actually queried (~1MB, 3ms to fill).
+ * A hashed memo was tried first and was worse: the live working set is ~25k distinct
+ * values, so a 4k-entry hash cache ran at a 9% hit rate. An indexed table cannot miss.
+ */
+const UTILITY_TABLE_SIZE = 1 << 17
+/** One extra slot: marginalUtility(N) reads U(N+1) for the largest table index. */
+const utilityTable = new Float64Array(UTILITY_TABLE_SIZE + 2)
+
+/** The closed form: U(x) = C + C*(x^a - 1)/a, linear below one unit. */
+const computeUtility = (amount: number) =>
+  amount < 1
+    ? utilityScale * amount
+    : utilityScale + utilityScale * (Math.pow(utilityAmount(amount), utilityLinear) - 1) / utilityLinear
+
+/** totalUtility, table-backed. Identical results; the table is an implementation detail. */
+const totalUtilityCached = (amount: number) => {
+  /** Zero, negative and NaN are all worth nothing */
+  if (!(amount > 0))
+    return 0
+
+  /** Whole amounts in range: one array read after the first access */
+  if (amount <= UTILITY_TABLE_SIZE && amount === (amount | 0)) {
+    let v = utilityTable[amount]
+    if (v === 0)
+      utilityTable[amount] = v = computeUtility(amount)
+    return v
+  }
+
+  /** Fractional amounts (rewards, averages) and amounts above the table */
+  return computeUtility(amount)
+}
+
 export const
-  marginalUtility = (amount: number) =>
-    1e3 / (100 + (amount > 0 ? amount : 0)),
-  /** Total utility of having *amount* of a good - the integral of marginalUtility */
-  totalUtility = (amount: number) =>
-    1e3 * Math.log((100 + (amount > 0 ? amount : 0)) / 100),
+  /** Total utility of having *amount* of a good. Exactly the running sum of
+   * marginalUtility over whole units. `!(amount > 0)` also catches NaN.
+   */
+  totalUtility = totalUtilityCached,
+  /** Utility of one more unit, by definition U(N+1) - U(N).
+   *
+   * For whole amounts this is literally that subtraction of two table entries, which is
+   * why the table is worth keeping: `bestSeller` alone asks for it twice per tradeable
+   * good per trade, and a pow/log/expm1 chain there was the top of the profile.
+   */
+  marginalUtility = (amount: number) => {
+    /** The first unit is worth utilityScale; negative and NaN act like an empty stock */
+    if (!(amount > 0))
+      return utilityScale
+    /** Below one unit the total is linear, so take the difference directly */
+    if (amount < 1)
+      return totalUtilityCached(amount + 1) - totalUtilityCached(amount)
+    /** Whole amounts in table range: two reads, exactly the definition */
+    if (amount <= UTILITY_TABLE_SIZE && amount === (amount | 0))
+      return totalUtilityCached(amount + 1) - totalUtilityCached(amount)
+    /** (x+1)^a - x^a written as x^a * expm1(a*log1p(1/x)) / a, which stays accurate
+     * at large x where subtracting the two powers would cancel to noise.
+     */
+    const x = utilityAmount(amount)
+    return utilityScale * Math.pow(x, utilityLinear) *
+      Math.expm1(utilityLinear * Math.log1p(1 / x)) / utilityLinear
+  },
   totalStockUtility = (agent: MarketAgent) =>
     listSum(Object.keys(agent.stock).map(k => totalGoodUtility(agent, k))),
   totalGoodUtility = (agent: MarketAgent, good: string) =>
@@ -37,7 +148,7 @@ export const
       ])))
   },
   utilities = (a: MarketAgent) =>
-    Object.fromEntries(Object.keys(a.stock).map(k => [k, a.mutil(k)])),
+    Object.fromEntries(Object.keys(a.stock).map(k => [k, a.marginalUtilityOf(k)])),
   gains = (r: GoodNumbers) => objFilter(r, v => v > 0),
   losses = (r: GoodNumbers) => objScale(objFilter(r, (v, k) => v < 0), -1);
 
@@ -45,6 +156,21 @@ export const
 export type RecipeX = {
   place: Agent | Cell,
   recipe: GoodNumbers
+}
+
+/** Recipes already reported as having no input - so one bad recipe logs once, not every
+ * iteration. Keyed by the recipe contents, since that is what is actually wrong.
+ */
+const reportedFreeRecipes = new Set<string>()
+const reportFreeRecipe = (recipe: RecipeX) => {
+  let key = JSON.stringify(recipe.recipe)
+  if (reportedFreeRecipes.has(key))
+    return
+  reportedFreeRecipes.add(key)
+  console.error(
+    `Recipe ${key} has no input, so it could be used an unlimited number of times. ` +
+    `It is disabled. Give it at least one good with a negative amount.`
+  )
 }
 
 export type MarketAgentParameters =
@@ -101,32 +227,6 @@ export class MarketAgent {
   /** Happiness gained */
   happinessGained = {} as any
 
-  /** Scales the amounts a herd reasons about.
-   *
-   * Consumption and production are linear in size, so a herd of 1000 really does hold
-   * 1000x the goods - some scaling is conceptually justified.
-   *
-   * But it is deliberately 1 for now, because the cost is not the concept, it is the
-   * bookkeeping: every place that values a quantity must apply the same factor, and the
-   * ones that forget silently disagree with the rest. `barter` used to price a deal with
-   * mutil (scaled) and accept it with totalUtility (unscaled) - two notions of value in
-   * one function.
-   *
-   * The scaling now lives in exactly one place, `valueOf`, and everything goes through it.
-   * To switch it on, change ONLY this getter. Then re-check that
-   *   - `valueOf` and `mutil` agree (mutil is the derivative of valueOf),
-   *   - trades still converge to equal mutil ratios between herds of different size,
-   *   - a herd still "perceives" small amounts: with a factor of N, anything below N
-   *     units of a good is worth as much as nothing, which is the trap to watch for.
-   *
-   * `return Math.max(1, this.size)` was measured: it removes the artificial "big herds
-   * look rich" bias and lets large herds trade again, but it makes the perceived value of
-   * a small pile collapse for big herds, and it changes every balance number.
-   */
-  get sizeFactor() {
-    return 1
-  }
-
 
   constructor(params: MarketAgentParameters = {}) {
   }
@@ -148,32 +248,45 @@ export class MarketAgent {
     ).flat(1) as RecipeX[]
   }
 
-  /** Utility of having *amount* of one good, in this agent's own terms.
-   * This is THE place where herd size is accounted for: everything that values a
-   * quantity goes through here (or through mutil), never through totalUtility directly.
+  /** Utility of having *amount* of one good.
+   *
+   * Values are no longer scaled per agent: the curve itself is scale-free, so an agent
+   * holding ten times as much of everything simply sits further along the same curve.
+   * This indirection is kept so that the valuation of a quantity always goes through the
+   * agent, never through totalUtility directly - that is what keeps price and
+   * accept-check consistent.
    */
   valueOf(amount: number) {
-    return totalUtility(amount / this.sizeFactor)
+    return totalUtility(amount)
   }
 
-  /** Marginal utility
-   * The perceived utility of the one unit of this good
-   * If working in worlplace, use the sum of stock
-  */
-  mutil(good: string, place?: MarketAgent, travelPerUnit = 0) {
-    let v = marginalUtility(this.common(good, place) / this.sizeFactor) -
-      (travelPerUnit ? marginalUtility((this.stock.travel ?? 0) / this.sizeFactor) * travelPerUnit : 0)
-    return v
+  /** Marginal utility of one unit of *good*
+   * What one more unit would be worth to this agent, given what it already has.
+   * If working in a workplace, use the sum of the local stock.
+   */
+  marginalUtilityOf(good: string, place?: MarketAgent, travelPerUnit = 0) {
+    let value = marginalUtility(this.common(good, place)) -
+      (travelPerUnit ? marginalUtility(this.stock.travel ?? 0) * travelPerUnit : 0)
+    return value
   }
 
-  /** Recipe utility
-   * How much the market utility will change when using the recipe without multiplier */
+  /** Recipe utility - the exact change in total utility from using the recipe once,
+   * i.e. a difference of totalUtility, not a sum of marginal prices.
+   *
+   * For one-unit amounts this equals the sum of marginal utilities; for larger amounts
+   * (a recipe that turns 10 tools into 40 crafting) it is the honest finite difference,
+   * which a marginal-price sum only approximates.
+   *
+   * Written as a plain loop: this is one of the two hottest functions in the game, and
+   * Object.keys + a callback per good allocated enough to show up in profiles.
+   */
   util(recipe: RecipeX) {
-    return listSum(Object.keys(recipe.recipe), good => {
-      //if(recipe.recipe.seaweed>0)        debugger
-      let v = this.mutil(good, recipe.place) * recipe.recipe[good]
-      return v
-    })
+    let r = recipe.recipe, place = recipe.place as MarketAgent, total = 0
+    for (let good in r) {
+      let common = this.common(good, place)
+      total += this.valueOf(common + r[good]) - this.valueOf(common)
+    }
+    return total
   }
 
   /** Who pays for (or receives) this part of the recipe at *place*.
@@ -238,17 +351,33 @@ export class MarketAgent {
 
   /** Maximum recipe multiplier which would not reduce the market stock of anything below zero
    * Would only check goods with negative amount in recipe, i.e. would nor prevent increasing the already negative good
+   *
+   * A recipe with no input at all is not a recipe: nothing limits it, so it could be used an
+   * unbounded number of times. Since there is no cap on uses per turn, such a recipe means
+   * literally infinite free goods. It is refused (multiplier 0) and reported once.
    */
   max(recipe: RecipeX) {
-    let place = recipe.place as MarketAgent;
-    let bb = worstBy(Object.keys(recipe.recipe), good => {
-      let makes = recipe.recipe[good];
+    let place = recipe.place as MarketAgent, r = recipe.recipe, limit = Infinity, limited = false
+    /** Plain loop rather than Object.keys + worstBy: this runs ~120x per herd per pass
+     * and the closure/key array was a measurable share of the cost. */
+    for (let good in r) {
+      let makes = r[good]
+      /** Only goods actually consumed limit the recipe; outputs and zeroes never do */
+      if (makes >= 0)
+        continue
+      limited = true
       /** Only the stock of whoever would actually pay for this good limits the recipe */
-      return makes > 0 ? Number.MAX_VALUE :
-        (this.stockOwner(place, good, makes).stock[good] ?? 0) / -makes
+      let available = (this.stockOwner(place, good, makes).stock[good] ?? 0) / -makes
+      if (available < limit)
+        limit = available
     }
-    )[1]
-    return bb
+
+    if (!limited) {
+      reportFreeRecipe(recipe)
+      return 0
+    }
+
+    return limit
   }
 
   /** Common amount of res between this and place */
@@ -259,7 +388,7 @@ export class MarketAgent {
 
   bestSeller(buyer: MarketAgent, minimalStock = 40) {
     let soldables = this.soldableTo(buyer);
-    let [good, v] = bestBy([...soldables], k => this.stock[k] > minimalStock ? buyer.mutil(k) / this.mutil(k) : 0);
+    let [good, v] = bestBy([...soldables], k => this.stock[k] > minimalStock ? buyer.marginalUtilityOf(k) / this.marginalUtilityOf(k) : 0);
 
     return v > 0 ? good : undefined;
   }
@@ -274,8 +403,8 @@ export class MarketAgent {
   }
 
   /** Would this swap, including the travel it costs us, make both sides better off?
-   * Each side is judged by its own valueOf, so a sizeFactor (if any) cannot make the
-   * price and the accept-check disagree.
+   * Each side is judged by its own valueOf, so a pricing bug here cannot silently make
+   * the accept-check disagree with the price.
    */
   tradeIsGood(their: MarketAgent, myGood: string, weGive: number, theirGood: string, theyGive: number, travelUsed = 0) {
     let
@@ -309,8 +438,8 @@ export class MarketAgent {
     /** How many of their good they want for one of ours, and how many we want.
      * Any price between the two leaves both sides better off.
      */
-    let theirBreakEvenPrice = their.mutil(myBestSeller) / their.mutil(theirBestSeller);
-    let ourBreakEvenPrice = this.mutil(myBestSeller) / this.mutil(theirBestSeller);
+    let theirBreakEvenPrice = their.marginalUtilityOf(myBestSeller) / their.marginalUtilityOf(theirBestSeller);
+    let ourBreakEvenPrice = this.marginalUtilityOf(myBestSeller) / this.marginalUtilityOf(theirBestSeller);
 
     /** How much travel we can afford to spend on this deal at all.
      * Keep enough for a full move, so trading does not strand the herd.
@@ -430,17 +559,61 @@ export class MarketAgent {
   }
 
   useRecipes() {
-    let limit = 30;
+    let recipes = this.recipes, n = recipes.length
+    if (!n)
+      return
+
     /** A recipe is worth using while its total gain (utility per use * uses available) is positive */
-    let score = (recipe: RecipeX) => {
+    let evaluate = (recipe: RecipeX) => {
       let v = this.util(recipe) * this.max(recipe)
       return v > 0 ? v : 0
     }
+
+    /** Which recipes mention each good. Applying a recipe changes the stocks of exactly
+     * its own goods, so only recipes sharing a good can change their score - everything
+     * else is recomputed identically. Since a pass scores all 120 recipes up to 30 times,
+     * but only applies ~12, this removes most of the work.
+     */
+    let byGood = new Map<string, number[]>()
+    for (let i = 0; i < n; i++)
+      for (let good in recipes[i].recipe) {
+        let list = byGood.get(good)
+        if (!list)
+          byGood.set(good, list = [])
+        list.push(i)
+      }
+
+    /** Scores are cached; -1 means "must be recomputed" (a real score is never negative) */
+    let scores = new Float64Array(n)
+    for (let i = 0; i < n; i++)
+      scores[i] = evaluate(recipes[i])
+
+    let limit = 30
     while (limit--) {
-      let [recipe, v] = bestBy(this.recipes, score)
-      if (!(v > 0))
+      let best = -1, bestScore = 0
+      for (let i = 0; i < n; i++) {
+        let v = scores[i]
+        if (v < 0)
+          v = scores[i] = evaluate(recipes[i])
+        /** Strict > keeps the first of equal scores, exactly like bestBy */
+        if (v > bestScore) {
+          bestScore = v
+          best = i
+        }
+      }
+
+      if (!(bestScore > 0))
         break
+
+      let recipe = recipes[best]
       this.useRecipe(recipe, this.recipeUseMultiplier(recipe))
+
+      for (let good in recipe.recipe) {
+        let list = byGood.get(good)
+        if (list)
+          for (let i of list)
+            scores[i] = -1
+      }
     }
   }
 

@@ -20,9 +20,9 @@ Each herd
 
 They decide what they will convert, consume, and trade, based on how valuable each resource is for them.
 
-Resource value is decided by a simple rule - the more they have of it, the less they want more of it ("diminishing marginal utility").
+Resource value is decided by a simple rule - the more they have of it, the less they want more of it ("diminishing marginal utility"). The first unit matters most: gaining a unit of something they have none of is valued clearly higher than gaining another unit of something they already have plenty of.
 
-Herd uses the recipe when, and only when it increases the total subjective value ("utility") of their total stock.
+Herd uses the recipe when, and only when it increases the total subjective value ("utility") of their total stock. A recipe which consumes nothing is not allowed, since it could be repeated forever - it is refused and reported as an error.
 
 # Trading
 

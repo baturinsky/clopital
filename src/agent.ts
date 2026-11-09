@@ -249,9 +249,9 @@ export class Agent extends MarketAgent {
   giftCalc(good: string, give: boolean) {
     let giver = give ? queen() : this;
     /** Value it in our own terms, so this stays consistent with everything else */
-    let mu = this.mutil(good)
+    let oneMore = this.marginalUtilityOf(good)
     let amount = Math.ceil(giver.stock[good] / 20);
-    let value = ~~((mu * amount * (give ? .9 : 1.1))**.45);
+    let value = ~~((oneMore * amount * (give ? .9 : 1.1))**.45);
     if (!give)
       value++;
     if (!value)

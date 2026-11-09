@@ -272,7 +272,7 @@ onkeydown = e => {
       console.log(selected().recipes.map((recipe) =>
         [JSON.stringify(recipe.recipe), selected().util(recipe) * selected().max(recipe)]));
 
-      console.log(objMap(selected().stock, k => selected().mutil(k)));
+      console.log(objMap(selected().stock, k => selected().marginalUtilityOf(k)));
 
       selected().iterate()
     }
