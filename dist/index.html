@@ -4,19 +4,3001 @@
   <meta charset="utf-8" />
   <title>Clopital</title>
   <link rel="icon" href="data:;base64,iVBORwOKGO=" />
-  <script type="module" crossorigin>let e=1;const t=t=>{e=t},i=(e,t=T)=>e[t(e.length)],s=(e,t,i=1e30)=>t<e?e:t>i?i:t,a=(e,t=e=>e)=>e.reduce((e,i)=>e+t(i),0),r=(e,t,i=1)=>[e[0]+t[0]*i,e[1]+t[1]*i],n=(e,t)=>[e[0]-t[0],e[1]-t[1]],l=(e,t)=>e&&t&&f(n(e,t)),o=(e,t)=>e.map(e=>e*t),c=(e,t)=>[e[0]*t[0],e[1]*t[1]],h=(e,t,i)=>[e[0]*(1-i)+t[0]*i,e[1]*(1-i)+t[1]*i],p=e=>~~e-(e<0?1:0),f=e=>(e[0]**2+e[1]**2)**.5,u=e=>[1,2,3,4].map(t=>parseInt(e[t]??"f",16)/15),g=(e,t)=>[...new Array(e)].map((e,i)=>t(i)),d=(e,t=e=>e)=>e.reduce((e,i)=>{let s=t(i);return s<=e[1]?e:[i,s]},[void 0,Number.NEGATIVE_INFINITY]),m=(e,t,i)=>e[t]=(e[t]??0)+i,b=()=>{let e="";for(let t=T(3)+2;t>0;t--)e+=i([..."kstnhmyrw",""],T)+i([..."aiueo",""],T);return v(e)},v=e=>`${e}`.charAt(0).toUpperCase()+`${e}`.substring(1),w=e=>null==e?[]:Array.isArray(e)?e:[e],k=(e,t)=>{let i=e.indexOf(t);-1!=i&&e.splice(i,1)},y=(e,t)=>Object.fromEntries(Object.entries(e).map(([e,i])=>[e,t(i,e)])),j=(e,t)=>Object.fromEntries(Object.entries(e).filter(([e,i])=>t(i,e))),E=(e,t={},i=1)=>(Object.keys(t).forEach(s=>e[s]=(e[s]??0)+t[s]*i),e),$=(e,t)=>y(e,e=>e*t),O=e=>j(e,e=>e),x=t=>(e=(69069*e+1)%2**31,e%t),T=t=>-1==t?e:null==t?x(1e9)/1e9:x(t),A=2*Math.PI,M=128,L=12288,S=[-127,1,M,127,-1,-M],I=[16,12],N=o(I,-.5),D=g(100,e=>S.map((t,i)=>[0,...g(e,e=>g(e+1,s=>t*(e+1)+S[(i+2)%6]*s))]).flat(2)),H=e=>{let[t,i]=[(s=e)%M,~~(s/M)];var s;return[(t+i/2)%M,i]},z=[["jungles","swamp","taiga","snowfield"],["plains","forest","taiga","snowfield"],["desert","steppe","tundra","snowfield"]],R={bedrock:{color:"#000",prop:0,travel:1e9,habitability:0},desert:{color:"#fd0",prop:7,travel:2,habitability:1,races:"zebras",special:{cacao:5},soil:2},snowfield:{color:"#fff",travel:2,habitability:0,races:"deers",special:{coal:1}},tundra:{color:"#8fa",prop:5,travel:2,habitability:1,races:"deers",special:{moss:1},soil:2},steppe:{color:"#ce2",prop:5,travel:1,habitability:2,races:["zebras","horses"],special:{cotton:3},soil:4},taiga:{color:"#fff",prop:1,travel:3,habitability:1,races:"deers",special:{honey:1},soil:2,trees:2},forest:{color:"#4a4",prop:2,travel:2,habitability:2,races:["deers","horses"],special:{apples:1},soil:3,trees:3},plains:{color:"#7f0",prop:5,travel:1,habitability:2,races:"horses",special:{wheat:5,cotton:2},specialx:3,soil:6},swamp:{color:"#0aa",prop:5,travel:4,habitability:1,soil:3,races:"unicorns",special:{sugarcane:3}},jungles:{color:"#0b0",prop:3,travel:4,habitability:1,races:"zebras",special:{rubber:3,sugarcane:3},soil:3,trees:4},peaks:{color:"#fff",prop:9,travel:2,habitability:0,races:"goats",special:{gems:1},deposits:3,soil:1},sea:{color:"#0af",prop:6,seaTravel:1,habitability:0,races:"seahorses",special:{oil:1},deepwater:1},ocean:{color:"#08e",prop:6,seaTravel:2,habitability:0,races:"seahorses",special:{pearls:.3},deepwater:1}};for(let C in R){let e=R[C];e.name=C,e.rgba=u(e.color),e.races=w(e.races)}const F=e=>({s:(e=w(e))[0],c:e[1]?.split(",")}),_=["oil","gems","iron","copper","stone","coal","pearls"],q=["grass","seaweed","wheat","sugarcane","apples","honey","bread","jam","cacao","chocolate","pie"],G=new Set(["apples","bread","honey","jam","pie","cacao","chocolate","gems","pearls","tools","lumber","engines","fabric","hats","iron","beds","fuel"]),P=new Set([...q,"cotton","rubber","fertilisers","gems","tools","lumber","engines","fabric","hats","iron","beds","fuel",..._,"water"]),U=y({unknown:106,working:80,workingHard:81,crops:[82,"#f00,#00f"],deposits:9,ore:[83,"#00f,,#008"],coal:[83,"#000"],iron:[84,"#888,"],copper:[84,"#f80,#fff,#fff"],salt:[83,"#fff,,#aaa"],trees:1,soil:[105,"#000"],deepwater:[86,"#048,#fff"],irrigation:[86,"#00f,#fff"],water:[86,"#08f,#fff"],tools:[80,"#88a,,#55a"],travel:[100,"#00f"],walk:[100,"#fff"],horseshoes:[100,"#666"],diving:[100,"#048"],gems:[85,"#f08,#fff"],oil:[93,"#000,,#222"],rubber:[86,"#840,,#222"],honey:[96,"#f80"],jam:[96,"#f08"],cacao:[82,"#a40"],moss:[105,"#4af,#888"],wheat:[113,"#fe0"],fuel:[93,",,#0f0"],cotton:[82,"#fff"],apples:[99,"#f00"],pearls:[114,"#ddd"],vehicles:116,beds:[117,"#a40,,#fff"],fun:[94,"#0f0"],comfort:117,happiness:95,crafting:[97],stone:[83,"#444,,#444"],lumber:[112,"#fa6"],chocolate:[112,"#820"],axing:109,grass:[105,"#4a4"],sugarcane:[90,"#8f8,#88f"],seaweed:[90,"#f0f,#f44"],magic:94,warp:94,energy:[94,"#00f,#00f"],food:[99,"#0f0,#000"],cooking:[96,"#fff"],fertilisers:[89,"#620,#220"],sugar:[89,"#fff,#aaa"],thinking:[91,"#fca"],digging:110,fabric:[91,"#f0f"],hats:[98,"#f0a"],engines:[92,"#444"],electronics:[92,"#0a0"],walkFar:[120,"#f80"],time:[120,"#fff"],tab0:80,tab1:[91,"#fca"],tab2:95,tab3:115,tab4:119,pie:[84,"#f0f"],bread:[84,"#400"]},F),J={soil:{income:{soil:1,irrigation:.2,fertilisers:.2},ownRecipes:[{soil:-1,irrigation:-1,fertilisers:-2,digging:-1,crops:4},{crops:-1,grass:1}]},trees:{income:{trees:1},ownRecipes:[{trees:-1,workingHard:-1,lumber:2}]},deposits:{income:{deposits:3},ownRecipes:[{deposits:-1,digging:-1,thinking:-1,ore:3},{ore:-1,stone:1}]},deepwater:{income:{deepwater:3},ownRecipes:[{deepwater:-1,seahorsing:-1,seaweed:3},{deepwater:-1,seahorsing:-1,water:3},{deepwater:-1,travel:-1,water:1},{deepwater:-1,travel:-1,seaweed:1}]}},K=[{working:-2,workingHard:1},{working:-1,magic:-5,workingHard:3},{working:-1,thinking:1},{working:-1,cooking:1},{working:-1,travel:2},{working:-3,electronics:-1,thinking:20},{working:-10,thinking:-10,engines:-1,energy:-10,workingHard:50},{workingHard:-1,digging:1},{workingHard:-1,thinking:-1,crafting:1},{workingHard:-10,thinking:-10,tools:-1,crafting:40},{working:-1,thinking:-2,engines:-1,fuel:-3,crafting:15},{vehicles:-1,fuel:-5,travel:40},{vehicles:-1,fuel:-5,diving:30},{engines:-1,fuel:-10,energy:100},{fuel:-1,energy:3},{magic:-1,fertilisers:1},{crafting:-1,iron:-1,tools:3},{crafting:-1,lumber:-1,tools:1},{crafting:-1,food:-1,coal:-1,fertilisers:3},{crafting:-1,lumber:-1,fuel:2},{crafting:-1,coal:-1,fuel:5},{crafting:-1,oil:-1,fuel:10},{crafting:-1,sugarcane:-3,sugar:5},{crafting:-1,cotton:-1,fabric:2},{crafting:-1,fabric:-1,hats:2},{crafting:-1,rubber:-1,copper:-1,electronics:2},{crafting:-1,lumber:-1,fabric:-1,beds:2},{crafting:-1,rubber:-1,engines:-1,iron:-1,vehicles:5},{crafting:-3,iron:-2,engines:3},{crafting:-1,iron:-1,horseshoes:2},{crafting:-1,electronics:-1,iron:-1,engines:10},{crafting:-1,copper:-1,rubber:-1,electronics:4},{cooking:-1,sugar:-1,cacao:-1,chocolate:3},{cooking:-1,sugar:-1,bread:-1,apples:-1,pie:10},{cooking:-1,sugar:-1,apples:-1,jam:5},{cooking:-1,energy:-1,wheat:-1,bread:5},{magic:-1,fun:5},{electronics:-1,fun:10},{travel:-2,fun:1},{hats:-1,comfort:2},{beds:-1,comfort:2},{horseshoes:-1,comfort:2},{pearls:-1,comfort:2}],B={alicorn:{job:"alicorning",wm:10,recipes:[{alicorning:-1,magic:100},{alicorning:-1,thinking:100},{alicorning:-1,travel:100}]},horses:{job:"horsing",recipes:[{horsing:-1,workingHard:1},{horsing:-10,tools:-1,workingHard:20}]},unicorns:{job:"unicorning",income:{gems:-.2},recipes:[{unicorning:-1,magic:1},{unicorning:-3,thinking:2}]},pegasi:{job:"pegasing",income:{fabric:-.2},recipes:[{pegasing:-1,water:1}]},zebras:{job:"zebring",income:{jam:-.2},recipes:[{zebring:-1,cooking:3}]},deers:{job:"deering",income:{salt:-.2}},goats:{job:"goating",income:{tools:-.2},recipes:[{goating:-1,digging:3}]},seahorses:{job:"seahorsing",income:{lumber:-.2},recipes:[{seahorsing:-1,diving:2}]}},X=[];for(let C=0;C<1e5;C++){let e=1e3/(100+C);if(!e)break;X[C]=e}const W=X.length,Y=e=>e>W?0:X[~~e];class V{uses={};size=1;iterations=0;get consumeIfAbove(){return this.size}ravg=100;name;recipes=[];ownRecipes=[];places=[];transfers=[];income={};sells;buys;stock={};cap={};consumed={};happinessGained={};get sizeFactor(){return 1}constructor(e={}){}initMarket(e={}){Object.assign(this,e),e.sellList&&(this.sells=new Set(e.sellList)),e.buyList&&(this.buys=new Set(e.buyList))}recomp(){let e=this.places[this.iterations%this.places.length];this.recipes=[this,..."bedrock"==e.biome.name?[]:[e]].map(e=>e.ownRecipes?.map(t=>({place:e,recipe:t}))).flat(1)}mutil(e,t,i=0){return Y(this.common(e,t)/this.sizeFactor)-(i?Y((this.stock.travel??0)/this.sizeFactor)*i:0)}util(e){return a(Object.keys(e.recipe),t=>this.mutil(t,e.place)*e.recipe[t])}useRecipe(e,t){t??=this.recipeUseMultiplier(e);let i=JSON.stringify(e.recipe);E(this.uses,{[i]:t}),e.place!=this?(E(e.place.uses,{[i]:t}),Object.keys(e.recipe).forEach(i=>{let s=e.recipe[i]*t,a=s<0?i in this.stock:P.has(i);(a?this:e.place).gain(i,s),a&&this.addTransfer(e.place,i,s)})):E(e.place.stock,e.recipe,t)}addTransfer(e,t,i){let s=this.transfers.find(t=>t.place==e);s||(s={place:e,recipe:{}},this.transfers.push(s)),m(s.recipe,t,i)}max(e){return((e,t=e=>e)=>{let[i,s]=d(e,e=>-t(e));return[i,-s]})(Object.keys(e.recipe),t=>{let i=this.common(t,e.place),s=e.recipe[t];return s>0?Number.MAX_VALUE:(i??0)/-s})[1]}common(e,t){return(this.stock[e]??0)+(t==this?0:t?.stock[e]??0)}bestSeller(e,t=40){let i=this.soldableTo(e),[s,a]=d([...i],i=>this.stock[i]>t?e.mutil(i)/this.mutil(i):0);return a>0?s:void 0}soldableTo(e){return this.sells&&e.buys?this.sells.intersection(e.buys):this.sells??e.buys??P}barter(e,t=0){let i=this.bestSeller(e),s=e.bestSeller(this);if(!i||!s)return!1;let a=.005*t,r=e.mutil(i)/e.mutil(s),n=this.mutil(i,void 0,a)/this.mutil(s,void 0,a);if(Math.abs(r-n)<.2)return!1;let l=.8*n+.2*r;l*=100;let o=Math.min(this.stock[i],e.stock[s]*l,(this.stock.travel??0)/a/(1+l)),c=Math.ceil(o/4),h=Math.min(e.stock[s]/4,c*l);if(h=Math.ceil(h),!(c>0))return!1;let p=~~((c+h)*a);return this.addTransfer(e,"travel",-p),this.gain("travel",-p),this.give(e,i,c),e.give(this,s,h),!0}give(e,t,i){this.addTransfer(e,t,-i),e.addTransfer(this,t,i),e.gain(t,i),this.gain(t,-i)}gain(e,t){this.stock[e]=s(0,(this.stock[e]??0)+~~t,this.cap[e]??1e24),this.stock[e]}iterate(){this.recomp(),this.useRecipes(),this.trade(),this.gainIterationIncome(),this.iterations++}trade(){}gainIterationIncome(){var e,t;e=this.totTurnInc(),t=(e,t)=>{let i=Math.ceil(e/7);if(0!=i){if(i<0){if((this.stock[t]??0)<this.consumeIfAbove-i)return;m(this.consumed,t,-i)}this.gain(t,i)}},Object.entries(e).forEach(([e,i])=>t(i,e))}happinessGain(){let e=yt()==this?.01:1,t=this.totTurnInc(-1);return y(this.consumed,(i,s)=>{let a=i/t[s]*e*15*(G.has(s)?3:1)*(this.income[s]??0);return t[s]||(a=0),a})}useRecipes(){{let e=30;for(;e--;){let[e,t]=d(this.recipes,e=>this.util(e)*this.max(e));if(!(t>0))break;this.useRecipe(e,this.recipeUseMultiplier(e))}}}recipeUseMultiplier(e){return Math.ceil(this.max(e)/8)}totTurnInc(e=0){let t=$(this.income,this.size);return e&&(t=j(t,t=>e*t>0)),t}}const Q=1e12;class Z extends V{constructor(e){super(),this.at=e,this.name=b();let t=H(e);this.bedrock=t[0]<1||t[0]>126||t[1]<1||t[1]>94}elev=0;hum=0;rivers=0;roads=0;t=0;woke;biome=R.bedrock;name;layer=3;bedrock;neighborsByDir;neighbors;neighborhood;seen;settlement;resources;special;_cir=[];a=[];cir(e){return this._cir[e]||(this._cir[e]=new Set(D[e].map(e=>Ue.c[e+this.at]).filter(e=>e))),this._cir[e]}water(){return this.elev<Ue.elev[Be]}initMarket(){super.initMarket(te(this))}get cell(){return this}pathfind(e,t,i){const s=new Set,a=[],r={},n=ee(e);for(a.push({c:this,d:0,from:this}),s.add(this);a.length>0;){const e=a.shift();if(r[e.c.at]=e,e.c==i)return r;e.c.neighbors.forEach(i=>{if(!s.has(i)&&i.biome!=R.bedrock){s.add(i);let r=e.d+n(e.c,i);if(r<=t){let t;for(t=a.length-1;t>=0&&a[t].d>r;t--);a.splice(t+1,0,{c:i,d:r,from:e.c})}}})}return r}pathFrom(e={}){let t=[this],i=e[this.at];if(i){for(;i.c!=i.from;)i=e[i.from.at],t.push(i.c);return t.reverse()}}topLeft(e=[0,0],t){let i=H(this.at);return i=r(c(i,I),e),i[1]-=We*(t??this.layer??0),i}center(e=[0,0],t){return this.topLeft(r(e,I,.5),t)}nextTurn(){var e,t;this.woke&&(this.gainIterationIncome(),e=this.cap,t=(e,t)=>this.stock[t]>=e,Object.entries(e).every(([e,i])=>t(i,e))&&(this.woke=!1))}}const ee=e=>(t,i)=>{switch(e){case"alicorn":case"pegasi":return i.bedrock?Q:.5;case"seahorses":return i.water()||t.water()||t.rivers||i.rivers?1:Q;default:let s=i.biome.travel??1e9;return i.a.length>0&&(s=Math.min(1,s)),B[e]&&i.biome.races.includes(e)&&(s/=2),s}},te=e=>{let t,s={},a=[];for(let i in e.resources)e.resources[i]&&(E(s,J[i].income,e.resources[i]),a=[...a,...J[i].ownRecipes]);return a.push({digging:-1,water:Object.keys(R).indexOf(e.biome.name)}),!e.special&&e.layer>T(100)&&(e.special=i(["iron","copper"])),e.special&&a.push({[_.includes(e.special)?"ore":"crops"]:-1,[e.special]:1}),s=$(O(s),100),t=$(s,100),e.rivers&&(s.water=1e3),{income:s,ownRecipes:a,cap:t,stock:{...t}}},ie=(e,t=[])=>{if(e.bedrock)return;if(t.push(e),e.elev<Ue.elev[Be])return t;let i=(s=e.neighbors)[(e=>{let t=e.map(e=>e.elev);return t.indexOf(Math.min(...t))})(s)];var s;if(!i)return;let a=e.elev-i.elev;return a>0?(Ue.rivers||(e.elev-=a/2,i.elev+=a/3),ie(i,t)):void 0};let se=[];const ae=(e,t,i=200)=>{let s={i:e,wp:t,t:0,s:i};return se.push(s),s},re=["alicorn","pegasi"],ne=[...re,"seahorses"],le="CLP:",oe="CLP!",ce=(e=0)=>{Te();let t={...dt,c:y(j(Ue.c,e=>e.woke),e=>pe(e)),a:Ue.a.map(e=>pe(e)),s:Ue.c.map(e=>e.seen?1:0)};localStorage[le+e]=JSON.stringify(t),localStorage[oe+e]=(new Date).toISOString()},he=e=>Object.fromEntries(["name","turns","size","steps","happiness","consumed","uses"].map(t=>[t,e[t]])),pe=e=>({stock:e.stock,...e instanceof Ke?{...he(e),dest:e.dest?.at,cell:e.cell.at,race:e.race.name,transfers:e.transfers?.map(ue)}:{}}),fe=(e,t)=>{t&&Object.assign(e,{stock:t.stock,...e instanceof Ke?{...he(t),cell:Ue.c[t.cell],dest:Ue.c[t.dest],race:B[t.race],transfers:t.transfers}:{}})},ue=e=>{return{place:(t=e.place,t instanceof Ke?"a"+Ue.a.indexOf(t):"c"+t.at),recipe:e.recipe};var t},ge=e=>{return{place:(t=e.place,("a"==t.charAt(0)?Ue.a:Ue.c)[t.slice(1)]),recipe:e.recipe};var t},de={icon(e){return je(e.of,e.tip)}};function me(e,t,...i){return"function"==typeof e?i.join(""):de[e]?de[e]({...t,children:i}):`<${e}${t?Object.entries(t).map(([e,t])=>` ${e}="${t}"`).join(" "):""}>${i.join("")}</${e}>`}let be=!1;const ve=(e,...t)=>{let i=[TIP,INFO,MID][e],s=document.createElement("div");s.innerHTML=t.filter(e=>e).map(e=>"btn"==e?we():"string"==typeof e&&"!"==e?.charAt(0)?me("div",{class:"ptl"},e?.substring(1)):me("div",{class:`pnl tab${dt.tab}`},e||" ")).join(""),s.id=i.id,ke(s),i.parentElement?.replaceChild(s,i)},we=()=>me("div",{class:"abtn"},g(5,e=>me("button",{id:"tab"+e,class:e==dt.tab?"h":""},je("tab"+e,gt[e]))).join("")),ke=e=>{let t=e.querySelectorAll("[data-icon]");for(let i of t){let e=i.dataset.icon;i.children[0].innerHTML="",i.children[0].appendChild(Ge(e))}},ye=e=>"notip"==e?"":`<span class=ttx>${e}</span>`,je=(e,t)=>me("span",{"data-icon":e,class:"icon"},me("span",{class:"img"}),ye(t??e)),Ee=e=>e?`${Object.entries(e).map(([e,t])=>$e(e,t)).join("")}`:void 0,$e=(e,t)=>me("span",{class:"good"},me("icon",{of:e,tip:"notip"}),(e=>{if(!Number.isFinite(e))return e;let t=Math.abs(e);return(e<0?"-":"")+(t<1e4?~~(1e3*t)/1e3:t<1e7?~~(t/1e3)+"K":t<1e10?~~(t/1e6)+"M":t.toExponential(5))})(t),ye(e)),Oe=e=>{let t,[i,s]=[j(e,e=>e<0),j(e,e=>!(e<0))];return t=Object.keys(i).length?`${Ee($(i,-1))}→</span>${Ee(s)}`:Ee(e),t},xe=(e,t=!0)=>e instanceof Ke?`<h4 data-a="${Ue.a.indexOf(e)}">${je(e.race.name)}${e.name}${t?` - ${e.size>1?e.size:""} ${e.race.name} ${(e=>`<span style="color:${e.happy()?"#080":"#a00"}">${$e("happiness",e.happiness)}</span>`)(e)}`:""}</h4>`:`<h4 data-c="${e.at}">${e.name} ${e.biome.name} ${e.special?`with ${e.special}`:""}</h4>`,Te=()=>{let e=vt(),t=[];e&&(t.push(Ae([`${xe(e)}${Ee(O(e?.stock))}`,`${je("time")}${Ee(e.income)}`,Me(e.ownRecipes.map(Oe))])),Object.keys(e.uses).length&&t.push(["!jobs this turn",Le(e)]),e.a.forEach(e=>t.push(xe(e)))),ve(0,...t)},Ae=e=>e.map(e=>me("div",null,e)).join(""),Me=e=>me("div",{class:"tc"},Ae(e)),Le=e=>Ae(Object.entries(e.uses??{}).map(([e,t])=>{let i=e,s=JSON.parse(i);return Oe($(s,t))})),Se=(...e)=>e[1]?e:[],Ie=e=>me("table",null,e.map(e=>me("tr",null,e.map(e=>me("td",null,e)).join(""))).join("")),Ce=e=>{if(e.queen())return"Get next to the other herd and give them gifts to gain their trust";if(!e.cell.neighborhood.includes(yt().cell))return`Should be near to give gifts<br/>${e.happy()?yt().stock.magic>100&&yt().steps>=1?me("button",{id:"warp"},je("warp"),"Summon alicorn"):"Alicorn asleep":""}`;let t=(i=[...Object.keys(yt().stock),...Object.keys(e.stock)],[...new Set(i)]).filter(e=>P.has(e));var i;let s=[],a=[];return t.forEach(t=>{let[i,r]=[e.giftCalc(t,!0),e.giftCalc(t,!1)],n=e.stock[t]&&r[1]&&e.happy();yt().stock[t]&&i[1]&&s.push([`${i[0]}/${yt().stock[t]}${je(t)}→${Ee({happiness:i[1]})}`,me("button",{"data-give":t},"give")]),n&&a.push([me("button",{"data-take":t},"take"),`${Oe({[t]:-r[0],happiness:r[1]})}`])}),`${(e=>e.queen()?"":me(me,null,je("happiness"),e.happiness))(e)} (befriended at 1000)    \n    ${Ie([...s,...a])}`},Ne=()=>{be=!1,ve(2,`Turn: ${dt.turn} Friends: ${Ue.a.filter(e=>e.happy()).length-1}/${Ue.a.length}<br/> World Happiness: ${a(Ue.a,e=>e.happiness)}${je("happiness")}`)},De=()=>{be=!0,ve(2,me(me,null,me("h1",null,"Clopital"),"Seed:",me("input",{type:"number",id:"SEED",value:dt.seed})," Land:",me("input",{type:"range",id:"LAND",value:dt.land,min:1,max:7})," ",me("button",{id:"New"},"New game")),me(me,null,me("h4",null,"Saves"),Ie(g(13,e=>[e||"auto",e&&Ue?me("button",{"data-save":e},"save"):"---",...localStorage[oe+e]?[me("button",{"data-load":e},"load"),me("button",{"data-x":e},"X"),localStorage[oe+e]]:[]])),me("h4",null,"CHANGELOG"),me("pre",null,"# 1.0.3\r\nEconomy tweaks\r\n\r\n# 1.0.2\r\nSafari compatibility, color tweaks\r\n\r\n# 1.0.1\r\nCleaned up, removed dataURL usage, experiments with jsx\r\n\r\n# 1.0\r\njs13k version")))};let He,ze={};const Re=16,Fe=(e,t)=>_e(e%Re*Re,~~(e/Re)*Re,Re,Re,t),_e=(e,t,i,s,a)=>{let[r,n]=ct(i,s);return n.drawImage($t,e,t,i,s,0,0,i,s),a&&(r=a(r)),r},qe=e=>(e=>{let t=JSON.stringify(e);return ze[t]||(ze[t]=t=>{let i=t.getContext("2d").getImageData(0,0,t.width,t.height),a=new Uint8Array(i.data.buffer);for(let l=0;l<a.length;l+=4){let t=[0,0,0,0],i=a.slice(l,l+4);i.forEach((i,a)=>(e[a]??[0,0,0,1]).forEach((e,a)=>t[a]+=s(0,e*i,255))),t[3]=i[3],a.set(t,l)}let[r,n]=ct(t.width,t.height);return n.putImageData(i,0,0),r}),ze[t]})(e),Ge=e=>{let t,i=U[e]??U.unknown;return i.sc??=((e,t)=>{let i=`${e}@${t}`;return Pe[i]??=Fe(e,t&&qe(t)),Pe[i]})(i.s,i.c&&((...e)=>[u(e[0]??"#f00"),u(e[1]??"#0f0"),u(e[2]??"#00f")])(...i.c)),t=(e=>{let[t,i]=ct(e.width,e.height);return i.drawImage(e,0,0),t})(i.sc),t},Pe={};let Ue,Je=0;class Ke extends V{kind;race;cell;dest;steps=0;anim;happiness;_pathfindData;_pathfindDataCell;pathfindData(){return this.cell==this._pathfindDataCell&&this._pathfindData||(this._pathfindData=this.cell.pathfind(this.race.name,20),this._pathfindDataCell=this.cell),this._pathfindData}happy(){return this.queen()||this.happiness>999}village(){return!this.race.job}constructor(e,t,i=1){super(),this.visit(e),t&&(this.race=B[t]),this.size=i,this.cell=e,this.name=b(),Ue.a.push(this),this.happiness=50+~~T(500),this.initMarket(),this.recomp()}nextHappiness(){return s(0,this.happiness+this.totalHappinessGain()-this.expectation())}initMarket(){this.race&&super.initMarket((e=>{let t=[...K,...e.recipes??[],...e.job?[{[e.job]:-1,working:e.wm??1},{[e.job]:-1,fun:1},{[e.job]:-1,travel:1}]:[]];return ne.includes(e.name)||t.push({[e.job]:-10,horseshoes:-1,travel:20}),{ownRecipes:t,income:e.income}})(this.race))}animateTransfer(e){let t,i=200;if(t=this.pathTo(e.place.cell),e.place instanceof Ke&&(t??=e.place.pathTo(this.cell)),!t)return;let s=t?.map(e=>e.topLeft());s.length<3&&s.push(r(s[s.length-1],[0,3]));let a=[...s].reverse();i+=500/s.length,Object.entries(e.recipe).forEach(([e,t])=>{"travel"!=e&&setTimeout(()=>{let r=ae(Ge(e),t<0?s:a,i);Je++,r.f=()=>Je--},200*Math.random())})}recomp(){this.places=this.cell.neighborhood,this.cell.neighborhood.forEach(e=>e.woke=!0),super.recomp()}trade(){let e=this.cell.cir(20);Ue.a.filter(t=>e.has(t.cell)&&!((t.queen()||this.queen())&&!t.cell.seen&&!this.cell.seen)).forEach(e=>{let t=this.pathTo(e.cell);t&&this.barter(e,Math.max(0,t.length-2))})}barter(e,t){return!!(this!=yt()&&e!=yt()||this.cell.seen&&e.cell.seen)&&super.barter(e,t)}maxStepsRemaining(){return Math.min(this.steps,~~(this.stock.travel/this.size))}nextTurn(){if(this.steps=5,this.transfers=[],this.consumed={},this.uses={},g(7,()=>this.iterate()),this.happiness=this.nextHappiness(),this.size>1){let e=~~((T(this.happiness)-T(this.size))/100);this.size=s(100,this.size+e,5e3)}this.happy()||(this.dest=i(this.cell.neighbors)),this.go()}totalHappinessGain(){return Math.round(a(Object.values(this.happinessGain()))??0)}expectation(){return dt.expectation+~~(this.happiness/200)}go(){if(this.visit(this.cell),this.maxStepsRemaining()<1||this.cell==this.dest)return;let e=this.pathTo(this.dest);var t;e&&(e=e.slice(0,this.steps+1),this.steps-=e?.length,this.gain("travel",-this.size),e.forEach(e=>this.visit(e)),t=this.anim,k(se,t),this.anim=ae((e=>He[e.race?.sprite])(this),e.map(e=>e.topLeft())),this.anim.f=()=>delete this.anim)}see(){let e=0;this.cell.cir(3).forEach(t=>{t.seen||(e++,t.seen=!0)}),e&&bt()}visit(e){this.cell&&k(this.cell.a,this),this.cell=e,this.cell?.a.push(this),e==this.dest&&delete this.dest,this.recomp(),this.happy()&&this.see()}remove(){wt()==this&&mt({selected:void 0}),this.cell&&k(this.cell.a,this),k(Ue.a,this)}get at(){return this.cell.at}pathTo(e){if(!e)return;let t=this.pathfindData(),i=Ue.c[e.at],s=i?.pathFrom(t);return s}queen(){return this.race==B.alicorn}giftCalc(e,t){let i=t?yt():this,s=Y(this.stock[e]??0),a=Math.ceil(i.stock[e]/20),r=~~((s*a*(t?.9:1.1))**.45);return t||r++,r||(a=0),[a,r].map(e=>e*(t?1:-1))}giftApply(e,t){let[i,s]=this.giftCalc(e,t);yt().give(this,e,i),this.happiness+=s,kt(),Ne()}}const Be=1;class Xe{constructor(e,t){this.seed=e,this.land=t,Ue=this,this.generate()}elev;c;drawOrder;byElev;rivers;a=[];anyCell(){let e=T(L);return this.c[e]}erect(e,t,s){for(;T(70);){if(e.bedrock)return;e.neighbors.forEach(e=>e.elev+=t),e=i(e.neighbors)}}generate(){this.c=g(L,e=>new Z(e)),t(this.seed),this.c.forEach(e=>{e.neighborsByDir=S.map(t=>{return this.c[i=t,s=e.at,i+s+(s%M>M+s?-M:0)];var i,s}).filter(e=>e),e.neighbors=e.neighborsByDir.filter(e=>e),e.neighborhood=[e,...e.neighbors]}),g(50,()=>this.erect(this.anyCell(),T(3)+1,3));let e=a(this.c,e=>e.elev)/L;this.c.forEach(t=>t.elev=Math.log((t.elev+3)/e)),this.byElev=[...this.c].sort((e,t)=>e.elev-t.elev);let r=.85-.08*this.land;this.elev=[r-.1,r,.82,.97].map(e=>this.quantile(e)),g(1e4,()=>ie(this.anyCell())),this.rivers=[],g(500,()=>{let e=ie(this.anyCell());e&&e.length>1&&(this.rivers.push(e),e.forEach(e=>e.rivers++))}),this.c.forEach(e=>{let t=2*Math.abs(.5-e.at/L);e.t=1.7-t-(e.elev-this.elev[Be])/2}),g(12,e=>this.c.forEach(t=>{let s=(t.elev<=this.elev[Be]?10:t.rivers?5:0)*(Math.cos(t.at/L*12.5)+1+T()/3);for(;s>0&&([t,...t.neighbors].forEach(e=>e.hum+=s/25),(t=t.neighbors[e]??t.neighbors[t.at<.3*L||t.at>.7*L?1:4]).elev>this.elev[2]&&!T(2)&&(t=i(t.neighbors)),!(t.elev<=this.elev[Be]));)s=.9*s-(t.elev-this.elev[Be])/5})),this.c.forEach(e=>{e.elev>=this.elev[2]&&[e.neighborsByDir[3],e.neighborsByDir[4]].forEach(e=>{e?.elev<this.elev[Be]&&(e.elev=this.elev[Be])});let t=R[e.bedrock?"bedrock":e.elev<this.elev[0]?"ocean":e.water()?"sea":e.elev>=this.elev[3]?"peaks":z[s(0,~~(1.85+e.t/3-e.hum/30),2)][s(0,~~(3.8-3*e.t),3)]];e.biome=t,e.layer=e.water()?0:e.elev<this.elev[2]?1:2}),this.c.forEach(e=>{y(e.biome.special||{},(t,i)=>{T(1e3)<10*t&&(e.special=i)}),e.resources={soil:e.biome.soil??0,trees:e.biome.trees??0,deepwater:(e.biome.deepwater??0)+(e.rivers?1:0),deposits:(e.biome.deposits??0)+(2==e.layer?2:1)}}),this.c.forEach(e=>{let t=!e.water()&&e.neighbors.find(e=>e.water());if(!T(t||e.rivers?40:e.water()?200:150)){let t=i(e.biome.races);!e.water()&&T()<1/8&&(t="unicorns"),T()<1/8&&(t="pegasi"),t&&new Ke(e,t,T(1e3)+100)}e.initMarket()});let n=new Ke(Ue.c[6176],"alicorn");n.name="Vasilisa",n.see()}quantile(e){return this.byElev[~~(L*e)].elev}}const We=4;let Ye,Ve,Qe,Ze,et=0,tt=1,it=Date.now();[...g(6,e=>[Math.sin(e/6*A)/3+.2,Math.cos(e/6*A)/3+.2])].map(e=>c(e,I)).sort((e,t)=>e[1]-t[1]);const st=[[-1,-2],[-3,0],[4,0],[3,3],[-4,4],[-1,7]],at=(e,t,i=1)=>{1!=i&&(Ze.save(),Ze.globalAlpha=i),Ze.drawImage(e,...t),1!=i&&Ze.restore()},rt=(e,t,i=[0,0],s=1)=>{if(!e||!t)return;t>=0&&(t=He[t]);let a=(n=r(e.center(),i),r(r(n,N),[0,5]));var n;at(t,a,s)},nt=()=>{if(!Ue)return requestAnimationFrame(nt);yt().maxStepsRemaining()<1?Next.classList.add("grow-shrink-animation"):Next.classList.remove("grow-shrink-animation");let e=Date.now();var t;tt=e-it,it+=tt,dt.targetTLA&&(dt.topLeftAt=h(dt.topLeftAt,dt.targetTLA,Math.min(.3,tt/100)),l(dt.topLeftAt,dt.targetTLA)<3&&mt({targetTLA:void 0})),Ze=Qe,Ze.clearRect(0,0,1e7,1e7),Ze.save(),Ze.scale(dt.scale,dt.scale),Ze.translate(...dt.topLeftAt),Ve?(Ze.drawImage(Ve,0,0),Ze.globalAlpha=1-et/700,Ze.drawImage(Ye,0,0),Ze.globalAlpha=1,et-=tt,et<=0&&(Ve=void 0)):Ze.drawImage(Ye,0,0),t=tt,se=se.filter(e=>{e.t+=t/e.s;let i=~~e.t;if(!e.wp[i+1])return e.f&&e.f(),!1;let s=h(e.wp[i],e.wp[i+1],e.t-i);return((e,t,i=1)=>{at(e,r(t,[-e.width/2/I[0],-e.height/2/I[1]+5]),i)})(e.i,s),!0});let s=wt()?[...Ue.a.filter(e=>e!=wt()),wt()]:Ue.a;for(let a of s){if(a.anim||!a.cell.seen)continue;rt(a.cell,a.steps?66:65),wt()==a&&e%800<400&&rt(a.cell,16);let t=re.includes(a.race.name)?-5-2*Math.sin(Date.now()/500):0;if(rt(a.cell,a.race?.sprite,[0,t]),a.happy()&&rt(a.cell,118,[0,t-10]),30*a.transfers?.length/(10+l(a.cell.center(),vt()?.center()))/(Je+100)>T(100)){let e=i(a.transfers);a.animateTransfer(e)}}if(wt()&&!wt().anim){let e=wt();(jt||0==vt()?.a.length)&&(Ze.globalAlpha=.7,lt(e,vt()),Ze.globalAlpha=1),lt(e,e.dest)}rt(vt(),18,[0,We*(vt()?.layer-1)]),rt(vt(),18,void 0,.5),Ze.restore(),requestAnimationFrame(nt)},lt=(e,t)=>{if(!t||!e.happy())return;let i=e.pathTo(t);i&&i.forEach((t,i)=>{i>0&&rt(t,Ge("walk"+(i>e.maxStepsRemaining()?"Far":"")))})},ot=()=>{Qe=ct(innerWidth,innerHeight,C)[1]},ct=(e,t,i)=>{i??=document.createElement("canvas"),i.width=e,i.height=t;let s=i.getContext("2d");return s.imageSmoothingEnabled=!1,[i,s]},ht=(e,t,i=e=>e,s=0)=>{let a=e.map((e,t)=>i(r(e.center(),[0,We+2]),t));1!=e.length&&(s&&(a[e.length-1]=h(a[e.length-2],a[e.length-1],.7),a[e.length-1][1]-=3),Ze.lineWidth=t,a.slice(1).forEach((t,i)=>{(e[i].seen||e[i+1].seen)&&pt(a[i],t)}))},pt=(e,t)=>{Ze.beginPath(),Ze.moveTo(...e),Ze.lineTo(...t),Ze.stroke()},ft=()=>{Ve=Ye,et=700,[Ye,Ze]=ct(128.5*I[0],96*I[1]),Ue.drawOrder=g(96,e=>g(M,t=>e*M+(t+M-~~(e/2))%M)).flat().map(e=>Ue.c[e]).filter(e=>e.seen),g(3,e=>{Ue.drawOrder.forEach(t=>{let i=t.topLeft();t.layer!=e||t.bedrock||Ze.drawImage(t.biome.sprites[t.at%3+(2==t.layer?3:0)],...r(i,[0,5]))})}),Ze.lineCap="round";for(let e of[0,1])Ze.strokeStyle=["#4444","#0af"][e],Ue.rivers.forEach(t=>ht(t,4,(i,s)=>r(i,[0,(s==t.length-1&&0==e?1:0)+[1,2][e]]),1));Ue.drawOrder.forEach(e=>{t(e.at);let s=e.rivers?3:3+T(3),a=e.biome.prop;if(a){let t=(n=[He[a]],l=s,r=g(6,e=>e<l?i(n):void 0),g(r.length,()=>r.splice(T(r.length),1)[0]));ut(e,t)}var r,n,l;e.special&&rt(e,Ge(e.special))})},ut=(e,t)=>{t.forEach((t,i)=>{var s;t&&Ze.drawImage(t,...(s=r(e.topLeft(),st[i%6]),s.map(e=>~~(e+.5))))})},gt=["actions done","possible actions","needs","trades and land actions","gifts"];let dt={scale:4,seed:1,land:4,topLeftAt:[0,0],targetTLA:[0,0],cellPointed:void 0,selected:0,turn:1,tab:0,expectation:0};const mt=(e={})=>{Object.assign(dt,e);let t=dt.topLeftAt;dt.topLeftAt=t},bt=((e,t=300)=>{let i;return()=>{i?(clearTimeout(i),i=setTimeout(e,t)):(e(),i=setTimeout(()=>{},t))}})(()=>ft()),vt=()=>Ue.c[dt.cellPointed],wt=()=>Ue.a[dt.selected],kt=(e=wt())=>{var t;e&&(delete e._pathfindData,e.pathfindData(),mt({selected:Ue.a.indexOf(e)}),(e=>{let t=r(o(e.center(),-1),[innerWidth,innerHeight],.5/dt.scale);l(t,dt.topLeftAt)>50&&mt({targetTLA:t})})(e.cell),INFO.className=e.happy()?"h":"u",ve(1,...(t=e,[`${xe(t)}${Ee(O(t.stock))}`,"btn",...[()=>[...Se("!produced",Ee(t.totTurnInc(1))),...Se("!"+gt[0],Le(t))],()=>["!"+gt[1],Me(t.ownRecipes.map(e=>{let t=wt().recipeUseMultiplier({place:wt(),recipe:e}),i=JSON.stringify(e).replaceAll('"',"`");return wt().happy()&&t>0?me("button",{"data-recipe":i},Oe($(e,t))):Oe(e)}))],()=>["!happiness change",`Had ${t.happiness} + ${t.totalHappinessGain()} from covered needs - wanted ${t.expectation()} = ${je("happiness")}${t.nextHappiness()}`,...Se("!"+gt[2],t.consumed?Me(Object.entries(t.totTurnInc(-1)).map(([e,i])=>me(me,null,je(e),t.consumed[e]??0,"/",~~(-t.totTurnInc(-1)[e]).toFixed(2),$e("happiness",(t.happinessGain()[e]??0).toFixed(2))))):"?")],()=>["!"+gt[4],Ae(t.transfers.sort((e,t)=>e.place instanceof Ke&&!(t.place instanceof Ke)?-1:1).map(e=>`${xe(e.place,!1)} ${Oe(e.recipe)}`))],()=>[...Se("!"+gt[3],Ce(t))]][dt.tab||0]()])))},yt=()=>Ue?.a.find(e=>e.queen());let jt,Et=[];onkeydown=e=>{"KeyS"==e.code&&e.shiftKey&&Ue&&(Ue.c.forEach(e=>e.seen=!0),bt()),"KeyA"==e.code&&e.shiftKey&&Ue&&wt().happiness++;let t=Number(e.code.substring(5));switch(t>0&&t<6&&(dt.tab=t-1,kt()),e.code){case"Space":At();break;case"Escape":be?Ne():De();break;case"Tab":let e=Ue.a.filter(e=>e.happy());kt(e[(e.indexOf(wt())+1)%e.length])}};const $t=document.createElement("img"),Ot=()=>{new Xe(dt.seed,dt.land),ft(),BTN.innerHTML=["Menu","Queen","Next Turn"].map((e,t)=>me("button",{id:e.split(" ")[0]},e)).join("")};onload=()=>{$t.onload=xt,$t.src="i.webp"};const xt=()=>{(()=>{let e=48;for(let t in B){let i=B[t];i.name=t,i.biomes=[],i.income={[i.job]:10,fertilisers:.3,food:-.3,fun:-.2,comfort:-.1,...Object.fromEntries([...G].map(e=>[e,-.05])),...i.income??{}},U[i.name]=U[i.job]=F(e),i.sprite=e++}B.alicorn.income=$(B.alicorn.income,70);for(let t of Object.values(R))for(let e of t.races)B[e].biomes.push(t.name);q.forEach((e,t)=>K.push({[e]:-1,food:1+~~(t/3)}))})(),Object.values(R).forEach(e=>{return e.sprites=(t=e,[...new Array(6)].map((e,i)=>_e(240,0,16,22,qe([t.rgba,[0,0,0,0],[0,0,0,0]]))));var t}),He=g(160,e=>Fe(e)),Qe=ct(innerWidth,innerHeight,C)[1],ot(),(()=>{let e;onpointerdown=e=>{if(0!=e.button)return;let t=e.target,i=t.closest("button"),s=i?.id,a=t.closest("button")?.dataset??{},r={Next:At,Queen:()=>kt(yt()),Menu:()=>be?Ne():De(),New(){dt.seed=SEED.value,dt.land=LAND.value,ve(2,"In the beginning, alicorn was alone..."),setTimeout(()=>{Ot(),kt(yt()),Ne(),Tt(),kt(yt()),mt({turn:1})},10)},X:Ne}[s];r&&r(),"tab"==s?.substring(0,3)&&(dt.tab=s.substring(3),kt()),a.give&&wt().giftApply(a.give,!0),a.take&&wt().giftApply(a.take,!1),a.save&&(ce(a.save),Ne()),a.load&&(((e=0)=>{let t=localStorage[le+e];if(t){let e=JSON.parse(t);Object.assign(dt,e),Ot(),delete dt.c,delete dt.s,Ue.c.forEach((t,i)=>{fe(t,e.c[i]),t.a=[]}),Ue&&(Ue.a=[]);for(let t of e.a){let e=new Ke(Ue.c[t.cell]);fe(e,t),e.initMarket(),e.visit(e.cell),e.recomp()}e.s.forEach((e,t)=>Ue.c[t].seen=!!e),setTimeout(()=>kt(wt()),20);for(let t of Ue.a)t.transfers=t.transfers?.map(ge)??[]}})(a.load),Ne()),a.x&&(delete localStorage[oe+a.x],delete localStorage[le+a.x],De()),a.recipe&&(wt().useRecipe({place:wt(),recipe:JSON.parse(a.recipe.replaceAll("`",'"'))}),kt()),t.dataset.a&&kt(Ue.a[t.dataset.a]),"warp"==s&&(yt().gain("magic",-100),yt().visit(wt().cell),yt().steps--,kt(yt()))},onresize=()=>{ot()},C.onpointerdown=C.onpointermove=C.onpointerup=C.onpointerleave=t=>{if(!Ue)return;let i=[t.offsetX,t.offsetY],s=n(o(i,1/dt.scale),dt.topLeftAt),a=[s[0]/I[0],s[1]/I[1]];a[0]-=p(a[1])/2;let l=p(a[0])+p(a[1]-.1)*M+(p(a[0])<0?M:0);jt=t.shiftKey;let c=[t.clientX,t.clientY];if("pointermove"==t.type)if(e??=c,Et[0]||Et[1]){(e=>{se.length=0,mt({topLeftAt:r(dt.topLeftAt,e,1/dt.scale)})})(n(c,e))}else if(Ue.c[l]?.seen&&!t.shiftKey){let e=dt.cellPointed;mt({cellPointed:l}),e!=dt.cellPointed&&Te()}if(e=c,"pointerdown"==t.type){if(Et[t.button]=1,0==t.button){let e=vt()?.a;if(e?.length>0){let t=e.indexOf(wt());wt()&&0!=e.length&&-1!=t?kt(e[(t+1)%e.length]):kt(e[0])}}2==t.button&&wt()&&wt().happy()&&(wt().dest=vt(),wt()?.go(),kt())}"pointerup"==t.type&&(Et[t.button]=0),"pointerleave"==t.type&&(Et=[],mt({cellPointed:void 0}))},C.onwheel=e=>{let t=[e.offsetX,e.offsetY],i=e.deltaY;var a,n;i&&(a=s(.25,dt.scale*(i<0?2:.5),4),n=(e=>o(e,1/dt.scale))(t),mt({topLeftAt:r(dt.topLeftAt,n,dt.scale/a-1),scale:a}))}})(),nt(),De()},Tt=()=>{t(1e4*dt.seed+dt.turn),Ue.a.forEach(e=>e.nextTurn()),Ue.c.forEach(e=>e.nextTurn()),mt({expectation:~~(Ue.a.filter(e=>e.village()||e.happiness>999).length/3)}),dt.turn++,Ne()},At=()=>{Tt(),kt(),Te(),ce()};</script>
-  <style rel="stylesheet" crossorigin>body{background:#024;overflow:hidden}*{border:0;margin:0;font-family:monospace;font-size:18px;color:#400}#INFO{max-width:400px}#INFO pnl{min-width:400px}#TIP,#INFO{position:absolute;top:-10px;height:100vh;pointer-events:none;-webkit-user-select:none;user-select:none}#TIP{pointer-events:none}.pnl{background:#fffa;padding:10px 2px;margin:5px;border:#4004 solid;border-width:2px 4px;max-height:70vh;overflow-y:auto;overflow-x:hidden;pointer-events:all;text-align:center}.ptl{margin-bottom:-24px;font-size:80%;text-align:right;padding:0 10px}#TIP{right:0}#INFO{left:0}#BTN{position:fixed;bottom:5px;right:5px;text-align:right;pointer-events:none}#BTN button{padding:5px;margin:3px}button#Next{padding:10px}button{border:1px solid #aaa;border-right:1px solid #fff;border-top:1px solid #fff;pointer-events:all;background:#fffa}button:hover,button.h{background:#fff}button:active{box-shadow:0 0 10px #fff;transform:scale(1.2)}.icon .img canvas{position:relative;margin:0 0 0 3px;transform:scale(1.5) translateY(1px);filter:drop-shadow(1px 1px);pointer-events:all}.good:hover .ttx,.icon:hover .ttx{visibility:visible;white-space:nowrap}.ttx{visibility:hidden;position:absolute;transform:translateY(-30px);z-index:1;padding:5px;background:#fffa;pointer-events:none}.abtn{text-align:center}.abtn button{padding-bottom:5px}.CS{display:flex;flex-direction:row}.tc{columns:2;column-gap:0}table{margin:auto}td{text-align:center}#MID{position:fixed;top:0;left:50%;transform:translate(-50%);max-height:100vh}#X{position:absolute;right:0;top:0}#INFO.u>*:first-child{background:#faaa}#INFO.h>*:first-child{background:#afaa}h4{cursor:pointer;margin-bottom:5px}h1{font-family:Georgia;text-align:center;font-size:70px;padding-bottom:30px}input{width:70px}@keyframes grow-shrink{0%{scale:90%}to{scale:110%}}.grow-shrink-animation{animation:.3s infinite alternate;animation-name:grow-shrink}</style>
+  <script type="module" crossorigin>var n, l$1, u$3, i$1, r$1, o$1, e$1, f$2, c$1, a$1, s$1, h$1, p$1, v$1, d$1 = {}, w$1 = [], _$1 = /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i, g$1 = Array.isArray;
+function m$1(n2, l2) {
+  for (var u2 in l2) n2[u2] = l2[u2];
+  return n2;
+}
+function b(n2) {
+  n2 && n2.parentNode && n2.parentNode.removeChild(n2);
+}
+function k$1(l2, u2, t2) {
+  var i2, r2, o2, e2 = {};
+  for (o2 in u2) "key" == o2 ? i2 = u2[o2] : "ref" == o2 ? r2 = u2[o2] : e2[o2] = u2[o2];
+  if (arguments.length > 2 && (e2.children = arguments.length > 3 ? n.call(arguments, 2) : t2), "function" == typeof l2 && null != l2.defaultProps) for (o2 in l2.defaultProps) void 0 === e2[o2] && (e2[o2] = l2.defaultProps[o2]);
+  return x(l2, e2, i2, r2, null);
+}
+function x(n2, t2, i2, r2, o2) {
+  var e2 = { type: n2, props: t2, key: i2, ref: r2, __k: null, __: null, __b: 0, __e: null, __c: null, constructor: void 0, __v: null == o2 ? ++u$3 : o2, __i: -1, __u: 0 };
+  return null == o2 && null != l$1.vnode && l$1.vnode(e2), e2;
+}
+function S(n2) {
+  return n2.children;
+}
+function C$3(n2, l2) {
+  this.props = n2, this.context = l2;
+}
+function $(n2, l2) {
+  if (null == l2) return n2.__ ? $(n2.__, n2.__i + 1) : null;
+  for (var u2; l2 < n2.__k.length; l2++) if (null != (u2 = n2.__k[l2]) && null != u2.__e) return u2.__e;
+  return "function" == typeof n2.type ? $(n2) : null;
+}
+function I(n2) {
+  if (n2.__P && n2.__d) {
+    var u2 = n2.__v, t2 = u2.__e, i2 = [], r2 = [], o2 = m$1({}, u2);
+    o2.__v = u2.__v + 1, l$1.vnode && l$1.vnode(o2), q$1(n2.__P, o2, u2, n2.__n, n2.__P.namespaceURI, 32 & u2.__u ? [t2] : null, i2, null == t2 ? $(u2) : t2, !!(32 & u2.__u), r2), o2.__v = u2.__v, o2.__.__k[o2.__i] = o2, D$1(i2, o2, r2), u2.__e = u2.__ = null, o2.__e != t2 && P$1(o2);
+  }
+}
+function P$1(n2) {
+  if (null != (n2 = n2.__) && null != n2.__c) return n2.__e = n2.__c.base = null, n2.__k.some(function(l2) {
+    if (null != l2 && null != l2.__e) return n2.__e = n2.__c.base = l2.__e;
+  }), P$1(n2);
+}
+function A(n2) {
+  (!n2.__d && (n2.__d = true) && i$1.push(n2) && !H$1.__r++ || r$1 != l$1.debounceRendering) && ((r$1 = l$1.debounceRendering) || o$1)(H$1);
+}
+function H$1() {
+  try {
+    for (var n2, l2 = 1; i$1.length; ) i$1.length > l2 && i$1.sort(e$1), n2 = i$1.shift(), l2 = i$1.length, I(n2);
+  } finally {
+    i$1.length = H$1.__r = 0;
+  }
+}
+function L(n2, l2, u2, t2, i2, r2, o2, e2, f2, c2, a2) {
+  var s2, h2, p2, v2, y2, _2, g2 = t2 && t2.__k || w$1, m2 = l2.length;
+  for (f2 = T$1(u2, l2, g2, f2, m2), s2 = 0; s2 < m2; s2++) null != (p2 = u2.__k[s2]) && (h2 = -1 != p2.__i && g2[p2.__i] || d$1, p2.__i = s2, _2 = q$1(n2, p2, h2, i2, r2, o2, e2, f2, c2, a2), v2 = p2.__e, p2.ref && h2.ref != p2.ref && (h2.ref && J$1(h2.ref, null, p2), a2.push(p2.ref, p2.__c || v2, p2)), null == y2 && null != v2 && (y2 = v2), 4 & p2.__u ? (f2 = j$2(p2, f2, n2), h2.__e && (h2.__e = null)) : "function" == typeof p2.type && void 0 !== _2 ? f2 = _2 : v2 && (f2 = v2.nextSibling), p2.__u &= -7);
+  return u2.__e = y2, f2;
+}
+function T$1(n2, l2, u2, t2, i2) {
+  var r2, o2, e2, f2, c2, a2 = u2.length, s2 = a2, h2 = 0;
+  for (n2.__k = new Array(i2), r2 = 0; r2 < i2; r2++) null != (o2 = l2[r2]) && "boolean" != typeof o2 && "function" != typeof o2 ? ("string" == typeof o2 || "number" == typeof o2 || "bigint" == typeof o2 || o2.constructor == String ? o2 = n2.__k[r2] = x(null, o2, null, null, null) : g$1(o2) ? o2 = n2.__k[r2] = x(S, { children: o2 }, null, null, null) : void 0 === o2.constructor && o2.__b > 0 ? o2 = n2.__k[r2] = x(o2.type, o2.props, o2.key, o2.ref ? o2.ref : null, o2.__v) : n2.__k[r2] = o2, f2 = r2 + h2, o2.__ = n2, o2.__b = n2.__b + 1, e2 = null, -1 != (c2 = o2.__i = O$1(o2, u2, f2, s2)) && (s2--, (e2 = u2[c2]) && (e2.__u |= 2)), null == e2 || null == e2.__v ? (-1 == c2 && (i2 > a2 ? h2-- : i2 < a2 && h2++), "function" != typeof o2.type && (o2.__u |= 4)) : c2 != f2 && (c2 == f2 - 1 ? h2-- : c2 == f2 + 1 ? h2++ : (c2 > f2 ? h2-- : h2++, o2.__u |= 4))) : n2.__k[r2] = null;
+  if (s2) for (r2 = 0; r2 < a2; r2++) null != (e2 = u2[r2]) && 0 == (2 & e2.__u) && (e2.__e == t2 && (t2 = $(e2)), K$1(e2, e2));
+  return t2;
+}
+function j$2(n2, l2, u2) {
+  var t2, i2;
+  if ("function" == typeof n2.type) {
+    for (t2 = n2.__k, i2 = 0; t2 && i2 < t2.length; i2++) t2[i2] && (t2[i2].__ = n2, l2 = j$2(t2[i2], l2, u2));
+    return l2;
+  }
+  n2.__e != l2 && (l2 && n2.type && !l2.parentNode && (l2 = $(n2)), l2 = u2.insertBefore(n2.__e, l2 || null));
+  do {
+    l2 = l2 && l2.nextSibling;
+  } while (null != l2 && 8 == l2.nodeType);
+  return l2;
+}
+function F(n2, l2) {
+  return l2 = l2 || [], null == n2 || "boolean" == typeof n2 || (g$1(n2) ? n2.some(function(n3) {
+    F(n3, l2);
+  }) : l2.push(n2)), l2;
+}
+function O$1(n2, l2, u2, t2) {
+  var i2, r2, o2, e2 = n2.key, f2 = n2.type, c2 = l2[u2], a2 = null != c2 && 0 == (2 & c2.__u);
+  if (null === c2 && null == e2 || a2 && e2 == c2.key && f2 == c2.type) return u2;
+  if (t2 > (a2 ? 1 : 0)) {
+    for (i2 = u2 - 1, r2 = u2 + 1; i2 >= 0 || r2 < l2.length; ) if (null != (c2 = l2[o2 = i2 >= 0 ? i2-- : r2++]) && 0 == (2 & c2.__u) && e2 == c2.key && f2 == c2.type) return o2;
+  }
+  return -1;
+}
+function z$1(n2, l2, u2) {
+  "-" == l2[0] ? n2.setProperty(l2, null == u2 ? "" : u2) : n2[l2] = null == u2 ? "" : "number" != typeof u2 || _$1.test(l2) ? u2 : u2 + "px";
+}
+function N(n2, l2, u2, t2, i2) {
+  var r2, o2;
+  n: if ("style" == l2) if ("string" == typeof u2) n2.style.cssText = u2;
+  else {
+    if ("string" == typeof t2 && (n2.style.cssText = t2 = ""), t2) for (l2 in t2) u2 && l2 in u2 || z$1(n2.style, l2, "");
+    if (u2) for (l2 in u2) t2 && u2[l2] == t2[l2] || z$1(n2.style, l2, u2[l2]);
+  }
+  else if ("o" == l2[0] && "n" == l2[1]) r2 = l2 != (l2 = l2.replace(s$1, "$1")), o2 = l2.toLowerCase(), l2 = o2 in n2 || "onFocusOut" == l2 || "onFocusIn" == l2 ? o2.slice(2) : l2.slice(2), n2.l || (n2.l = {}), n2.l[l2 + r2] = u2, u2 ? t2 ? u2[a$1] = t2[a$1] : (u2[a$1] = h$1, n2.addEventListener(l2, r2 ? v$1 : p$1, r2)) : n2.removeEventListener(l2, r2 ? v$1 : p$1, r2);
+  else {
+    if ("http://www.w3.org/2000/svg" == i2) l2 = l2.replace(/xlink(H|:h)/, "h").replace(/sName$/, "s");
+    else if ("width" != l2 && "height" != l2 && "href" != l2 && "list" != l2 && "form" != l2 && "tabIndex" != l2 && "download" != l2 && "rowSpan" != l2 && "colSpan" != l2 && "role" != l2 && "popover" != l2 && l2 in n2) try {
+      n2[l2] = null == u2 ? "" : u2;
+      break n;
+    } catch (n3) {
+    }
+    "function" == typeof u2 || (null == u2 || false === u2 && "-" != l2[4] ? n2.removeAttribute(l2) : n2.setAttribute(l2, "popover" == l2 && 1 == u2 ? "" : u2));
+  }
+}
+function V$1(n2) {
+  return function(u2) {
+    if (this.l) {
+      var t2 = this.l[u2.type + n2];
+      if (null == u2[c$1]) u2[c$1] = h$1++;
+      else if (u2[c$1] < t2[a$1]) return;
+      return t2(l$1.event ? l$1.event(u2) : u2);
+    }
+  };
+}
+function q$1(n2, u2, t2, i2, r2, o2, e2, f2, c2, a2) {
+  var s2, h2, p2, v2, y2, d2, _2, k2, x2, M2, I2, P2, A2, H2, T2, j2, F2 = u2.type;
+  if (void 0 !== u2.constructor) return null;
+  128 & t2.__u && (c2 = !!(32 & t2.__u), o2 = [f2 = u2.__e = t2.__e]), (s2 = l$1.__b) && s2(u2);
+  n: if ("function" == typeof F2) {
+    h2 = e2.length;
+    try {
+      if (x2 = u2.props, M2 = F2.prototype && F2.prototype.render, I2 = (s2 = F2.contextType) && i2[s2.__c], P2 = s2 ? I2 ? I2.props.value : s2.__ : i2, t2.__c ? k2 = (p2 = u2.__c = t2.__c).__ = p2.__E : (M2 ? u2.__c = p2 = new F2(x2, P2) : (u2.__c = p2 = new C$3(x2, P2), p2.constructor = F2, p2.render = Q$1), I2 && I2.sub(p2), p2.state || (p2.state = {}), p2.__n = i2, v2 = p2.__d = true, p2.__h = [], p2._sb = []), M2 && null == p2.__s && (p2.__s = p2.state), M2 && null != F2.getDerivedStateFromProps && (p2.__s == p2.state && (p2.__s = m$1({}, p2.__s)), m$1(p2.__s, F2.getDerivedStateFromProps(x2, p2.__s))), y2 = p2.props, d2 = p2.state, p2.__v = u2, v2) M2 && null == F2.getDerivedStateFromProps && null != p2.componentWillMount && p2.componentWillMount(), M2 && null != p2.componentDidMount && p2.__h.push(p2.componentDidMount);
+      else {
+        if (M2 && null == F2.getDerivedStateFromProps && x2 !== y2 && null != p2.componentWillReceiveProps && p2.componentWillReceiveProps(x2, P2), u2.__v == t2.__v || !p2.__e && null != p2.shouldComponentUpdate && false === p2.shouldComponentUpdate(x2, p2.__s, P2)) {
+          u2.__v != t2.__v && (p2.props = x2, p2.state = p2.__s, p2.__d = false), u2.__e = t2.__e, u2.__k = t2.__k, u2.__k.some(function(n3) {
+            n3 && (n3.__ = u2);
+          }), w$1.push.apply(p2.__h, p2._sb), p2._sb = [], p2.__h.length && e2.push(p2), f2 = $(t2);
+          break n;
+        }
+        null != p2.componentWillUpdate && p2.componentWillUpdate(x2, p2.__s, P2), M2 && null != p2.componentDidUpdate && p2.__h.push(function() {
+          p2.componentDidUpdate(y2, d2, _2);
+        });
+      }
+      if (p2.context = P2, p2.props = x2, p2.__P = n2, p2.__e = false, A2 = l$1.__r, H2 = 0, M2) p2.state = p2.__s, p2.__d = false, A2 && A2(u2), s2 = p2.render(p2.props, p2.state, p2.context), w$1.push.apply(p2.__h, p2._sb), p2._sb = [];
+      else do {
+        p2.__d = false, A2 && A2(u2), s2 = p2.render(p2.props, p2.state, p2.context), p2.state = p2.__s;
+      } while (p2.__d && ++H2 < 25);
+      p2.state = p2.__s, null != p2.getChildContext && (i2 = m$1(m$1({}, i2), p2.getChildContext())), M2 && !v2 && null != p2.getSnapshotBeforeUpdate && (_2 = p2.getSnapshotBeforeUpdate(y2, d2)), T2 = null != s2 && s2.type === S && null == s2.key ? E$1(s2.props.children) : s2, f2 = L(n2, g$1(T2) ? T2 : [T2], u2, t2, i2, r2, o2, e2, f2, c2, a2), p2.base = u2.__e, u2.__u &= -161, p2.__h.length && e2.push(p2), k2 && (p2.__E = p2.__ = null);
+    } catch (n3) {
+      if (e2.length = h2, u2.__v = null, c2 || null != o2) {
+        if (n3.then) {
+          for (u2.__u |= c2 ? 160 : 128; f2 && 8 == f2.nodeType && f2.nextSibling; ) f2 = f2.nextSibling;
+          null != o2 && (o2[o2.indexOf(f2)] = null), u2.__e = f2;
+        } else if (null != o2) for (j2 = o2.length; j2--; ) b(o2[j2]);
+      } else u2.__e = t2.__e;
+      null == u2.__k && (u2.__k = t2.__k || []), n3.then || B$2(u2), l$1.__e(n3, u2, t2);
+    }
+  } else null == o2 && u2.__v == t2.__v ? (u2.__k = t2.__k, u2.__e = t2.__e) : f2 = u2.__e = G$1(t2.__e, u2, t2, i2, r2, o2, e2, c2, a2);
+  return (s2 = l$1.diffed) && s2(u2), 128 & u2.__u ? void 0 : f2;
+}
+function B$2(n2) {
+  n2 && (n2.__c && (n2.__c.__e = true), n2.__k && n2.__k.some(B$2));
+}
+function D$1(n2, u2, t2) {
+  for (var i2 = 0; i2 < t2.length; i2++) J$1(t2[i2], t2[++i2], t2[++i2]);
+  l$1.__c && l$1.__c(u2, n2), n2.some(function(u3) {
+    try {
+      n2 = u3.__h, u3.__h = [], n2.some(function(n3) {
+        n3.call(u3);
+      });
+    } catch (n3) {
+      l$1.__e(n3, u3.__v);
+    }
+  });
+}
+function E$1(n2) {
+  return "object" != typeof n2 || null == n2 || n2.__b > 0 ? n2 : g$1(n2) ? n2.map(E$1) : void 0 !== n2.constructor ? null : m$1({}, n2);
+}
+function G$1(u2, t2, i2, r2, o2, e2, f2, c2, a2) {
+  var s2, h2, p2, v2, y2, w2, _2, m2 = i2.props || d$1, k2 = t2.props, x2 = t2.type;
+  if ("svg" == x2 ? o2 = "http://www.w3.org/2000/svg" : "math" == x2 ? o2 = "http://www.w3.org/1998/Math/MathML" : o2 || (o2 = "http://www.w3.org/1999/xhtml"), null != e2) {
+    for (s2 = 0; s2 < e2.length; s2++) if ((y2 = e2[s2]) && "setAttribute" in y2 == !!x2 && (x2 ? y2.localName == x2 : 3 == y2.nodeType)) {
+      u2 = y2, e2[s2] = null;
+      break;
+    }
+  }
+  if (null == u2) {
+    if (null == x2) return document.createTextNode(k2);
+    u2 = document.createElementNS(o2, x2, k2.is && k2), c2 && (l$1.__m && l$1.__m(t2, e2), c2 = false), e2 = null;
+  }
+  if (null == x2) m2 === k2 || c2 && u2.data == k2 || (u2.data = k2);
+  else {
+    if (e2 = "textarea" == x2 && null != k2.defaultValue ? null : e2 && n.call(u2.childNodes), !c2 && null != e2) for (m2 = {}, s2 = 0; s2 < u2.attributes.length; s2++) m2[(y2 = u2.attributes[s2]).name] = y2.value;
+    for (s2 in m2) y2 = m2[s2], "dangerouslySetInnerHTML" == s2 ? p2 = y2 : "children" == s2 || s2 in k2 || "value" == s2 && "defaultValue" in k2 || "checked" == s2 && "defaultChecked" in k2 || N(u2, s2, null, y2, o2);
+    for (s2 in k2) y2 = k2[s2], "children" == s2 ? v2 = y2 : "dangerouslySetInnerHTML" == s2 ? h2 = y2 : "value" == s2 ? w2 = y2 : "checked" == s2 ? _2 = y2 : c2 && "function" != typeof y2 || m2[s2] === y2 || N(u2, s2, y2, m2[s2], o2);
+    if (h2) c2 || p2 && (h2.__html == p2.__html || h2.__html == u2.innerHTML) || (u2.innerHTML = h2.__html), t2.__k = [];
+    else if (p2 && (u2.innerHTML = ""), L("template" == t2.type ? u2.content : u2, g$1(v2) ? v2 : [v2], t2, i2, r2, "foreignObject" == x2 ? "http://www.w3.org/1999/xhtml" : o2, e2, f2, e2 ? e2[0] : i2.__k && $(i2, 0), c2, a2), null != e2) for (s2 = e2.length; s2--; ) b(e2[s2]);
+    c2 && "textarea" != x2 || (s2 = "value", "progress" == x2 && null == w2 ? u2.removeAttribute("value") : null != w2 && (w2 !== u2[s2] || "progress" == x2 && !w2 || "option" == x2 && w2 != m2[s2]) && N(u2, s2, w2, m2[s2], o2), s2 = "checked", null != _2 && _2 != u2[s2] && N(u2, s2, _2, m2[s2], o2));
+  }
+  return u2;
+}
+function J$1(n2, u2, t2) {
+  try {
+    if ("function" == typeof n2) {
+      var i2 = "function" == typeof n2.__u;
+      i2 && n2.__u(), i2 && null == u2 || (n2.__u = n2(u2));
+    } else n2.current = u2;
+  } catch (n3) {
+    l$1.__e(n3, t2);
+  }
+}
+function K$1(n2, u2, t2) {
+  var i2, r2;
+  if (l$1.unmount && l$1.unmount(n2), (i2 = n2.ref) && (i2.current && i2.current != n2.__e || J$1(i2, null, u2)), null != (i2 = n2.__c)) {
+    if (i2.componentWillUnmount) try {
+      i2.componentWillUnmount();
+    } catch (n3) {
+      l$1.__e(n3, u2);
+    }
+    i2.base = i2.__P = i2.__n = null;
+  }
+  if (i2 = n2.__k) for (r2 = 0; r2 < i2.length; r2++) i2[r2] && K$1(i2[r2], u2, t2 || "function" != typeof n2.type);
+  t2 || b(n2.__e), n2.__c = n2.__ = n2.__e = void 0;
+}
+function Q$1(n2, l2, u2) {
+  return this.constructor(n2, u2);
+}
+function R$1(u2, t2, i2) {
+  var r2, o2, e2, f2;
+  t2 == document && (t2 = document.documentElement), l$1.__ && l$1.__(u2, t2), o2 = (r2 = false) ? null : t2.__k, e2 = [], f2 = [], q$1(t2, u2 = t2.__k = k$1(S, null, [u2]), o2 || d$1, d$1, t2.namespaceURI, o2 ? null : t2.firstChild ? n.call(t2.childNodes) : null, e2, o2 ? o2.__e : t2.firstChild, r2, f2), D$1(e2, u2, f2), u2.props.children = null;
+}
+n = w$1.slice, l$1 = { __e: function(n2, l2, u2, t2) {
+  for (var i2, r2, o2; l2 = l2.__; ) if ((i2 = l2.__c) && !i2.__) try {
+    if ((r2 = i2.constructor) && null != r2.getDerivedStateFromError && (i2.setState(r2.getDerivedStateFromError(n2)), o2 = i2.__d), null != i2.componentDidCatch && (i2.componentDidCatch(n2, t2 || {}), o2 = i2.__d), o2) return i2.__E = i2;
+  } catch (l3) {
+    n2 = l3;
+  }
+  throw n2;
+} }, u$3 = 0, C$3.prototype.setState = function(n2, l2) {
+  var u2;
+  u2 = null != this.__s && this.__s != this.state ? this.__s : this.__s = m$1({}, this.state), "function" == typeof n2 && (n2 = n2(m$1({}, u2), this.props)), n2 && m$1(u2, n2), null != n2 && this.__v && (l2 && this._sb.push(l2), A(this));
+}, C$3.prototype.forceUpdate = function(n2) {
+  this.__v && (this.__e = true, n2 && this.__h.push(n2), A(this));
+}, C$3.prototype.render = S, i$1 = [], o$1 = "function" == typeof Promise ? Promise.prototype.then.bind(Promise.resolve()) : setTimeout, e$1 = function(n2, l2) {
+  return n2.__v.__b - l2.__v.__b;
+}, H$1.__r = 0, f$2 = Math.random().toString(8), c$1 = "__d" + f$2, a$1 = "__a" + f$2, s$1 = /(PointerCapture)$|Capture$/i, h$1 = 0, p$1 = V$1(false), v$1 = V$1(true);
+var f$1 = 0;
+function u$2(e2, t2, n2, o2, i2, u2) {
+  t2 || (t2 = {});
+  var a2, c2, p2 = t2;
+  if ("ref" in p2) for (c2 in p2 = {}, t2) "ref" == c2 ? a2 = t2[c2] : p2[c2] = t2[c2];
+  var l2 = { type: e2, props: p2, key: n2, ref: a2, __k: null, __: null, __b: 0, __e: null, __c: null, constructor: void 0, __v: --f$1, __i: -1, __u: 0, __source: i2, __self: u2 };
+  if ("function" == typeof e2 && (a2 = e2.defaultProps)) for (c2 in a2) void 0 === p2[c2] && (p2[c2] = a2[c2]);
+  return l$1.vnode && l$1.vnode(l2), l2;
+}
+let seed = 1;
+const setSeed = (n2) => {
+  seed = n2;
+}, randomElement = (a2, gen = rng) => a2[gen(a2.length)], clamp = (min2, v2, max = 1e30) => v2 < min2 ? min2 : v2 > max ? max : v2, minInd = (a2, f2) => {
+  let amf = a2.map(f2);
+  let r2 = amf.indexOf(Math.min(...amf));
+  return r2;
+}, min = (a2, f2) => a2[minInd(a2, f2)], listSum = (a2, f2 = (a22) => a22) => a2.reduce((q2, p2) => q2 + f2(p2), 0), sum = (a2, b2, m2 = 1) => [a2[0] + b2[0] * m2, a2[1] + b2[1] * m2], sub = (a2, b2) => [a2[0] - b2[0], a2[1] - b2[1]], dist = (a2, b2) => a2 && b2 && len(sub(a2, b2)), scale = (a2, m2) => a2.map((v2) => v2 * m2), muls = (a2, b2) => [a2[0] * b2[0], a2[1] * b2[1]], vecTween = (a2, b2, m2) => [a2[0] * (1 - m2) + b2[0] * m2, a2[1] * (1 - m2) + b2[1] * m2], numTween = (a2, b2, m2) => a2 * (1 - m2) + b2 * m2, round = (a2) => a2.map((v2) => ~~(v2 + 0.5)), floor = (n2) => ~~n2 - (n2 < 0 ? 1 : 0), len = (a2) => (a2[0] ** 2 + a2[1] ** 2) ** 0.5, debounce = (callback, dur = 300) => {
+  let timeoutId;
+  return () => {
+    if (!timeoutId) {
+      callback();
+      timeoutId = setTimeout(() => {
+      }, dur);
+    } else {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(callback, dur);
+    }
+  };
+}, hexToRgb = (h2) => [1, 2, 3, 4].map((i2) => parseInt(h2[i2] ?? "f", 16) / 15), loop = (l2, f2) => [...new Array(l2)].map((v2, i2) => f2(i2)), bestBy = (list, evaluator = (a2) => a2) => list.reduce((best, k2) => {
+  let v2 = evaluator(k2);
+  return !(v2 <= best[1]) ? [k2, v2] : best;
+}, [void 0, Number.NEGATIVE_INFINITY]), worstBy = (list, evaluator = (a2) => a2) => {
+  let [item, value] = bestBy(list, (v2) => -evaluator(v2));
+  return [item, -value];
+}, addToKey = (o2, k2, amount) => o2[k2] = (o2[k2] ?? 0) + amount, japaneseName = () => {
+  let s2 = "";
+  for (let i2 = rng(3) + 2; i2 > 0; i2--)
+    s2 += randomElement([..."kstnhmyrw", ""], rng) + randomElement([..."aiueo", ""], rng);
+  return cap1(s2);
+}, cap1 = (s2) => `${s2}`.charAt(0).toUpperCase() + `${s2}`.substring(1), asArray = (s2) => s2 == void 0 ? [] : Array.isArray(s2) ? s2 : [s2], removeFromList = (list, item) => {
+  let i2 = list.indexOf(item);
+  if (i2 != -1)
+    list.splice(i2, 1);
+}, removeDuplicates = (a2) => [...new Set(a2)], nof = (variants, slots, filled) => shuffle(loop(slots, (i2) => i2 < filled ? randomElement(variants) : void 0)), shuffle = (a2) => loop(a2.length, () => a2.splice(rng(a2.length), 1)[0]), objMap = (a2, f2) => Object.fromEntries(Object.entries(a2).map(([k2, v2]) => [k2, f2(v2, k2)])), objFilter = (a2, f2) => Object.fromEntries(Object.entries(a2).filter(([k2, v2]) => f2(v2, k2))), objForEach = (a2, f2) => Object.entries(a2).forEach(([k2, v2]) => f2(v2, k2)), objEvery = (a2, f2) => Object.entries(a2).every(([k2, v2]) => f2(v2, k2)), objAdd = (a2, b2 = {}, times = 1) => {
+  Object.keys(b2).forEach((k2) => a2[k2] = (a2[k2] ?? 0) + b2[k2] * times);
+  return a2;
+}, objScale = (a2, scale2) => objMap(a2, (v2) => v2 * scale2), objStripFalsy = (a2) => objFilter(a2, (v2) => v2), formatNumber = (x2) => {
+  if (!Number.isFinite(x2))
+    return x2;
+  x2 = Number(x2);
+  let p2 = Math.abs(x2);
+  return (x2 < 0 ? "-" : "") + (p2 < 1e4 ? ~~(p2 * 1e3) / 1e3 : p2 < 1e7 ? ~~(p2 / 1e3) + "K" : p2 < 1e10 ? ~~(p2 / 1e6) + "M" : p2.toExponential(5));
+}, rngi = (n2) => {
+  seed = (seed * 69069 + 1) % 2 ** 31;
+  return seed % n2;
+}, rng = (n2) => {
+  return n2 == -1 ? seed : n2 == void 0 ? rngi(1e9) / 1e9 : rngi(n2);
+};
+const PI = Math.PI, TWO_PI = PI * 2, ww = 128, wh = 96, ws = ww * wh, neighborShift = [1 - ww, 1, ww, ww - 1, -1, -ww], photoScale = [16, 12], minusHalfPhotoScale = scale(photoScale, -0.5), photoShift = (v2) => sum(sum(v2, minusHalfPhotoScale), [0, 5]), neighborBy = (at, n2) => at + n2 + (n2 % ww > ww + n2 ? -ww : 0), neighborhood = loop(100, (radius) => neighborShift.map((ns, nsi) => [0, ...loop(
+  radius,
+  (r2) => loop(r2 + 1, (x2) => ns * (r2 + 1) + neighborShift[(nsi + 2) % 6] * x2)
+)]).flat(2)), toXY = (ind) => [ind % ww, ~~(ind / ww)], worldCoord = (at) => {
+  let [x2, y2] = toXY(at);
+  return [(x2 + y2 / 2) % ww, y2];
+};
+const biomeMatrix = [
+  ["jungles", "swamp", "taiga", "snowfield"],
+  ["plains", "forest", "taiga", "snowfield"],
+  ["desert", "steppe", "tundra", "snowfield"]
+];
+const BEDROCK = 0, FIR = 1, TREE = 2, PALM = 3, GRASS = 5, WAVES = 6, DUNES = 7, MESA2 = 9;
+const biomesByNames = {
+  bedrock: {
+    color: "#000",
+    prop: BEDROCK,
+    travel: 1e9,
+    habitability: 0
+  },
+  desert: {
+    color: "#fd0",
+    prop: DUNES,
+    travel: 2,
+    habitability: 1,
+    races: "zebras",
+    special: { cacao: 5 },
+    soil: 2
+  },
+  snowfield: {
+    color: "#fff",
+    travel: 2,
+    habitability: 0,
+    races: "deers",
+    special: { coal: 1 }
+  },
+  tundra: {
+    color: "#8fa",
+    prop: GRASS,
+    travel: 2,
+    habitability: 1,
+    races: "deers",
+    special: { moss: 1 },
+    soil: 2
+  },
+  steppe: {
+    color: "#ce2",
+    prop: GRASS,
+    travel: 1,
+    habitability: 2,
+    races: ["zebras", "horses"],
+    special: { cotton: 3 },
+    soil: 4
+  },
+  taiga: {
+    color: "#fff",
+    prop: FIR,
+    travel: 3,
+    habitability: 1,
+    races: "deers",
+    special: { honey: 1 },
+    soil: 2,
+    trees: 2
+  },
+  forest: {
+    color: "#4a4",
+    prop: TREE,
+    travel: 2,
+    habitability: 2,
+    races: ["deers", "horses"],
+    special: { apples: 1 },
+    soil: 3,
+    trees: 3
+  },
+  plains: {
+    color: "#7f0",
+    prop: GRASS,
+    travel: 1,
+    habitability: 2,
+    races: "horses",
+    special: { wheat: 5, cotton: 2 },
+    specialx: 3,
+    soil: 6
+  },
+  swamp: {
+    color: "#0aa",
+    prop: GRASS,
+    travel: 4,
+    habitability: 1,
+    soil: 3,
+    races: "unicorns",
+    special: { sugarcane: 3 }
+  },
+  jungles: {
+    color: "#0b0",
+    prop: PALM,
+    travel: 4,
+    habitability: 1,
+    races: "zebras",
+    special: { rubber: 3, sugarcane: 3 },
+    soil: 3,
+    trees: 4
+  },
+  peaks: {
+    color: "#fff",
+    prop: MESA2,
+    travel: 2,
+    habitability: 0,
+    races: "goats",
+    special: { gems: 1 },
+    deposits: 3,
+    soil: 1
+  },
+  sea: {
+    color: "#0af",
+    prop: WAVES,
+    seaTravel: 1,
+    habitability: 0,
+    races: "seahorses",
+    special: { oil: 1 },
+    deepwater: 1
+  },
+  ocean: {
+    color: "#08e",
+    prop: WAVES,
+    seaTravel: 2,
+    habitability: 0,
+    races: "seahorses",
+    special: { pearls: 0.3 },
+    deepwater: 1
+  }
+};
+for (let k2 in biomesByNames) {
+  let b2 = biomesByNames[k2];
+  b2.name = k2;
+  b2.rgba = hexToRgb(b2.color);
+  b2.races = asArray(b2.races);
+}
+const convertResources = (raw) => {
+  raw = asArray(raw);
+  return {
+    spriteAtlasInd: raw[0],
+    hexColor: raw[1]
+  };
+}, minerals = ["oil", "gems", "iron", "copper", "stone", "coal", "pearls"], plants = ["cotton", "rubber"], food = ["grass", "seaweed", "wheat", "sugarcane", "apples", "honey", "bread", "jam", "cacao", "chocolate", "pie"], items = ["fertilisers", "gems", "tools", "lumber", "engines", "fabric", "hats", "iron", "beds", "fuel"], consumerGoods = /* @__PURE__ */ new Set(["apples", "bread", "honey", "jam", "pie", "cacao", "chocolate", "gems", "pearls", "tools", "lumber", "engines", "fabric", "hats", "iron", "beds", "fuel"]), tradeables = /* @__PURE__ */ new Set([...food, ...plants, ...items, ...minerals, "water"]), resources = objMap({
+  unknown: 106,
+  working: 80,
+  workingHard: 81,
+  //sowing: 98,
+  crops: [82, "#f00,#00f"],
+  deposits: 9,
+  ore: [83, "#00f,,#008"],
+  coal: [83, "#000"],
+  iron: [84, "#888,"],
+  copper: [84, "#f80,#fff,#fff"],
+  //huts: [84, "#800,"],
+  salt: [83, "#fff,,#aaa"],
+  trees: FIR,
+  soil: [105, "#000"],
+  deepwater: [86, "#048,#fff"],
+  irrigation: [86, "#00f,#fff"],
+  water: [86, "#08f,#fff"],
+  tools: [80, "#88a,,#55a"],
+  travel: [100, "#00f"],
+  walk: [100, "#fff"],
+  //walkFar: [100, "#f80"],
+  horseshoes: [100, "#666"],
+  diving: [100, "#048"],
+  /*flying: [101, "#fff"],
+  swimming: [102, "#fff"],*/
+  gems: [85, "#f08,#fff"],
+  oil: [93, "#000,,#222"],
+  rubber: [86, "#840,,#222"],
+  honey: [96, "#f80"],
+  jam: [96, "#f08"],
+  cacao: [82, "#a40"],
+  moss: [105, "#4af,#888"],
+  wheat: [113, "#fe0"],
+  fuel: [93, ",,#0f0"],
+  cotton: [82, "#fff"],
+  apples: [99, "#f00"],
+  pearls: [114, "#ddd"],
+  vehicles: 116,
+  beds: [117, "#a40,,#fff"],
+  //construction: [56, "#000"],
+  //houses: 56,
+  //shelter: [56, "#0f0"],
+  fun: [94, "#0f0"],
+  comfort: 117,
+  happiness: 95,
+  /*flyingFar: [101, "#f80"],
+  swimmingFar: [102, "#f80"],*/
+  crafting: [97],
+  stone: [83, "#444,,#444"],
+  lumber: [112, "#fa6"],
+  chocolate: [112, "#820"],
+  axing: 109,
+  grass: [105, "#4a4"],
+  sugarcane: [90, "#8f8,#88f"],
+  seaweed: [90, "#f0f,#f44"],
+  magic: 94,
+  warp: 94,
+  energy: [94, "#00f,#00f"],
+  food: [99, "#0f0,#000"],
+  cooking: [96, "#fff"],
+  fertilisers: [89, "#620,#220"],
+  sugar: [89, "#fff,#aaa"],
+  thinking: [91, "#fca,#fca,#000"],
+  //spelunking: [91, "#006"],
+  digging: 110,
+  fabric: [91, "#f08,#804,#f08"],
+  hats: [98, "#f0a"],
+  engines: [92, "#444"],
+  electronics: [92, "#0a0"],
+  walkFar: [120, "#f80"],
+  time: [120, "#fff"],
+  tab0: 80,
+  tab1: [91, "#fca,#fca,#440"],
+  tab2: 95,
+  tab3: 115,
+  tab4: 119,
+  pie: [84, "#f0f"],
+  bread: [84, "#400"]
+}, convertResources);
+const iterationsPerTurn = 7, cellCapPerIncome = 100, incomePerResource = 100, biomeToAgent = {
+  soil: {
+    income: {
+      soil: 1,
+      irrigation: 0.2,
+      fertilisers: 0.2
+    },
+    ownRecipes: [
+      { soil: -1, irrigation: -1, fertilisers: -2, digging: -1, crops: 4 },
+      { crops: -1, grass: 1 }
+    ]
+  },
+  trees: {
+    income: { trees: 1 },
+    ownRecipes: [
+      { trees: -1, workingHard: -1, lumber: 2 }
+    ]
+  },
+  deposits: {
+    income: { deposits: 3 },
+    ownRecipes: [
+      { deposits: -1, digging: -1, thinking: -1, ore: 3 },
+      //{ thinking: -1, spelunking: 1 },
+      { ore: -1, stone: 1 }
+    ]
+  },
+  deepwater: {
+    income: { deepwater: 3 },
+    ownRecipes: [
+      { deepwater: -1, seahorsing: -1, seaweed: 3 },
+      { deepwater: -1, seahorsing: -1, water: 3 },
+      { deepwater: -1, travel: -1, water: 1 },
+      { deepwater: -1, travel: -1, seaweed: 1 }
+    ]
+  }
+}, commonRecipes = [
+  { working: -2, workingHard: 1 },
+  { working: -1, magic: -5, workingHard: 3 },
+  { working: -1, thinking: 1 },
+  { working: -1, cooking: 1 },
+  { working: -1, travel: 2 },
+  { working: -3, electronics: -1, thinking: 20 },
+  { working: -10, thinking: -10, engines: -1, energy: -10, workingHard: 50 },
+  { workingHard: -1, digging: 1 },
+  { workingHard: -1, thinking: -1, crafting: 1 },
+  { workingHard: -10, thinking: -10, tools: -1, crafting: 40 },
+  { working: -1, thinking: -2, engines: -1, fuel: -3, crafting: 15 },
+  { vehicles: -1, fuel: -5, travel: 40 },
+  { vehicles: -1, fuel: -5, diving: 30 },
+  { engines: -1, fuel: -10, energy: 100 },
+  { fuel: -1, energy: 3 },
+  { magic: -1, fertilisers: 1 },
+  { crafting: -1, iron: -1, tools: 3 },
+  { crafting: -1, lumber: -1, tools: 1 },
+  { crafting: -1, food: -1, coal: -1, fertilisers: 3 },
+  { crafting: -1, lumber: -1, fuel: 2 },
+  { crafting: -1, coal: -1, fuel: 5 },
+  { crafting: -1, oil: -1, fuel: 10 },
+  { crafting: -1, sugarcane: -3, sugar: 5 },
+  { crafting: -1, cotton: -1, fabric: 2 },
+  { crafting: -1, fabric: -1, hats: 2 },
+  { crafting: -1, rubber: -1, copper: -1, electronics: 2 },
+  { crafting: -1, lumber: -1, fabric: -1, beds: 2 },
+  { crafting: -1, rubber: -1, engines: -1, iron: -1, vehicles: 5 },
+  { crafting: -3, iron: -2, engines: 3 },
+  { crafting: -1, iron: -1, horseshoes: 2 },
+  { crafting: -1, electronics: -1, iron: -1, engines: 10 },
+  { crafting: -1, copper: -1, rubber: -1, electronics: 4 },
+  { cooking: -1, sugar: -1, cacao: -1, chocolate: 3 },
+  { cooking: -1, sugar: -1, bread: -1, apples: -1, pie: 10 },
+  { cooking: -1, sugar: -1, apples: -1, jam: 5 },
+  { cooking: -1, energy: -1, wheat: -1, bread: 5 },
+  { magic: -1, fun: 5 },
+  { electronics: -1, fun: 10 },
+  { travel: -2, fun: 1 },
+  { hats: -1, comfort: 2 },
+  { beds: -1, comfort: 2 },
+  { horseshoes: -1, comfort: 2 },
+  { pearls: -1, comfort: 2 }
+], races = {
+  alicorn: {
+    job: "alicorning",
+    //moving: "flying",
+    wm: 10,
+    recipes: [
+      { alicorning: -1, magic: 100 },
+      { alicorning: -1, thinking: 100 },
+      { alicorning: -1, travel: 100 }
+    ]
+  },
+  horses: {
+    job: "horsing",
+    recipes: [
+      { horsing: -1, workingHard: 1 },
+      { horsing: -10, tools: -1, workingHard: 20 }
+    ]
+  },
+  unicorns: {
+    job: "unicorning",
+    income: { gems: -0.2 },
+    recipes: [
+      { unicorning: -1, magic: 1 },
+      { unicorning: -3, thinking: 2 }
+    ]
+  },
+  pegasi: {
+    job: "pegasing",
+    income: { fabric: -0.2 },
+    //moving: "flying",
+    recipes: [
+      { pegasing: -1, water: 1 }
+    ]
+  },
+  zebras: {
+    job: "zebring",
+    income: { jam: -0.2 },
+    recipes: [
+      { zebring: -1, cooking: 3 }
+    ]
+  },
+  deers: {
+    job: "deering",
+    income: { salt: -0.2 }
+  },
+  goats: {
+    job: "goating",
+    income: { tools: -0.2 },
+    recipes: [
+      { goating: -1, digging: 3 }
+    ]
+  },
+  seahorses: {
+    job: "seahorsing",
+    income: { lumber: -0.2 },
+    recipes: [
+      { seahorsing: -1, diving: 2 }
+    ]
+    //moving: "swimming"
+  }
+  /*farm: {
+  },
+  mine: {
+  },
+  forestry: {
+  },
+  well: {
+  },
+  manufacture: {
+  },*/
+  /*village: {
+  },
+  dome: {
+  }*/
+}, initSetting = () => {
+  let icon2 = 48;
+  for (let rn in races) {
+    let race = races[rn];
+    race.name = rn;
+    race.biomes = [];
+    race.income = {
+      [race.job]: 10,
+      fertilisers: 0.3,
+      food: -0.3,
+      fun: -0.2,
+      comfort: -0.1,
+      ...Object.fromEntries([...consumerGoods].map((t2) => [t2, -0.05])),
+      ...race.income ?? {}
+    };
+    resources[race.name] = resources[race.job] = convertResources(icon2);
+    race.sprite = icon2++;
+  }
+  races.alicorn.income = objScale(races.alicorn.income, 70);
+  for (let b2 of Object.values(biomesByNames)) {
+    for (let r2 of b2.races) {
+      races[r2].biomes.push(b2.name);
+    }
+  }
+  food.forEach((f2, i2) => commonRecipes.push({
+    [f2]: -1,
+    food: ~~(i2 / 3) + 1
+  }));
+};
+const DEFAULT_STOCK_CAP = 1e24;
+const distanceTax = 5e-3, happinessGainMultiplier = 15, consumerGoodsHappiness = 3;
+const marginalUtility = (amount) => 1e3 / (100 + (amount > 0 ? amount : 0)), totalUtility = (amount) => 1e3 * Math.log((100 + (amount > 0 ? amount : 0)) / 100), gains = (r2) => objFilter(r2, (v2) => v2 > 0), losses = (r2) => objScale(objFilter(r2, (v2, k2) => v2 < 0), -1);
+class MarketAgent {
+  uses = {};
+  size = 1;
+  iterations = 0;
+  /** At what amount of resource it can be consumed */
+  get consumeIfAbove() {
+    return this.size;
+  }
+  /** over how many turns we calculate rolling average */
+  ravg = 100;
+  /** To tell agents apart */
+  name;
+  /** Ways of convert one goods into the others, and where (locally, or on one of the hexes nearby) */
+  recipes = [];
+  ownRecipes = [];
+  places = [];
+  /** History of the  */
+  transfers = [];
+  /** How much of this good market receives (or loses) per day, per size  */
+  income = {};
+  /** Whitelist of what this agent would trade away */
+  sells;
+  /** Whitelist of what this agent would accept in trade */
+  buys;
+  /** How much of this good market currently has */
+  stock = {};
+  /** Maximum value of a good in stock */
+  cap = {};
+  //trades = {} as any;
+  consumed = {};
+  /** Happiness gained */
+  happinessGained = {};
+  /** Scales the amounts a herd reasons about.
+   *
+   * Consumption and production are linear in size, so a herd of 1000 really does hold
+   * 1000x the goods - some scaling is conceptually justified.
+   *
+   * But it is deliberately 1 for now, because the cost is not the concept, it is the
+   * bookkeeping: every place that values a quantity must apply the same factor, and the
+   * ones that forget silently disagree with the rest. `barter` used to price a deal with
+   * mutil (scaled) and accept it with totalUtility (unscaled) - two notions of value in
+   * one function.
+   *
+   * The scaling now lives in exactly one place, `valueOf`, and everything goes through it.
+   * To switch it on, change ONLY this getter. Then re-check that
+   *   - `valueOf` and `mutil` agree (mutil is the derivative of valueOf),
+   *   - trades still converge to equal mutil ratios between herds of different size,
+   *   - a herd still "perceives" small amounts: with a factor of N, anything below N
+   *     units of a good is worth as much as nothing, which is the trap to watch for.
+   *
+   * `return Math.max(1, this.size)` was measured: it removes the artificial "big herds
+   * look rich" bias and lets large herds trade again, but it makes the perceived value of
+   * a small pile collapse for big herds, and it changes every balance number.
+   */
+  get sizeFactor() {
+    return 1;
+  }
+  constructor(params = {}) {
+  }
+  /** Init market parameters */
+  initMarket(params = {}) {
+    Object.assign(this, params);
+    if (params.sellList)
+      this.sells = new Set(params.sellList);
+    if (params.buyList)
+      this.buys = new Set(params.buyList);
+  }
+  /**Compile recipes from places. For Agent, automatically pick up the places from cells */
+  recomp() {
+    let place = this.places[this.iterations % this.places.length];
+    this.recipes = [this, ...place.biome.name == "bedrock" ? [] : [place]].map(
+      (place2) => place2.ownRecipes?.map((recipe) => ({ place: place2, recipe }))
+    ).flat(1);
+  }
+  /** Utility of having *amount* of one good, in this agent's own terms.
+   * This is THE place where herd size is accounted for: everything that values a
+   * quantity goes through here (or through mutil), never through totalUtility directly.
+   */
+  valueOf(amount) {
+    return totalUtility(amount / this.sizeFactor);
+  }
+  /** Marginal utility
+   * The perceived utility of the one unit of this good
+   * If working in worlplace, use the sum of stock
+  */
+  mutil(good, place, travelPerUnit = 0) {
+    let v2 = marginalUtility(this.common(good, place) / this.sizeFactor) - (travelPerUnit ? marginalUtility((this.stock.travel ?? 0) / this.sizeFactor) * travelPerUnit : 0);
+    return v2;
+  }
+  /** Recipe utility
+   * How much the market utility will change when using the recipe without multiplier */
+  util(recipe) {
+    return listSum(Object.keys(recipe.recipe), (good) => {
+      let v2 = this.mutil(good, recipe.place) * recipe.recipe[good];
+      return v2;
+    });
+  }
+  /** Who pays for (or receives) this part of the recipe at *place*.
+   * Inputs come from our own stock if we have any of it, otherwise from the place.
+   * Outputs are ours if the good is tradeable, otherwise they stay at the place.
+   */
+  stockOwner(place, good, amount) {
+    return amount < 0 ? (this.stock[good] ?? 0) > 0 ? this : place : tradeables.has(good) ? this : place;
+  }
+  /** Applies the recipe with the given multiplier and proxies */
+  useRecipe(recipe, times) {
+    times ??= this.recipeUseMultiplier(recipe);
+    let feasible = Math.floor(this.max(recipe));
+    if (times > feasible)
+      times = feasible;
+    if (!(times > 0))
+      return;
+    let rn = JSON.stringify(recipe.recipe);
+    objAdd(this.uses, { [rn]: times });
+    let place = recipe.place;
+    if (place == this) {
+      Object.keys(recipe.recipe).forEach((k2) => this.gain(k2, recipe.recipe[k2] * times));
+      return;
+    }
+    objAdd(place.uses, { [rn]: times });
+    Object.keys(recipe.recipe).forEach((k2) => {
+      let amount = recipe.recipe[k2] * times;
+      let local = this.stockOwner(place, k2, amount) == this;
+      (local ? this : place).gain(k2, amount);
+      if (local)
+        this.addTransfer(place, k2, amount);
+    });
+  }
+  addTransfer(place, good, amount) {
+    let transfer = this.transfers.find((t2) => t2.place == place);
+    if (!transfer) {
+      transfer = { place, recipe: {} };
+      this.transfers.push(transfer);
+    }
+    addToKey(transfer.recipe, good, amount);
+  }
+  /** Maximum recipe multiplier which would not reduce the market stock of anything below zero
+   * Would only check goods with negative amount in recipe, i.e. would nor prevent increasing the already negative good
+   */
+  max(recipe) {
+    let place = recipe.place;
+    let bb = worstBy(
+      Object.keys(recipe.recipe),
+      (good) => {
+        let makes = recipe.recipe[good];
+        return makes > 0 ? Number.MAX_VALUE : (this.stockOwner(place, good, makes).stock[good] ?? 0) / -makes;
+      }
+    )[1];
+    return bb;
+  }
+  /** Common amount of res between this and place */
+  common(good, place) {
+    return (this.stock[good] ?? 0) + (place == this ? 0 : place?.stock[good] ?? 0);
+  }
+  bestSeller(buyer, minimalStock = 40) {
+    let soldables = this.soldableTo(buyer);
+    let [good, v2] = bestBy([...soldables], (k2) => this.stock[k2] > minimalStock ? buyer.mutil(k2) / this.mutil(k2) : 0);
+    return v2 > 0 ? good : void 0;
+  }
+  soldableTo(buyer) {
+    if (this.sells && buyer.buys) {
+      let both = /* @__PURE__ */ new Set();
+      this.sells.forEach((good) => buyer.buys.has(good) && both.add(good));
+      return both;
+    }
+    return this.sells ?? buyer.buys ?? tradeables;
+  }
+  /** Would this swap, including the travel it costs us, make both sides better off?
+   * Each side is judged by its own valueOf, so a sizeFactor (if any) cannot make the
+   * price and the accept-check disagree.
+   */
+  tradeIsGood(their, myGood, weGive, theirGood, theyGive, travelUsed = 0) {
+    let myTravel = this.stock.travel ?? 0, myMine = this.stock[myGood] ?? 0, myTheirs = this.stock[theirGood] ?? 0, theirMine = their.stock[myGood] ?? 0, theirTheirs = their.stock[theirGood] ?? 0;
+    let before = this.valueOf(myTravel) + this.valueOf(myMine) + this.valueOf(myTheirs), after = this.valueOf(myTravel - travelUsed) + this.valueOf(myMine - weGive) + this.valueOf(myTheirs + theyGive);
+    if (!(after > before))
+      return false;
+    return their.valueOf(theirMine + weGive) + their.valueOf(theirTheirs - theyGive) > their.valueOf(theirMine) + their.valueOf(theirTheirs);
+  }
+  barter(their, distance = 0) {
+    let myBestSeller = this.bestSeller(their), theirBestSeller = their.bestSeller(this);
+    if (!myBestSeller || !theirBestSeller)
+      return false;
+    let travelPerUnit = distance * distanceTax;
+    let theirBreakEvenPrice = their.mutil(myBestSeller) / their.mutil(theirBestSeller);
+    let ourBreakEvenPrice = this.mutil(myBestSeller) / this.mutil(theirBestSeller);
+    let travelBudget = travelPerUnit ? Math.max(0, (this.stock.travel ?? 0) - this.size * 5) / travelPerUnit : Infinity;
+    if (!(ourBreakEvenPrice < theirBreakEvenPrice))
+      return false;
+    let price = numTween(ourBreakEvenPrice, theirBreakEvenPrice, 0.5);
+    let weGive = Math.floor(Math.min(this.stock[myBestSeller] ?? 0, (their.stock[theirBestSeller] ?? 0) / price) / 2);
+    weGive = Math.min(weGive, Math.floor(travelBudget / (1 + price)));
+    while (weGive > 0) {
+      let theyGive = Math.round(weGive * price), travelUsed = Math.ceil((weGive + theyGive) * travelPerUnit);
+      if (theyGive > 0 && theyGive <= (their.stock[theirBestSeller] ?? 0) && travelUsed <= (this.stock.travel ?? 0) && this.tradeIsGood(their, myBestSeller, weGive, theirBestSeller, theyGive, travelUsed)) {
+        this.addTransfer(their, "travel", -travelUsed);
+        this.gain("travel", -travelUsed);
+        this.give(their, myBestSeller, weGive);
+        their.give(this, theirBestSeller, theyGive);
+        return true;
+      }
+      weGive = Math.floor(weGive / 2);
+    }
+    return false;
+  }
+  /** Transfer goods from one agent to another.
+   * A negative amount means "take that much from the receiver" (used by the gift UI).
+   * Never creates goods: only what actually left the giver is handed over.
+   */
+  give(receiver, good, amount) {
+    if (!amount)
+      return;
+    let giver = amount > 0 ? this : receiver, taker = amount > 0 ? receiver : this;
+    let available = Math.min(Math.abs(Math.trunc(amount)), giver.stock[good] ?? 0);
+    if (!(available > 0))
+      return;
+    let before = taker.stock[good] ?? 0;
+    taker.gain(good, available);
+    let moved = (taker.stock[good] ?? 0) - before;
+    if (!(moved > 0))
+      return;
+    giver.gain(good, -moved);
+    giver.addTransfer(taker, good, -moved);
+    taker.addTransfer(giver, good, moved);
+  }
+  /** Gain or lose goods */
+  gain(good, amount) {
+    this.stock[good] = clamp(
+      0,
+      (this.stock[good] ?? 0) + Math.trunc(amount),
+      this.cap[good] ?? DEFAULT_STOCK_CAP
+    );
+  }
+  iterate() {
+    this.recomp();
+    this.useRecipes();
+    this.trade();
+    this.gainIterationIncome();
+    this.iterations++;
+  }
+  trade() {
+  }
+  gainIterationIncome() {
+    objForEach(this.totTurnInc(), (perTurn, good) => {
+      let v2 = Math.ceil(perTurn / iterationsPerTurn);
+      if (v2 == 0)
+        return;
+      if (v2 < 0) {
+        if ((this.stock[good] ?? 0) < this.consumeIfAbove - v2)
+          return;
+        addToKey(this.consumed, good, -v2);
+      }
+      this.gain(good, v2);
+    });
+  }
+  happinessGain() {
+    let queenMultiplier = queen() == this ? 0.01 : 1;
+    let total = this.totTurnInc(-1);
+    let res = objMap(
+      this.consumed,
+      (v2, good) => {
+        let r2 = v2 / total[good] * queenMultiplier * happinessGainMultiplier * (consumerGoods.has(good) ? consumerGoodsHappiness : 1) * (this.income[good] ?? 0);
+        if (!total[good])
+          r2 = 0;
+        return r2;
+      }
+    );
+    return res;
+  }
+  useRecipes() {
+    let limit = 30;
+    let score = (recipe) => {
+      let v2 = this.util(recipe) * this.max(recipe);
+      return v2 > 0 ? v2 : 0;
+    };
+    while (limit--) {
+      let [recipe, v2] = bestBy(this.recipes, score);
+      if (!(v2 > 0))
+        break;
+      this.useRecipe(recipe, this.recipeUseMultiplier(recipe));
+    }
+  }
+  recipeUseMultiplier(recipe) {
+    return Math.ceil(Math.min(this.max(recipe), DEFAULT_STOCK_CAP) / 8);
+  }
+  /** Total income/expense per turn, considering size
+   * with argument, onlythose who have that sign (+1 - income, -1 - consume)
+   */
+  totTurnInc(sign = 0) {
+    let inc = objScale(this.income, this.size);
+    if (sign)
+      inc = objFilter(inc, (v2) => sign * v2 > 0);
+    return inc;
+  }
+}
+const UNPPASSABLE = 1e12, SEALVL = 0, GROUNDLVL = 1, HILLSLVL = 2;
+class Cell extends MarketAgent {
+  constructor(at) {
+    super();
+    this.at = at;
+    this.name = japaneseName();
+    let coord = worldCoord(at);
+    this.bedrock = coord[0] < 1 || coord[0] > ww - 2 || coord[1] < 1 || coord[1] > wh - 2;
+  }
+  /** Elevation */
+  elev = 0;
+  /** Humidity */
+  hum = 0;
+  rivers = 0;
+  roads = 0;
+  /** Temperature */
+  t = 0;
+  woke;
+  biome = biomesByNames.bedrock;
+  name;
+  layer = SEALVL | GROUNDLVL | HILLSLVL;
+  bedrock;
+  /** Neighbor (or undefined) to the six irections in order */
+  neighborsByDir;
+  /** Non-undefined neighbors */
+  neighbors;
+  /** neighbors and itself*/
+  neighborhood;
+  seen;
+  settlement;
+  resources;
+  //agent?: MarketAgent
+  special;
+  /** Cells in radius cache */
+  _cir = [];
+  a = [];
+  cir(d2) {
+    if (!this._cir[d2])
+      this._cir[d2] = new Set(neighborhood[d2].map((v2) => u$1.c[v2 + this.at]).filter((v2) => v2));
+    return this._cir[d2];
+  }
+  water() {
+    return this.elev < u$1.elev[ESea];
+  }
+  initMarket() {
+    super.initMarket(cellAgentParameters(this));
+  }
+  get cell() {
+    return this;
+  }
+  /*neighborhoodResources() {
+    return this.neighborhood.map(c => c.resources).reduce(objAdd, {})
+  }*/
+  /** todo: traverse queue in correct order */
+  pathfind(race, maxDist, destination) {
+    const visited = /* @__PURE__ */ new Set();
+    const queue = [], result = {};
+    const costFunction = travelCostFunction(race);
+    queue.push({ c: this, d: 0, from: this });
+    visited.add(this);
+    while (queue.length > 0) {
+      const current = queue.shift();
+      result[current.c.at] = current;
+      if (current.c == destination)
+        return result;
+      current.c.neighbors.forEach((neighbor) => {
+        if (!visited.has(neighbor) && neighbor.biome != biomesByNames.bedrock) {
+          visited.add(neighbor);
+          let d2 = current.d + costFunction(current.c, neighbor);
+          if (d2 <= maxDist) {
+            let i2;
+            for (i2 = queue.length - 1; i2 >= 0 && queue[i2].d > d2; i2--) {
+            }
+            queue.splice(i2 + 1, 0, { c: neighbor, d: d2, from: current.c });
+          }
+        }
+      });
+    }
+    return result;
+  }
+  pathFrom(pathfindData = {}) {
+    let path = [this], point = pathfindData[this.at];
+    if (!point)
+      return void 0;
+    while (point.c != point.from) {
+      point = pathfindData[point.from.at];
+      path.push(point.c);
+    }
+    return path.reverse();
+  }
+  /** visual hex position in photo coords */
+  topLeft(shift2 = [0, 0], fixedLayer) {
+    let p2 = worldCoord(this.at);
+    p2 = sum(muls(p2, photoScale), shift2);
+    p2[1] -= layerThickness * (fixedLayer ?? this.layer ?? 0);
+    return p2;
+  }
+  center(shift2 = [0, 0], fixedLayer) {
+    return this.topLeft(sum(shift2, photoScale, 0.5), fixedLayer);
+  }
+  nextTurn() {
+    if (this.woke) {
+      this.gainIterationIncome();
+      if (objEvery(this.cap, (v2, k2) => this.stock[k2] >= v2))
+        this.woke = false;
+    }
+  }
+}
+const travelCostFunction = (race) => {
+  return (a2, b2) => {
+    switch (race) {
+      case "alicorn":
+      case "pegasi":
+        return b2.bedrock ? UNPPASSABLE : 0.5;
+      case "seahorses":
+        return b2.water() || a2.water() || a2.rivers || b2.rivers ? 1 : UNPPASSABLE;
+      default:
+        let cost = b2.biome.travel ?? 1e9;
+        if (b2.a.length > 0) {
+          cost = Math.min(1, cost);
+        }
+        if (races[race] && b2.biome.races.includes(race)) {
+          cost /= 2;
+        }
+        return cost;
+    }
+  };
+}, cellAgentParameters = (c2) => {
+  let income = {}, ownRecipes = [], cap;
+  for (let k2 in c2.resources) {
+    if (c2.resources[k2]) {
+      objAdd(income, biomeToAgent[k2].income, c2.resources[k2]);
+      ownRecipes = [
+        ...ownRecipes,
+        ...biomeToAgent[k2].ownRecipes
+      ];
+    }
+  }
+  ownRecipes.push({ digging: -1, water: Object.keys(biomesByNames).indexOf(c2.biome.name) });
+  if (!c2.special && c2.layer > rng(100)) {
+    c2.special = randomElement(["iron", "copper"]);
+  }
+  if (c2.special) {
+    ownRecipes.push({
+      [minerals.includes(c2.special) ? "ore" : "crops"]: -1,
+      [c2.special]: 1
+    });
+  }
+  income = objScale(objStripFalsy(income), incomePerResource);
+  cap = objScale(income, cellCapPerIncome);
+  if (c2.rivers) {
+    income.water = 1e3;
+  }
+  return {
+    //id: c.at,
+    income,
+    ownRecipes,
+    cap,
+    stock: { ...cap }
+  };
+};
+const erode = (cell, path = []) => {
+  if (cell.bedrock)
+    return;
+  path.push(cell);
+  if (cell.elev < u$1.elev[ESea])
+    return path;
+  let flowTo = min(cell.neighbors, (c2) => c2.elev);
+  if (!flowTo)
+    return;
+  let d2 = cell.elev - flowTo.elev;
+  if (!(d2 > 0))
+    return;
+  if (!u$1.rivers) {
+    cell.elev -= d2 / 2;
+    flowTo.elev += d2 / 3;
+  }
+  return erode(flowTo, path);
+};
+let animations = [];
+const animate = (sprite, waypoints, s2 = 200) => {
+  let a2 = { i: sprite, wp: waypoints, t: 0, s: s2 };
+  animations.push(a2);
+  return a2;
+}, cancelAnimation = (a2) => {
+  removeFromList(animations, a2);
+}, updateAnimations = (dt2) => {
+  animations = animations.filter((a2) => {
+    a2.t += dt2 / a2.s;
+    let t2 = ~~a2.t;
+    if (!a2.wp[t2 + 1]) {
+      a2.f && a2.f();
+      return false;
+    }
+    let p2 = vecTween(a2.wp[t2], a2.wp[t2 + 1], a2.t - t2);
+    drawCentered(a2.i, p2);
+    return true;
+  });
+};
+const flyers = ["alicorn", "pegasi"], flyersAndSwimmers = [...flyers, "seahorses"];
+const raceAgentParameters = (race) => {
+  let ownRecipes = [
+    ...commonRecipes,
+    ...race.recipes ?? [],
+    ...race.job ? [
+      { [race.job]: -1, working: race.wm ?? 1 },
+      { [race.job]: -1, fun: 1 },
+      { [race.job]: -1, travel: 1 }
+    ] : []
+  ];
+  if (!flyersAndSwimmers.includes(race.name)) {
+    ownRecipes.push({ [race.job]: -10, horseshoes: -1, travel: 20 });
+  }
+  let params = {
+    ownRecipes,
+    income: race.income
+  };
+  return params;
+};
+let filters = {}, sprites;
+const AtlasSpriteSize = 16;
+const atlasSprite = (id, filter) => cutSpriteFromAtlas(id % AtlasSpriteSize * AtlasSpriteSize, ~~(id / AtlasSpriteSize) * AtlasSpriteSize, AtlasSpriteSize, AtlasSpriteSize, filter), initSprites = () => {
+  sprites = loop(160, (i2) => atlasSprite(i2));
+}, cutSpriteFromAtlas = (x2, y2, w2, h2, filter) => {
+  let [sprite, sx] = canvasElementAndContext(w2, h2);
+  sx.drawImage(atlas, x2, y2, w2, h2, 0, 0, w2, h2);
+  if (filter)
+    sprite = filter(sprite);
+  return sprite;
+}, makeBiomeSprites = (biome) => {
+  return [...new Array(6)].map((v2, i2) => cutSpriteFromAtlas(240, 0, 16, 22, constructFilter([
+    biome.rgba,
+    [0, 0, 0, 0],
+    [0, 0, 0, 0]
+  ])));
+}, hexToRGBATransform = (...color) => {
+  let r2 = [
+    hexToRgb(color[0] ?? "#f00"),
+    hexToRgb(color[1] ?? "#0f0"),
+    hexToRgb(color[2] ?? "#00f")
+  ];
+  return r2;
+}, spriteOf = (a2) => sprites[a2.race?.sprite], safariRecolor = (rgbReplace) => {
+  rgbReplace.push([0, 0, 0, 1]);
+  let name = JSON.stringify(rgbReplace);
+  if (!filters[name]) {
+    filters[name] = (c2) => {
+      let cx2 = c2.getContext("2d"), imageData = cx2.getImageData(0, 0, c2.width, c2.height), buffer = new Uint8Array(imageData.data.buffer);
+      for (let i2 = 0; i2 < buffer.length; i2 += 4) {
+        let colors = [0, 0, 0, 0], slice = buffer.slice(i2, i2 + 4);
+        slice.forEach(
+          (s2, channel) => rgbReplace[channel].forEach((v2, j2) => colors[j2] = clamp(0, colors[j2] + v2 * s2, 255))
+        );
+        buffer.set(colors, i2);
+      }
+      let [newCanvas, newContext] = canvasElementAndContext(c2.width, c2.height);
+      newContext.putImageData(imageData, 0, 0);
+      return newCanvas;
+    };
+  }
+  return filters[name];
+}, constructFilter = (rgbReplace) => {
+  return safariRecolor(rgbReplace);
+}, spriteCache = (ind, rgbReplace) => {
+  let n2 = `${ind}@${rgbReplace}`;
+  spriteCacheData[n2] ??= atlasSprite(ind, rgbReplace ? constructFilter(rgbReplace) : void 0);
+  return spriteCacheData[n2];
+}, spriteCopy = (a2) => {
+  let [sprite, sc] = canvasElementAndContext(a2.width, a2.height);
+  sc.drawImage(a2, 0, 0);
+  return sprite;
+}, resourceIcon = (name) => {
+  let sprite;
+  let r2 = resources[name] ?? resources["unknown"];
+  r2.canvas ??= spriteCache(
+    r2.spriteAtlasInd,
+    r2.hexColor ? hexToRGBATransform(...r2.hexColor.split(",")) : void 0
+  );
+  sprite = spriteCopy(r2.canvas);
+  return sprite;
+};
+const spriteCacheData = {};
+let resAnimations = 0;
+class Agent extends MarketAgent {
+  kind;
+  race;
+  cell;
+  dest;
+  steps = 0;
+  anim;
+  happiness;
+  /**Pathfinding data cache */
+  _pathfindData;
+  /** Where pathfind data was calculated. If agent is in the other cell, it should be updated */
+  _pathfindDataCell;
+  pathfindData() {
+    if (this.cell != this._pathfindDataCell || !this._pathfindData) {
+      this._pathfindData = this.cell.pathfind(this.race.name, 20);
+      this._pathfindDataCell = this.cell;
+    }
+    return this._pathfindData;
+  }
+  /** If Agent is happy enough to be controlled */
+  happy() {
+    return this.queen() || this.happiness > 999;
+  }
+  /** This agent is village or dome */
+  village() {
+    return !this.race.job;
+  }
+  /** We create a herd in this cell, an improvement in  this cell, or the agent for the cell itself */
+  constructor(cell, race, size = 1) {
+    super();
+    this.visit(cell);
+    if (race)
+      this.race = races[race];
+    this.size = size;
+    this.cell = cell;
+    this.name = japaneseName();
+    u$1.a.push(this);
+    this.happiness = ~~rng(500) + 50;
+    this.initMarket();
+    this.recomp();
+  }
+  nextHappiness() {
+    return clamp(0, this.happiness + this.totalHappinessGain() - this.expectation());
+  }
+  initMarket() {
+    this.race && super.initMarket(raceAgentParameters(this.race));
+  }
+  /** Animate transfers */
+  animateTransfer(transfer) {
+    let path, stepDuration = 200;
+    path = this.pathTo(transfer.place.cell);
+    if (transfer.place instanceof Agent)
+      path ??= transfer.place.pathTo(this.cell);
+    if (!path)
+      return;
+    let points = path?.map((c2) => c2.topLeft());
+    if (points.length < 3)
+      points.push(sum(points[points.length - 1], [0, 3]));
+    let rev = [...points].reverse();
+    stepDuration += 500 / points.length;
+    Object.entries(transfer.recipe).forEach(([good, v2]) => {
+      if (good == "travel") return;
+      setTimeout(() => {
+        let anim = animate(resourceIcon(good), v2 < 0 ? points : rev, stepDuration);
+        resAnimations++;
+        anim.f = () => resAnimations--;
+      }, Math.random() * 200);
+    });
+  }
+  recomp() {
+    this.places = this.cell.neighborhood;
+    this.cell.neighborhood.forEach((p2) => p2.woke = true);
+    super.recomp();
+  }
+  trade() {
+    let nb = this.cell.cir(20), partners = u$1.a.filter((a2) => nb.has(a2.cell) && !((a2.queen() || this.queen()) && !a2.cell.seen && !this.cell.seen));
+    partners.forEach((p2) => {
+      let path = this.pathTo(p2.cell);
+      if (path)
+        this.barter(p2, Math.max(0, path.length - 2));
+    });
+  }
+  barter(their, distance) {
+    if (this == queen() || their == queen()) {
+      if (!this.cell.seen || !their.cell.seen) {
+        return false;
+      }
+    }
+    return super.barter(their, distance);
+  }
+  /** How many steps unit has left, considering step limit and travel resource */
+  maxStepsRemaining() {
+    return Math.min(this.steps, ~~(this.stock.travel / this.size));
+  }
+  nextTurn() {
+    this.steps = 5;
+    this.transfers = [];
+    this.consumed = {};
+    this.uses = {};
+    loop(iterationsPerTurn, () => this.iterate());
+    this.happiness = this.nextHappiness();
+    if (this.size > 1) {
+      let popGain = ~~((rng(this.happiness) - rng(this.size)) / 100);
+      this.size = clamp(100, this.size + popGain, 5e3);
+    }
+    if (!this.happy()) {
+      this.dest = randomElement(this.cell.neighbors);
+    }
+    this.go();
+  }
+  totalHappinessGain() {
+    let res = Math.round(listSum(Object.values(this.happinessGain())) ?? 0);
+    return res;
+  }
+  expectation() {
+    return state.expectation + ~~(this.happiness / 200);
+  }
+  go() {
+    this.visit(this.cell);
+    if (this.maxStepsRemaining() < 1 || this.cell == this.dest)
+      return;
+    let p2 = this.pathTo(this.dest);
+    if (p2) {
+      p2 = p2.slice(0, this.steps + 1);
+      this.steps -= p2?.length;
+      this.gain("travel", -this.size);
+      p2.forEach((c2) => this.visit(c2));
+      cancelAnimation(this.anim);
+      this.anim = animate(spriteOf(this), p2.map((c2) => c2.topLeft()));
+      this.anim.f = () => delete this.anim;
+    }
+  }
+  see() {
+    let newSeen = 0;
+    this.cell.cir(3).forEach((c2) => {
+      if (!c2.seen) {
+        newSeen++;
+        c2.seen = true;
+      }
+    });
+    if (newSeen)
+      debouncedPrerender();
+  }
+  visit(c2) {
+    this.cell && removeFromList(this.cell.a, this);
+    this.cell = c2;
+    this.cell?.a.push(this);
+    if (c2 == this.dest)
+      delete this.dest;
+    this.recomp();
+    if (this.happy())
+      this.see();
+  }
+  remove() {
+    if (selected() == this)
+      update({ selected: void 0 });
+    this.cell && removeFromList(this.cell.a, this);
+    removeFromList(u$1.a, this);
+  }
+  get at() {
+    return this.cell.at;
+  }
+  /*pathfind(maxDist: number, destination?: Cell) {
+    return this.cell?.pathfind(this.race.name, maxDist, destination)
+  }*/
+  pathTo(destination) {
+    if (!destination)
+      return;
+    let pf = this.pathfindData(), dp = u$1.c[destination.at];
+    let p2 = dp?.pathFrom(pf);
+    return p2;
+  }
+  queen() {
+    return this.race == races.alicorn;
+  }
+  /** Calculate manual trade */
+  giftCalc(good, give) {
+    let giver = give ? queen() : this;
+    let mu = this.mutil(good);
+    let amount = Math.ceil(giver.stock[good] / 20);
+    let value = ~~((mu * amount * (give ? 0.9 : 1.1)) ** 0.45);
+    if (!give)
+      value++;
+    if (!value)
+      amount = 0;
+    return [amount, value].map((v2) => v2 * (give ? 1 : -1));
+  }
+  /**apply manual trade */
+  giftApply(good, give) {
+    let [amount, value] = this.giftCalc(good, give);
+    queen().give(this, good, amount);
+    this.happiness += value;
+    select();
+  }
+  /*isBuilding() {
+    return !this.race.job
+  }*/
+}
+let u$1;
+const East = 1, West = 4, SE = 3, SW = 4, EOcean = 0, ESea = 1, EHighlands = 2, EPeaks = 3;
+class Universe {
+  constructor(seed2, land) {
+    this.seed = seed2;
+    this.land = land;
+    u$1 = this;
+    this.generate();
+  }
+  elev;
+  c;
+  drawOrder;
+  byElev;
+  /** All rivers*/
+  rivers;
+  //roads: Cell[][] = []
+  a = [];
+  anyCell() {
+    let ci = rng(ws);
+    return this.c[ci];
+  }
+  erect(c2, by, depth) {
+    while (rng(70)) {
+      if (c2.bedrock)
+        return;
+      c2.neighbors.forEach((c22) => c22.elev += by);
+      c2 = randomElement(c2.neighbors);
+    }
+  }
+  generate() {
+    this.c = loop(ws, (at) => new Cell(at));
+    setSeed(this.seed);
+    this.c.forEach((c2) => {
+      c2.neighborsByDir = neighborShift.map((ns) => this.c[neighborBy(ns, c2.at)]).filter((c22) => c22);
+      c2.neighbors = c2.neighborsByDir.filter((c22) => c22);
+      c2.neighborhood = [c2, ...c2.neighbors];
+    });
+    loop(50, () => this.erect(this.anyCell(), rng(3) + 1, 3));
+    let averageElev = listSum(this.c, (cell) => cell.elev) / ws;
+    this.c.forEach((cell) => cell.elev = Math.log((cell.elev + 3) / averageElev));
+    this.byElev = [...this.c].sort((a2, b2) => a2.elev - b2.elev);
+    let seaQuantile = 0.85 - this.land * 0.08;
+    this.elev = [seaQuantile - 0.1, seaQuantile, 0.82, 0.97].map((h2) => this.quantile(h2));
+    {
+      loop(1e4, () => erode(this.anyCell()));
+      this.rivers = [];
+      loop(500, () => {
+        let path = erode(this.anyCell());
+        if (path && path.length > 1) {
+          this.rivers.push(path);
+          path.forEach((cell) => cell.rivers++);
+        }
+      });
+    }
+    this.c.forEach((cell) => {
+      let latitude = Math.abs(0.5 - cell.at / ws) * 2;
+      cell.t = 1.7 - latitude - (cell.elev - this.elev[ESea]) / 2;
+    });
+    loop(
+      12,
+      (i2) => this.c.forEach((cell) => {
+        let clouds = (cell.elev <= this.elev[ESea] ? 10 : cell.rivers ? 5 : 0) * (Math.cos(cell.at / ws * 12.5) + 1 + rng() / 3);
+        while (clouds > 0) {
+          [cell, ...cell.neighbors].forEach((nb) => nb.hum += clouds / 25);
+          cell = cell.neighbors[i2] ?? cell.neighbors[cell.at < ws * 0.3 || cell.at > ws * 0.7 ? East : West];
+          if (cell.elev > this.elev[EHighlands] && !rng(2))
+            cell = randomElement(cell.neighbors);
+          if (cell.elev <= this.elev[ESea])
+            break;
+          clouds = clouds * 0.9 - (cell.elev - this.elev[ESea]) / 5;
+        }
+      })
+    );
+    this.c.forEach((cell) => {
+      if (cell.elev >= this.elev[EHighlands]) {
+        [cell.neighborsByDir[SE], cell.neighborsByDir[SW]].forEach((nb) => {
+          if (nb?.elev < this.elev[ESea])
+            nb.elev = this.elev[ESea];
+        });
+      }
+      let b2 = biomesByNames[cell.bedrock ? "bedrock" : cell.elev < this.elev[EOcean] ? "ocean" : cell.water() ? "sea" : cell.elev >= this.elev[EPeaks] ? "peaks" : biomeMatrix[clamp(0, ~~(1.85 + cell.t / 3 - cell.hum / 30), 2)][clamp(0, ~~(3.8 - cell.t * 3), 3)]];
+      cell.biome = b2;
+      cell.layer = cell.water() ? SEALVL : cell.elev < this.elev[EHighlands] ? GROUNDLVL : HILLSLVL;
+    });
+    this.c.forEach((cell) => {
+      objMap(cell.biome.special || {}, (chance, name) => {
+        if (rng(1e3) < chance * 10)
+          cell.special = name;
+      });
+      cell.resources = {
+        soil: cell.biome.soil ?? 0,
+        trees: cell.biome.trees ?? 0,
+        deepwater: (cell.biome.deepwater ?? 0) + (cell.rivers ? 1 : 0),
+        deposits: (cell.biome.deposits ?? 0) + (cell.layer == HILLSLVL ? 2 : 1)
+      };
+    });
+    this.c.forEach((cell) => {
+      let isCoast = !cell.water() && cell.neighbors.find((c2) => c2.water());
+      if (!rng(isCoast || cell.rivers ? 40 : cell.water() ? 200 : 150)) {
+        let race = randomElement(cell.biome.races);
+        if (!cell.water() && rng() < 1 / 8)
+          race = "unicorns";
+        if (rng() < 1 / 8) {
+          race = "pegasi";
+        }
+        if (race) {
+          new Agent(cell, race, rng(1e3) + 100);
+        }
+      }
+      cell.initMarket();
+    });
+    let queen2 = new Agent(u$1.c[ws / 2 + ww / 4], "alicorn");
+    queen2.name = "Vasilisa";
+    queen2.see();
+  }
+  quantile(n2) {
+    return this.byElev[~~(ws * n2)].elev;
+  }
+}
+const layerThickness = 4, mapRevealDuration = 700, BIGCURSOR = 16, CURSOR = 18, RED_SHADOW = 65, GREEN_SHADOW = 66, RAINBOW = 118;
+let worldPhoto, previousWorldPhoto, ctx, cx, revealingMap = 0, dt = 1, lastT = Date.now();
+[
+  ...loop(6, (i2) => [Math.sin(i2 / 6 * TWO_PI) / 3 + 0.2, Math.cos(i2 / 6 * TWO_PI) / 3 + 0.2])
+].map((p2) => muls(p2, photoScale)).sort((a2, b2) => a2[1] - b2[1]);
+const propSlots = [[-1, -2], [-3, 0], [4, 0], [3, 3], [-4, 4], [-1, 7]], drawSprite = (sprite, pos, alpha = 1) => {
+  if (alpha != 1) {
+    cx.save();
+    cx.globalAlpha = alpha;
+  }
+  cx.drawImage(sprite, ...pos);
+  if (alpha != 1)
+    cx.restore();
+}, drawOnCell = (cell, sprite, pos = [0, 0], alpha = 1) => {
+  if (!cell || !sprite)
+    return;
+  if (sprite >= 0)
+    sprite = sprites[sprite];
+  let p2 = photoShift(sum(cell.center(), pos));
+  drawSprite(sprite, p2, alpha);
+}, drawCentered = (sprite, pos, alpha = 1) => {
+  drawSprite(sprite, sum(pos, [-sprite.width / 2 / photoScale[0], -sprite.height / 2 / photoScale[1] + 5]), alpha);
+}, renderLoop = () => {
+  if (!u$1)
+    return requestAnimationFrame(renderLoop);
+  let t2 = Date.now();
+  dt = t2 - lastT;
+  lastT += dt;
+  if (state.targetTLA) {
+    state.topLeftAt = vecTween(state.topLeftAt, state.targetTLA, Math.min(0.3, dt / 100));
+    if (dist(state.topLeftAt, state.targetTLA) < 3) {
+      update({ targetTLA: void 0 });
+    }
+  }
+  cx = ctx;
+  cx.clearRect(0, 0, 1e7, 1e7);
+  cx.save();
+  cx.scale(state.scale, state.scale);
+  cx.translate(...state.topLeftAt);
+  if (previousWorldPhoto) {
+    cx.drawImage(previousWorldPhoto, 0, 0);
+    cx.globalAlpha = 1 - revealingMap / mapRevealDuration;
+    cx.drawImage(
+      worldPhoto,
+      0,
+      /*revealingMap / mapRevealDuration*20*/
+      0
+    );
+    cx.globalAlpha = 1;
+    revealingMap -= dt;
+    if (revealingMap <= 0)
+      previousWorldPhoto = void 0;
+  } else {
+    cx.drawImage(worldPhoto, 0, 0);
+  }
+  updateAnimations(dt);
+  let order = selected() ? [...u$1.a.filter((a2) => a2 != selected()), selected()] : u$1.a;
+  for (let agent of order) {
+    if (agent.anim || !agent.cell.seen)
+      continue;
+    drawOnCell(agent.cell, agent.steps ? GREEN_SHADOW : RED_SHADOW);
+    if (selected() == agent && t2 % 800 < 400) {
+      drawOnCell(agent.cell, BIGCURSOR);
+    }
+    let h2 = flyers.includes(agent.race.name) ? -5 - Math.sin(Date.now() / 500) * 2 : 0;
+    drawOnCell(
+      agent.cell,
+      agent.race?.sprite,
+      [0, h2]
+    );
+    if (agent.happy()) {
+      drawOnCell(agent.cell, RAINBOW, [0, h2 - 10]);
+    }
+    let animationProbability = 30 * agent.transfers?.length / (10 + dist(agent.cell.center(), pointedCell()?.center())) / (resAnimations + 100);
+    if (animationProbability > rng(100)) {
+      let transfer = randomElement(agent.transfers);
+      agent.animateTransfer(transfer);
+    }
+  }
+  if (selected() && !selected().anim) {
+    let a2 = selected();
+    if (shift || pointedCell()?.a.length == 0) {
+      cx.globalAlpha = 0.7;
+      drawStepsTo(a2, pointedCell());
+      cx.globalAlpha = 1;
+    }
+    drawStepsTo(a2, a2.dest);
+  }
+  drawOnCell(pointedCell(), CURSOR, [0, layerThickness * (pointedCell()?.layer - 1)]);
+  drawOnCell(pointedCell(), CURSOR, void 0, 0.5);
+  cx.restore();
+  requestAnimationFrame(renderLoop);
+}, drawStepsTo = (a2, target) => {
+  if (!target || !a2.happy())
+    return;
+  let p2 = a2.pathTo(target);
+  if (p2) {
+    p2.forEach((step, i2) => {
+      i2 > 0 && drawOnCell(
+        step,
+        resourceIcon("walk" + (i2 > a2.maxStepsRemaining() ? "Far" : ""))
+      );
+    });
+  }
+}, centerOn = (cell) => {
+  let targetTLA = sum(scale(cell.center(), -1), [innerWidth - 400, innerHeight], 0.5 / state.scale);
+  if (dist(targetTLA, state.topLeftAt) > 50)
+    update({ targetTLA });
+}, initRenderer = () => {
+  Object.values(biomesByNames).forEach((b2) => b2.sprites = makeBiomeSprites(b2));
+  initSprites();
+  ctx = canvasElementAndContext(innerWidth, innerHeight, C)[1];
+  resizeCanvas();
+}, resizeCanvas = () => {
+  ctx = canvasElementAndContext(innerWidth, innerHeight, C)[1];
+}, canvasElementAndContext = (w2, h2, c2) => {
+  c2 ??= document.createElement("canvas");
+  c2.width = w2;
+  c2.height = h2;
+  let cx2 = c2.getContext("2d");
+  cx2.imageSmoothingEnabled = false;
+  return [c2, cx2];
+}, drawLine = (path, lw, transform = (a2) => a2, riverEnd = 0) => {
+  let coords = path.map((cell, i2) => transform(sum(cell.center(), [0, layerThickness + 2]), i2));
+  if (path.length == 1)
+    return;
+  if (riverEnd) {
+    coords[path.length - 1] = vecTween(coords[path.length - 2], coords[path.length - 1], 0.7);
+    coords[path.length - 1][1] -= 3;
+  }
+  cx.lineWidth = lw;
+  coords.slice(1).forEach((v2, i2) => {
+    if (path[i2].seen || path[i2 + 1].seen) {
+      stroke(coords[i2], v2);
+    }
+  });
+}, stroke = (a2, b2) => {
+  cx.beginPath();
+  cx.moveTo(...a2);
+  cx.lineTo(...b2);
+  cx.stroke();
+}, prerenderUniverse = () => {
+  previousWorldPhoto = worldPhoto;
+  revealingMap = mapRevealDuration;
+  [worldPhoto, cx] = canvasElementAndContext((ww + 0.5) * photoScale[0], wh * photoScale[1]);
+  u$1.drawOrder = loop(wh, (row) => loop(ww, (col) => row * ww + (col + ww - ~~(row / 2)) % ww)).flat().map((at) => u$1.c[at]).filter((c2) => c2.seen);
+  loop(3, (drawingLayer) => {
+    u$1.drawOrder.forEach((cell) => {
+      let pos = cell.topLeft();
+      if (cell.layer == drawingLayer && !cell.bedrock) {
+        cx.drawImage(cell.biome.sprites[cell.at % 3 + (cell.layer == 2 ? 3 : 0)], ...sum(pos, [0, 5]));
+      }
+    });
+  });
+  {
+    cx.lineCap = "round";
+    for (let riverLayer of [0, 1]) {
+      cx.strokeStyle = ["#4444", "#0af"][riverLayer];
+      u$1.rivers.forEach((river) => drawLine(
+        river,
+        4,
+        (v2, i2) => sum(
+          v2,
+          [
+            0,
+            (i2 == river.length - 1 && riverLayer == 0 ? 1 : 0) + [1, 2][riverLayer]
+          ]
+        ),
+        1
+      ));
+    }
+  }
+  u$1.drawOrder.forEach((cell) => {
+    setSeed(cell.at);
+    let pnum = cell.rivers ? 3 : 3 + rng(3), prop = cell.biome.prop;
+    if (prop) {
+      let i1 = nof([sprites[prop]], 6, pnum);
+      drawProps(cell, i1);
+    }
+    cell.special && drawOnCell(cell, resourceIcon(cell.special));
+  });
+}, drawProps = (cell, images) => {
+  images.forEach((img, i2) => {
+    if (img) {
+      cx.drawImage(
+        img,
+        ...round(sum(
+          cell.topLeft(),
+          propSlots[i2 % 6]
+        ))
+      );
+    }
+  });
+};
+const tabs = ["actions done", "possible actions", "needs", "trades and land actions", "gifts"];
+let state = {
+  scale: 4,
+  seed: 1,
+  land: 4,
+  topLeftAt: [0, 0],
+  targetTLA: [0, 0],
+  cellPointed: void 0,
+  clicked: void 0,
+  /**index of the selected actor */
+  selected: 0,
+  /** current turn */
+  turn: 1,
+  //locked: { } as GoodNumbers,
+  tab: 0,
+  expectation: 0,
+  page: "saves"
+};
+const update = (d2 = {}) => {
+  Object.assign(state, d2);
+  let tl = state.topLeftAt;
+  state.topLeftAt = tl;
+  store.setState(state);
+}, debouncedPrerender = debounce(() => prerenderUniverse()), pointedCell = () => u$1?.c[state.cellPointed], selected = () => u$1?.a[state.selected], select = (a2 = selected()) => {
+  if (!a2)
+    return;
+  delete a2._pathfindData;
+  a2.pathfindData();
+  update({ selected: u$1.a.indexOf(a2) });
+  centerOn(a2.cell);
+}, queen = () => u$1?.a.find((a2) => a2.queen()), updateExpectation = () => {
+  update({ expectation: ~~(u$1.a.filter((a2) => a2.village() || a2.happiness > 999).length / 3) });
+}, gotoPage = (page) => {
+  update({ page });
+};
+const listeners = /* @__PURE__ */ new Set();
+const store = {
+  getState: () => state,
+  setState: (patch) => {
+    state = { ...state, ...patch };
+    debouncedBroadcast();
+  },
+  subscribe: (l2) => {
+    listeners.add(l2);
+    return () => listeners.delete(l2);
+  }
+};
+let debouncedBroadcast = debounce(() => listeners.forEach((l2) => l2()), 50);
+const savePrefix = "CLP:", saveTitlePrefix = "CLP!", saveAll = (slot = 0) => {
+  let data = {
+    ...state,
+    c: objMap(objFilter(u$1.c, (c2) => c2.woke), (c2) => save(c2)),
+    a: u$1.a.map((agent) => save(agent)),
+    s: u$1.c.map((c2) => c2.seen ? 1 : 0)
+  };
+  localStorage[savePrefix + slot] = JSON.stringify(data);
+  localStorage[saveTitlePrefix + slot] = (/* @__PURE__ */ new Date()).toISOString();
+}, loadAll = (slot = 0) => {
+  let sdata = localStorage[savePrefix + slot];
+  if (sdata) {
+    let data = JSON.parse(sdata);
+    Object.assign(state, data);
+    generateUniverse();
+    delete state.c;
+    delete state.s;
+    u$1.c.forEach((cell, at) => {
+      load(cell, data.c[at]);
+      cell.a = [];
+    });
+    if (u$1)
+      u$1.a = [];
+    for (let d2 of data.a) {
+      let agent = new Agent(u$1.c[d2.cell]);
+      load(agent, d2);
+      agent.initMarket();
+      agent.visit(agent.cell);
+      agent.recomp();
+    }
+    data.s.forEach((v2, i2) => u$1.c[i2].seen = !!v2);
+    setTimeout(() => select(selected()), 20);
+    for (let a2 of u$1.a) {
+      a2.transfers = a2.transfers?.map(loadRecipeX) ?? [];
+    }
+    return true;
+  }
+  return false;
+}, saveAsIs = (v2) => Object.fromEntries([
+  "name",
+  "turns",
+  "size",
+  "steps",
+  "happiness",
+  "consumed",
+  "uses"
+].map((k2) => [k2, v2[k2]])), save = (v2) => {
+  return {
+    stock: v2.stock,
+    //cra: objMap(v.cra, v => ~~(v * craScale)),
+    ...v2 instanceof Agent ? {
+      ...saveAsIs(v2),
+      dest: v2.dest?.at,
+      cell: v2.cell.at,
+      race: v2.race.name,
+      transfers: v2.transfers?.map(saveRecipeX)
+    } : {}
+  };
+}, load = (a2, v2) => {
+  v2 && Object.assign(a2, {
+    //cra: objMap(a.cra, v => v / craScale),
+    stock: v2.stock,
+    ...a2 instanceof Agent ? {
+      ...saveAsIs(v2),
+      cell: u$1.c[v2.cell],
+      dest: u$1.c[v2.dest],
+      race: races[v2.race],
+      transfers: v2.transfers
+    } : {}
+  });
+}, agentToId = (a2) => a2 instanceof Agent ? "a" + u$1.a.indexOf(a2) : "c" + a2.at, idToAgent = (id) => {
+  let a2 = (id.charAt(0) == "a" ? u$1.a : u$1.c)[id.slice(1)];
+  if (a2 == void 0)
+    debugger;
+  return a2;
+}, saveRecipeX = (r2) => ({ place: agentToId(r2.place), recipe: r2.recipe }), loadRecipeX = (r2) => ({ place: idToAgent(r2.place), recipe: r2.recipe });
+const minimalDistanceForDrag = 6;
+let buttonsDown = [];
+let shift, pointerDownPos, pointerDownTopLeft;
+const buttonEffect = {
+  "Next Turn": () => nexTurnAndSaveAndShowResults(),
+  Queen: () => select(queen()),
+  Menu: () => {
+    gotoPage(state.page == "game" ? "saves" : "game");
+  },
+  New: () => {
+    setTimeout(() => {
+      generateUniverse();
+      select(queen());
+      gotoPage("game");
+      nextTurn();
+      select(queen());
+      update({ turn: 1 });
+    }, 10);
+  },
+  X: () => gotoPage("game"),
+  Research: () => gotoPage(state.page == "research" ? "game" : "research"),
+  /*Build: () => {
+        let c = selected()?.cell;
+  
+        if (selected().isBuilding())
+          selected().remove();
+        else
+          new Agent(c, c.water() ? "dome" : "village")
+  
+        updateBuildButton()
+      },*/
+  giveToSelected: (to) => selected().giftApply(to, true),
+  takeFromSelected: (from) => selected().giftApply(from, false),
+  save: (slot) => {
+    saveAll(slot);
+    gotoPage("game");
+  },
+  load: (slot) => {
+    loadAll(slot);
+    gotoPage("game");
+  },
+  deleteSave: (slot) => {
+    delete localStorage[saveTitlePrefix + slot];
+    delete localStorage[savePrefix + slot];
+    gotoPage("saves");
+  },
+  useRecipe: (recipe) => {
+    selected().useRecipe({ place: selected(), recipe: JSON.parse(recipe.replaceAll("`", `"`)) });
+    select();
+  },
+  agent: (agent) => {
+    select(u$1.a[agent]);
+  }
+}, enableControls = () => {
+  addEventListener("pointerdown", (e2) => {
+    if (e2.button != 0)
+      return;
+    let element = e2.target, button = element.closest("button"), id = button?.id;
+    element.closest("button")?.dataset ?? {};
+    if (id?.substring(0, 3) == "tab") {
+      state.tab = id.substring(3);
+      select();
+    }
+    if (id == "warp") {
+      queen().gain("magic", -100);
+      queen().visit(selected().cell);
+      queen().steps--;
+      select(queen());
+    }
+  });
+  addEventListener("resize", () => {
+    resizeCanvas();
+  });
+  C.onpointerdown = C.onpointermove = C.onpointerup = C.onpointerleave = (e2) => {
+    if (!u$1)
+      return;
+    let canvasMousePos = [e2.offsetX, e2.offsetY];
+    let photoMousePos = sub(scale(canvasMousePos, 1 / state.scale), state.topLeftAt);
+    let worldMousePos = [photoMousePos[0] / photoScale[0], photoMousePos[1] / photoScale[1]];
+    worldMousePos[0] -= floor(worldMousePos[1]) / 2;
+    let tilePointed = floor(worldMousePos[0]) + floor(worldMousePos[1] - 0.1) * ww + (floor(worldMousePos[0]) < 0 ? ww : 0);
+    shift = e2.shiftKey;
+    let mousePos = [e2.clientX, e2.clientY];
+    if (e2.type == "pointermove") {
+      if (buttonsDown[0] || buttonsDown[1]) {
+        let delta = sub(mousePos, pointerDownPos);
+        if (len(delta) >= minimalDistanceForDrag) {
+          update({
+            topLeftAt: sum(
+              pointerDownTopLeft,
+              delta,
+              1 / state.scale
+            )
+          });
+          animations.length = 0;
+        }
+      } else {
+        if (u$1.c[tilePointed]?.seen && !e2.shiftKey) {
+          state.cellPointed;
+          update({ cellPointed: tilePointed });
+        }
+      }
+    }
+    if (e2.type == "pointerdown") {
+      buttonsDown[e2.button] = Date.now();
+      if (e2.button == 0 || e2.button == 1) {
+        pointerDownPos = mousePos;
+        pointerDownTopLeft = state.topLeftAt;
+      }
+      if (e2.button == 2) {
+        if (selected() && selected().happy()) {
+          selected().dest = pointedCell();
+          selected()?.go();
+          select();
+        }
+      }
+    }
+    if (e2.type == "pointerup") {
+      let dt2 = Date.now() - buttonsDown[e2.button];
+      console.log(dt2);
+      if (pointerDownPos && dist(mousePos, pointerDownPos) < minimalDistanceForDrag) {
+        update({ clicked: state.cellPointed });
+        console.log("click");
+        if (e2.button == 0) {
+          let a2 = pointedCell()?.a;
+          if (a2?.length > 0) {
+            let ind = a2.indexOf(selected());
+            if (!selected() || a2.length == 0 || ind == -1) {
+              select(a2[0]);
+            } else {
+              select(a2[(ind + 1) % a2.length]);
+            }
+          }
+        }
+      }
+      buttonsDown[e2.button] = 0;
+      pointerDownPos = void 0;
+      pointerDownTopLeft = void 0;
+    }
+    if (e2.type == "pointerleave") {
+      buttonsDown = [];
+      update({ cellPointed: void 0 });
+    }
+  };
+  C.onwheel = (e2) => {
+    let screenPos = [e2.offsetX, e2.offsetY];
+    let delta = e2.deltaY;
+    if (delta) {
+      reScale(clamp(0.25, state.scale * (delta < 0 ? 2 : 1 / 2), 4), scaleScreenToWorld(screenPos));
+    }
+  };
+}, scaleScreenToWorld = (screenPos) => {
+  return scale(screenPos, 1 / state.scale);
+}, reScale = (newScale, scaledScreenPos) => {
+  update({ topLeftAt: sum(state.topLeftAt, scaledScreenPos, state.scale / newScale - 1), scale: newScale });
+};
+onkeydown = (e2) => {
+  if (e2.code == "KeyS" && e2.shiftKey && u$1) {
+    u$1.c.forEach((c2) => c2.seen = true);
+    debouncedPrerender();
+  }
+  if (e2.code == "KeyA" && e2.shiftKey && u$1) {
+    selected().happiness++;
+  }
+  let k2 = Number(e2.code.substring(5));
+  if (k2 > 0 && k2 < 6) {
+    state.tab = k2 - 1;
+    select();
+  }
+  switch (e2.code) {
+    case "Space":
+      nexTurnAndSaveAndShowResults();
+      break;
+    case "Escape":
+      gotoPage(state.page == "game" ? "saves" : "game");
+      break;
+    case "Tab":
+      let a2 = u$1.a.filter((a22) => a22.happy());
+      select(a2[(a2.indexOf(selected()) + (e2.shiftKey ? a2.length - 1 : 1)) % a2.length]);
+      break;
+  }
+};
+var t, r, u, i, o = 0, f = [], c = l$1, e = c.__b, a = c.__r, v = c.diffed, l = c.__c, m = c.unmount, p = c.__;
+function s(n2, t2) {
+  c.__h && c.__h(r, n2, o || t2), o = 0;
+  var u2 = r.__H || (r.__H = { __: [], __h: [] });
+  return n2 >= u2.__.length && u2.__.push({}), u2.__[n2];
+}
+function d(n2) {
+  return o = 1, y(D, n2);
+}
+function y(n2, u2, i2) {
+  var o2 = s(t++, 2);
+  if (o2.t = n2, !o2.__c && (o2.__ = [i2 ? i2(u2) : D(void 0, u2), function(n3) {
+    var t2 = o2.__N ? o2.__N[0] : o2.__[0], r2 = o2.t(t2, n3);
+    t2 !== r2 && (o2.__N = [r2, o2.__[1]], o2.__c.setState({}));
+  }], o2.__c = r, !r.__f)) {
+    var f2 = function(n3, t2, r2) {
+      if (!o2.__c.__H) return true;
+      var u3 = false, i3 = o2.__c.props !== n3;
+      if (o2.__c.__H.__.some(function(n4) {
+        if (n4.__N) {
+          u3 = true;
+          var t3 = n4.__[0];
+          n4.__ = n4.__N, n4.__N = void 0, t3 !== n4.__[0] && (i3 = true);
+        }
+      }), c2) {
+        var f3 = c2.call(this, n3, t2, r2);
+        return u3 ? f3 || i3 : f3;
+      }
+      return !u3 || i3;
+    };
+    r.__f = true;
+    var c2 = r.shouldComponentUpdate, e2 = r.componentWillUpdate;
+    r.componentWillUpdate = function(n3, t2, r2) {
+      if (this.__e) {
+        var u3 = c2;
+        c2 = void 0, f2(n3, t2, r2), c2 = u3;
+      }
+      e2 && e2.call(this, n3, t2, r2);
+    }, r.shouldComponentUpdate = f2;
+  }
+  return o2.__N || o2.__;
+}
+function h(n2, u2) {
+  var i2 = s(t++, 3);
+  !c.__s && C$2(i2.__H, u2) && (i2.__ = n2, i2.u = u2, r.__H.__h.push(i2));
+}
+function _(n2, u2) {
+  var i2 = s(t++, 4);
+  !c.__s && C$2(i2.__H, u2) && (i2.__ = n2, i2.u = u2, r.__h.push(i2));
+}
+function j$1() {
+  for (var n2; n2 = f.shift(); ) {
+    var t2 = n2.__H;
+    if (n2.__P && t2) try {
+      t2.__h.some(z), t2.__h.some(B$1), t2.__h = [];
+    } catch (r2) {
+      t2.__h = [], c.__e(r2, n2.__v);
+    }
+  }
+}
+c.__b = function(n2) {
+  r = null, e && e(n2);
+}, c.__ = function(n2, t2) {
+  n2 && t2.__k && t2.__k.__m && (n2.__m = t2.__k.__m), p && p(n2, t2);
+}, c.__r = function(n2) {
+  a && a(n2), t = 0;
+  var i2 = (r = n2.__c).__H;
+  i2 && (u === r ? (i2.__h = [], r.__h = [], i2.__.some(function(n3) {
+    n3.__N && (n3.__ = n3.__N), n3.u = n3.__N = void 0;
+  })) : (i2.__h.some(z), i2.__h.some(B$1), i2.__h = [], t = 0)), u = r;
+}, c.diffed = function(n2) {
+  v && v(n2);
+  var t2 = n2.__c;
+  t2 && t2.__H && (t2.__H.__h.length && (1 !== f.push(t2) && i === c.requestAnimationFrame || ((i = c.requestAnimationFrame) || w)(j$1)), t2.__H.__.some(function(n3) {
+    n3.u && (n3.__H = n3.u, n3.u = void 0);
+  })), u = r = null;
+}, c.__c = function(n2, t2) {
+  t2.some(function(n3) {
+    try {
+      n3.__h.some(z), n3.__h = n3.__h.filter(function(n4) {
+        return !n4.__ || B$1(n4);
+      });
+    } catch (r2) {
+      t2.some(function(n4) {
+        n4.__h && (n4.__h = []);
+      }), t2 = [], c.__e(r2, n3.__v);
+    }
+  }), l && l(n2, t2);
+}, c.unmount = function(n2) {
+  m && m(n2);
+  var t2, r2 = n2.__c;
+  r2 && r2.__H && (r2.__H.__.some(function(n3) {
+    try {
+      z(n3);
+    } catch (n4) {
+      t2 = n4;
+    }
+  }), r2.__H = void 0, t2 && c.__e(t2, r2.__v));
+};
+var k = "function" == typeof requestAnimationFrame;
+function w(n2) {
+  var t2, r2 = function() {
+    clearTimeout(u2), k && cancelAnimationFrame(t2), setTimeout(n2);
+  }, u2 = setTimeout(r2, 35);
+  k && (t2 = requestAnimationFrame(r2));
+}
+function z(n2) {
+  var t2 = r, u2 = n2.__c;
+  "function" == typeof u2 && (n2.__c = void 0, u2()), r = t2;
+}
+function B$1(n2) {
+  var t2 = r;
+  n2.__c = n2.__(), r = t2;
+}
+function C$2(n2, t2) {
+  return !n2 || n2.length !== t2.length || t2.some(function(t3, r2) {
+    return t3 !== n2[r2];
+  });
+}
+function D(n2, t2) {
+  return "function" == typeof t2 ? t2(n2) : t2;
+}
+function g(n2, t2) {
+  for (var e2 in t2) n2[e2] = t2[e2];
+  return n2;
+}
+function E(n2, t2) {
+  for (var e2 in n2) if ("__source" !== e2 && !(e2 in t2)) return true;
+  for (var r2 in t2) if ("__source" !== r2 && n2[r2] !== t2[r2]) return true;
+  return false;
+}
+function C$1(n2, t2) {
+  var e2 = t2(), r2 = d({ t: { __: e2, u: t2 } }), u2 = r2[0].t, o2 = r2[1];
+  return _(function() {
+    u2.__ = e2, u2.u = t2, R(u2) && o2({ t: u2 });
+  }, [n2, e2, t2]), h(function() {
+    return R(u2) && o2({ t: u2 }), n2(function() {
+      R(u2) && o2({ t: u2 });
+    });
+  }, [n2]), e2;
+}
+function R(n2) {
+  try {
+    return !((t2 = n2.__) === (e2 = n2.u()) && (0 !== t2 || 1 / t2 == 1 / e2) || t2 != t2 && e2 != e2);
+  } catch (n3) {
+    return true;
+  }
+  var t2, e2;
+}
+function M(n2, t2) {
+  this.props = n2, this.context = t2;
+}
+(M.prototype = new C$3()).isPureReactComponent = true, M.prototype.shouldComponentUpdate = function(n2, t2) {
+  return E(this.props, n2) || E(this.state, t2);
+};
+var T = l$1.__b;
+l$1.__b = function(n2) {
+  n2.type && n2.type.__f && n2.ref && (n2.props.ref = n2.ref, n2.ref = null), T && T(n2);
+};
+var O = l$1.__e;
+l$1.__e = function(n2, t2, e2, r2) {
+  if (n2.then) {
+    for (var u2, o2 = t2; o2 = o2.__; ) if ((u2 = o2.__c) && u2.__c) return null == t2.__e && (t2.__e = e2.__e, t2.__k = e2.__k || []), u2.__c(n2, t2);
+  }
+  O(n2, t2, e2, r2);
+};
+var U = l$1.unmount;
+function V(n2, t2, e2) {
+  return n2 && (n2.__c && n2.__c.__H && (n2.__c.__H.__.forEach(function(n3) {
+    "function" == typeof n3.__c && n3.__c();
+  }), n2.__c.__H = null), null != (n2 = g({}, n2)).__c && (n2.__c.__P === e2 && (n2.__c.__P = t2), n2.__c.__e = true, n2.__c = null), n2.__k = n2.__k && n2.__k.map(function(n3) {
+    return V(n3, t2, e2);
+  })), n2;
+}
+function W(n2, t2, e2) {
+  return n2 && e2 && (n2.__v = null, n2.__k = n2.__k && n2.__k.map(function(n3) {
+    return W(n3, t2, e2);
+  }), n2.__c && n2.__c.__P === t2 && (n2.__e && e2.appendChild(n2.__e), n2.__c.__e = true, n2.__c.__P = e2)), n2;
+}
+function P() {
+  this.__u = 0, this.o = null, this.__b = null;
+}
+function j(n2) {
+  var t2 = n2.__ && n2.__.__c;
+  return t2 && t2.__a && t2.__a(n2);
+}
+function B() {
+  this.i = null, this.l = null;
+}
+l$1.unmount = function(n2) {
+  var t2 = n2.__c;
+  t2 && (t2.__z = true), t2 && t2.__R && t2.__R(), t2 && 32 & n2.__u && (n2.type = null), U && U(n2);
+}, (P.prototype = new C$3()).__c = function(n2, t2) {
+  var e2 = t2.__c, r2 = this;
+  null == r2.o && (r2.o = []), r2.o.push(e2);
+  var u2 = j(r2.__v), o2 = false, i2 = function() {
+    o2 || r2.__z || (o2 = true, e2.__R = null, u2 ? u2(f2) : f2());
+  };
+  e2.__R = i2;
+  var l2 = e2.__P;
+  e2.__P = null;
+  var f2 = function() {
+    if (!--r2.__u) {
+      if (r2.state.__a) {
+        var n3 = r2.state.__a;
+        r2.__v.__k[0] = W(n3, n3.__c.__P, n3.__c.__O);
+      }
+      var t3;
+      for (r2.setState({ __a: r2.__b = null }); t3 = r2.o.pop(); ) t3.__P = l2, t3.forceUpdate();
+    }
+  };
+  r2.__u++ || 32 & t2.__u || r2.setState({ __a: r2.__b = r2.__v.__k[0] }), n2.then(i2, i2);
+}, P.prototype.componentWillUnmount = function() {
+  this.o = [];
+}, P.prototype.render = function(n2, e2) {
+  if (this.__b) {
+    if (this.__v.__k) {
+      var r2 = document.createElement("div"), o2 = this.__v.__k[0].__c;
+      this.__v.__k[0] = V(this.__b, r2, o2.__O = o2.__P);
+    }
+    this.__b = null;
+  }
+  var i2 = e2.__a && k$1(S, null, n2.fallback);
+  return i2 && (i2.__u &= -33), [k$1(S, null, e2.__a ? null : n2.children), i2];
+};
+var H = function(n2, t2, e2) {
+  if (++e2[1] === e2[0] && n2.l.delete(t2), n2.props.revealOrder && ("t" !== n2.props.revealOrder[0] || !n2.l.size)) for (e2 = n2.i; e2; ) {
+    for (; e2.length > 3; ) e2.pop()();
+    if (e2[1] < e2[0]) break;
+    n2.i = e2 = e2[2];
+  }
+};
+(B.prototype = new C$3()).__a = function(n2) {
+  var t2 = this, e2 = j(t2.__v), r2 = t2.l.get(n2);
+  return r2[0]++, function(u2) {
+    var o2 = function() {
+      t2.props.revealOrder ? (r2.push(u2), H(t2, n2, r2)) : u2();
+    };
+    e2 ? e2(o2) : o2();
+  };
+}, B.prototype.render = function(n2) {
+  this.i = null, this.l = /* @__PURE__ */ new Map();
+  var t2 = F(n2.children);
+  n2.revealOrder && "b" === n2.revealOrder[0] && t2.reverse();
+  for (var e2 = t2.length; e2--; ) this.l.set(t2[e2], this.i = [1, 0, this.i]);
+  return n2.children;
+}, B.prototype.componentDidUpdate = B.prototype.componentDidMount = function() {
+  var n2 = this;
+  this.l.forEach(function(t2, e2) {
+    H(n2, e2, t2);
+  });
+};
+var q = "undefined" != typeof Symbol && Symbol.for && Symbol.for("react.element") || 60103, G = /^(?:accent|alignment|arabic|baseline|cap|clip(?!PathU)|color|dominant|fill|flood|font|glyph(?!R)|horiz|image(!S)|letter|lighting|marker(?!H|W|U)|overline|paint|pointer|shape|stop|strikethrough|stroke|text(?!L)|transform|underline|unicode|units|v|vector|vert|word|writing|x(?!C))[A-Z]/, J = /^on(Ani|Tra|Tou|BeforeInp|Compo)/, K = /[A-Z0-9]/g, Q = "undefined" != typeof document, X = function(n2) {
+  return ("undefined" != typeof Symbol && "symbol" == typeof Symbol() ? /fil|che|rad/ : /fil|che|ra/).test(n2);
+};
+C$3.prototype.isReactComponent = true, ["componentWillMount", "componentWillReceiveProps", "componentWillUpdate"].forEach(function(t2) {
+  Object.defineProperty(C$3.prototype, t2, { configurable: true, get: function() {
+    return this["UNSAFE_" + t2];
+  }, set: function(n2) {
+    Object.defineProperty(this, t2, { configurable: true, writable: true, value: n2 });
+  } });
+});
+var en = l$1.event;
+l$1.event = function(n2) {
+  return en && (n2 = en(n2)), n2.persist = function() {
+  }, n2.isPropagationStopped = function() {
+    return this.cancelBubble;
+  }, n2.isDefaultPrevented = function() {
+    return this.defaultPrevented;
+  }, n2.nativeEvent = n2;
+};
+var un = { configurable: true, get: function() {
+  return this.class;
+} }, on = l$1.vnode;
+l$1.vnode = function(n2) {
+  "string" == typeof n2.type && (function(n3) {
+    var t2 = n3.props, e2 = n3.type, u2 = {}, o2 = -1 == e2.indexOf("-");
+    for (var i2 in t2) {
+      var l2 = t2[i2];
+      if (!("value" === i2 && "defaultValue" in t2 && null == l2 || Q && "children" === i2 && "noscript" === e2 || "class" === i2 || "className" === i2)) {
+        var f2 = i2.toLowerCase();
+        "defaultValue" === i2 && "value" in t2 && null == t2.value ? i2 = "value" : "download" === i2 && true === l2 ? l2 = "" : "translate" === f2 && "no" === l2 ? l2 = false : "o" === f2[0] && "n" === f2[1] ? "ondoubleclick" === f2 ? i2 = "ondblclick" : "onchange" !== f2 || "input" !== e2 && "textarea" !== e2 || X(t2.type) ? "onfocus" === f2 ? i2 = "onfocusin" : "onblur" === f2 ? i2 = "onfocusout" : J.test(i2) && (i2 = f2) : f2 = i2 = "oninput" : o2 && G.test(i2) ? i2 = i2.replace(K, "-$&").toLowerCase() : null === l2 && (l2 = void 0), "oninput" === f2 && u2[i2 = f2] && (i2 = "oninputCapture"), u2[i2] = l2;
+      }
+    }
+    "select" == e2 && (u2.multiple && Array.isArray(u2.value) && (u2.value = F(t2.children).forEach(function(n4) {
+      n4.props.selected = -1 != u2.value.indexOf(n4.props.value);
+    })), null != u2.defaultValue && (u2.value = F(t2.children).forEach(function(n4) {
+      n4.props.selected = u2.multiple ? -1 != u2.defaultValue.indexOf(n4.props.value) : u2.defaultValue == n4.props.value;
+    }))), t2.class && !t2.className ? (u2.class = t2.class, Object.defineProperty(u2, "className", un)) : t2.className && (u2.class = u2.className = t2.className), n3.props = u2;
+  })(n2), n2.$$typeof = q, on && on(n2);
+};
+var ln = l$1.__r;
+l$1.__r = function(n2) {
+  ln && ln(n2), n2.__c;
+};
+var fn = l$1.diffed;
+l$1.diffed = function(n2) {
+  fn && fn(n2);
+  var t2 = n2.props, e2 = n2.__e;
+  null != e2 && "textarea" === n2.type && "value" in t2 && t2.value !== e2.value && (e2.value = null == t2.value ? "" : t2.value);
+};
+const plainText = "# 1.0.3\r\nEconomy tweaks\r\n\r\n# 1.0.2\r\nSafari compatibility, color tweaks\r\n\r\n# 1.0.1\r\nCleaned up, removed dataURL usage, experiments with jsx\r\n\r\n# 1.0\r\njs13k version";
+function GUI() {
+  C$1(store.subscribe, store.getState);
+  return /* @__PURE__ */ u$2(S, { children: [
+    "  ",
+    /* @__PURE__ */ u$2("div", { id: "BTN" }),
+    /* @__PURE__ */ u$2("div", { id: "MAIN", children: [
+      /* @__PURE__ */ u$2("div", { id: "MID", children: [
+        changelogDiv(),
+        state.page == "saves" ? savesMenu() : /* @__PURE__ */ u$2("div", { id: "BTN", children: buttonsDiv() })
+      ] }),
+      state.page != "saves" && /* @__PURE__ */ u$2("div", { id: "SIDEBAR", className: selected()?.happy() ? "happy" : "unhappy", children: agentInfo(selected()) })
+    ] })
+  ] });
+}
+const changelogDiv = () => state.page == "saves" && /* @__PURE__ */ u$2("div", { id: "CHANGELOG", children: [
+  /* @__PURE__ */ u$2("h4", { children: "CHANGELOG" }),
+  plainText.split("\n").map((a2) => [a2, /* @__PURE__ */ u$2("br", {})]).flat(1)
+] });
+const buttonsDiv = () => ["Menu", "Queen", "Next Turn"].map(
+  (v2, i2) => /* @__PURE__ */ u$2("button", { onClick: () => buttonEffect[v2](), children: v2 })
+), icon = (name, tip) => {
+  return /* @__PURE__ */ u$2("span", { "data-icon": name, class: "icon", children: [
+    /* @__PURE__ */ u$2("span", { class: "img", ref: (dom) => {
+      if (dom) {
+        dom.replaceChildren(resourceIcon(name));
+      }
+    } }),
+    ttx(tip ?? name)
+  ] });
+}, agentButtons = () => {
+  let r2 = /* @__PURE__ */ u$2("div", { class: "agent-tab-buttons", children: loop(
+    5,
+    (t2) => /* @__PURE__ */ u$2("button", { id: "tab" + t2, class: t2 == state.tab ? "selected" : "", children: icon("tab" + t2, tabs[t2]) })
+  ) });
+  return r2;
+}, ttx = (tip) => tip == "notip" ? "" : /* @__PURE__ */ u$2("span", { class: "ttx", children: tip }), asList = (a2) => a2 ? Object.entries(a2).map(([k2, v2]) => goodSpan(k2, v2)) : void 0, goodSpan = (good, value) => /* @__PURE__ */ u$2("span", { class: "good", children: [
+  icon(good, "notip"),
+  formatNumber(value),
+  ttx(good)
+] }), fancyRecipe = (r2) => {
+  let s2;
+  if (!objEvery(r2, (v2) => v2 > 0)) {
+    s2 = /* @__PURE__ */ u$2(S, { children: [
+      asList(losses(r2)),
+      "→",
+      asList(gains(r2))
+    ] });
+  } else {
+    s2 = asList(r2);
+  }
+  return s2;
+}, coloredHappiness = (agent) => /* @__PURE__ */ u$2("span", { style: { color: agent.happy() ? "#080" : "#a00" }, children: goodSpan("happiness", agent.happiness) }), cellTitle = (cell) => /* @__PURE__ */ u$2("h4", { "data-c": "${agent.at}", children: [
+  cell.name,
+  " ",
+  cell.biome.name,
+  " ",
+  cell.special ? `with ${cell.special}` : ""
+] }), agentTitle = (agent) => /* @__PURE__ */ u$2("span", { onClick: () => select(agent), children: [
+  icon(agent.race?.name),
+  agent.name
+] }), agentFullTitle = (agent) => /* @__PURE__ */ u$2("span", { onClick: () => select(agent), children: [
+  icon(agent.race?.name),
+  agent.name,
+  " - ",
+  agent.size > 1 ? agent.size : "",
+  " ",
+  agent.race.name,
+  " ",
+  coloredHappiness(agent)
+] }), agentOrCellTitle = (agent) => agent instanceof Agent ? agentTitle(agent) : cellTitle(agent), asDivs = (l2) => l2.map((a2) => /* @__PURE__ */ u$2("div", { children: a2 })), doubleColumn = (a2) => {
+  return /* @__PURE__ */ u$2("div", { class: "tc", children: asDivs(a2) });
+}, recipeUsedStats = (a2) => asDivs(Object.entries(a2.uses ?? {}).map(([k2, v2]) => {
+  let recipeStr = k2, recipe = JSON.parse(recipeStr);
+  return fancyRecipe(objScale(recipe, v2));
+})), agentTabsRenderers = [
+  (agent) => /* @__PURE__ */ u$2(S, { children: [
+    asList(agent.totTurnInc(1)),
+    recipeUsedStats(agent)
+  ] }),
+  (agent) => doubleColumn(agent.ownRecipes.map(
+    (r2) => {
+      let uses = selected().recipeUseMultiplier({ place: selected(), recipe: r2 });
+      let retext = JSON.stringify(r2).replaceAll('"', "`");
+      return selected().happy() && uses > 0 ? /* @__PURE__ */ u$2("button", { onClick: () => buttonEffect.useRecipe(retext), children: fancyRecipe(objScale(r2, uses)) }) : fancyRecipe(r2);
+    }
+  )),
+  (agent) => /* @__PURE__ */ u$2(S, { children: [
+    /* @__PURE__ */ u$2("div", { children: "Happiness for covered needs" }),
+    /* @__PURE__ */ u$2("div", { class: "happines-gain", children: [
+      /* @__PURE__ */ u$2("div", {}),
+      /* @__PURE__ */ u$2("div", {}),
+      /* @__PURE__ */ u$2("div", { children: icon("happiness") }),
+      /* @__PURE__ */ u$2("div", {}),
+      /* @__PURE__ */ u$2("div", {}),
+      /* @__PURE__ */ u$2("div", { children: icon("happiness") }),
+      agent.consumed ? Object.entries(agent.totTurnInc(-1)).map(
+        ([good, _2]) => /* @__PURE__ */ u$2(S, { children: [
+          /* @__PURE__ */ u$2("div", { children: icon(good) }),
+          /* @__PURE__ */ u$2("div", { children: [
+            agent.consumed[good] ?? 0,
+            "/",
+            ~~(-agent.totTurnInc(-1)[good]).toFixed(2)
+          ] }),
+          /* @__PURE__ */ u$2("div", { children: (agent.happinessGain()[good] ?? 0).toFixed(2) })
+        ] })
+      ) : "?"
+    ] }),
+    /* @__PURE__ */ u$2("div", { class: "grid2", children: asDivs(
+      [
+        "Had",
+        /* @__PURE__ */ u$2(S, { children: [
+          icon("happiness"),
+          " ",
+          agent.happiness - agent.totalHappinessGain() + agent.expectation()
+        ] }),
+        "From needs covered",
+        /* @__PURE__ */ u$2(S, { children: [
+          icon("happiness"),
+          " ",
+          agent.totalHappinessGain()
+        ] }),
+        "From expectations",
+        /* @__PURE__ */ u$2(S, { children: [
+          icon("happiness"),
+          " ",
+          -agent.expectation()
+        ] }),
+        "Now",
+        /* @__PURE__ */ u$2(S, { children: [
+          icon("happiness"),
+          " ",
+          agent.happiness
+        ] })
+      ]
+    ) })
+  ] }),
+  (agent) => /* @__PURE__ */ u$2("table", { class: "transfers", children: /* @__PURE__ */ u$2("tbody", { children: agent.transfers.sort((a2, b2) => a2.place instanceof Agent && !(b2.place instanceof Agent) ? -1 : 1).map(
+    (t2, i2) => /* @__PURE__ */ u$2(S, { children: [
+      /* @__PURE__ */ u$2("tr", { class: "odd" + i2 % 2, children: [
+        /* @__PURE__ */ u$2("td", { class: "r", children: asList(losses(t2.recipe)) }),
+        /* @__PURE__ */ u$2("td", { class: "arrow", children: "▶" }),
+        /* @__PURE__ */ u$2("td", { width: "3rem", rowSpan: 2, children: agentOrCellTitle(t2.place) })
+      ] }),
+      /* @__PURE__ */ u$2("tr", { class: "odd" + i2 % 2, children: [
+        /* @__PURE__ */ u$2("td", { class: "r", children: asList(gains(t2.recipe)) }),
+        /* @__PURE__ */ u$2("td", { class: "arrow", children: "◀" })
+      ] })
+    ] })
+  ) }) }),
+  (agent) => tradeTable(agent)
+], agentInfo = (agent) => {
+  if (!agent)
+    return;
+  let r2 = /* @__PURE__ */ u$2(S, { children: [
+    agentFullTitle(agent),
+    /* @__PURE__ */ u$2("div", { children: asList(objStripFalsy(agent.stock)) }),
+    agentButtons(),
+    /* @__PURE__ */ u$2("div", { class: "pnl", children: agentTabsRenderers[Number(state.tab ?? 0)](agent) })
+  ] });
+  return r2;
+}, writeHappiness = (agent) => agent.queen() ? "" : /* @__PURE__ */ u$2(S, { children: [
+  icon("happiness"),
+  agent.happiness
+] }), htmlTable = (divs) => /* @__PURE__ */ u$2("table", { children: divs.map((line) => /* @__PURE__ */ u$2("tr", { children: line.map((td) => /* @__PURE__ */ u$2("td", { children: td })) })) }), tradeTable = (agent) => {
+  if (agent.queen())
+    return `Get next to the other herd and give them gifts to gain their trust`;
+  if (!agent.cell.neighborhood.includes(queen().cell)) {
+    return /* @__PURE__ */ u$2(S, { children: [
+      "Should be near to give gifts",
+      /* @__PURE__ */ u$2("br", {}),
+      agent.happy() && (queen().stock.magic > 100 && queen().steps >= 1 ? /* @__PURE__ */ u$2("button", { id: "warp", children: [
+        icon("warp"),
+        "Summon alicorn"
+      ] }) : "Alicorn asleep")
+    ] });
+  }
+  let res = removeDuplicates([...Object.keys(queen().stock), ...Object.keys(agent.stock)]).filter((res2) => tradeables.has(res2));
+  let tableGive = [], tableTake = [];
+  res.forEach((name) => {
+    let [give, take] = [agent.giftCalc(name, true), agent.giftCalc(name, false)], canTake = agent.stock[name] && take[1] && agent.happy(), canGive = queen().stock[name] && give[1];
+    if (canGive)
+      tableGive.push([
+        /* @__PURE__ */ u$2(S, { children: [
+          give[0],
+          "/",
+          queen().stock[name],
+          icon(name),
+          "→",
+          asList({ happiness: give[1] })
+        ] }),
+        /* @__PURE__ */ u$2("button", { onClick: () => buttonEffect.giveToSelected(name), children: "give" })
+      ]);
+    if (canTake)
+      tableTake.push([
+        /* @__PURE__ */ u$2("button", { onClick: () => buttonEffect.takeFromSelected(name), children: "take" }),
+        /* @__PURE__ */ u$2(S, { children: [
+          asList({ happiness: -take[1] }),
+          "→",
+          -take[0],
+          icon(name)
+        ] })
+      ]);
+  });
+  return /* @__PURE__ */ u$2(S, { children: [
+    writeHappiness(agent),
+    "(befriended at 1000)",
+    htmlTable(tableGive),
+    htmlTable(tableTake)
+  ] });
+}, savesMenu = () => {
+  return [
+    /* @__PURE__ */ u$2(S, { children: [
+      /* @__PURE__ */ u$2("h1", { children: "Clopital" }),
+      "Seed:",
+      /* @__PURE__ */ u$2(
+        "input",
+        {
+          type: "number",
+          id: "SEED",
+          value: state.seed,
+          onInput: (e2) => update({ seed: Number(e2.currentTarget.value) })
+        }
+      ),
+      " Land:",
+      /* @__PURE__ */ u$2(
+        "input",
+        {
+          type: "range",
+          id: "LAND",
+          value: state.land,
+          onInput: (e2) => update({ land: Number(e2.currentTarget.value) }),
+          min: 1,
+          max: 7
+        }
+      ),
+      " ",
+      /* @__PURE__ */ u$2("button", { id: "New", children: "New game" })
+    ] }),
+    /* @__PURE__ */ u$2(S, { children: [
+      /* @__PURE__ */ u$2("h4", { children: "Saves" }),
+      htmlTable(loop(
+        13,
+        (i2) => [
+          i2 || "auto",
+          i2 && u$1 ? /* @__PURE__ */ u$2("button", { onClick: () => buttonEffect.save(i2), children: "save" }) : "---",
+          ...localStorage[saveTitlePrefix + i2] ? [
+            /* @__PURE__ */ u$2("button", { onClick: () => buttonEffect.load(i2), children: "load" }),
+            /* @__PURE__ */ u$2("button", { onClick: () => buttonEffect.deleteSave(i2), children: "X" }),
+            localStorage[saveTitlePrefix + i2]
+          ] : []
+        ]
+      ))
+    ] })
+  ];
+};
+const atlas = document.createElement("img"), generateUniverse = () => {
+  new Universe(state.seed, state.land);
+  prerenderUniverse();
+};
+onload = () => {
+  atlas.onload = init;
+  atlas.src = "i.webp";
+};
+const init = () => {
+  initSetting();
+  initRenderer();
+  enableControls();
+  renderLoop();
+  R$1(/* @__PURE__ */ u$2(GUI, {}), document.getElementById("UI"));
+};
+const nextTurn = () => {
+  setSeed(state.seed * 1e4 + state.turn);
+  u$1.a.forEach((a2) => a2.nextTurn());
+  u$1.c.forEach((c2) => c2.nextTurn());
+  updateExpectation();
+  state.turn++;
+}, nexTurnAndSaveAndShowResults = () => {
+  nextTurn();
+  select();
+  saveAll();
+};</script>
+  <style rel="stylesheet" crossorigin>:root {
+  --side-menu-width: 500px;
+}
+
+
+body {
+  background: #012;
+  overflow: hidden;
+  font-family: Verdana, Helvetica, sans-serif;
+  text-shadow: 1px 1px #000;
+}
+
+* {
+  border: 0;
+  margin: 0;
+  font-size: 18px;
+}
+
+#MAIN {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: stretch;
+  pointer-events: none;
+}
+
+#SIDEBAR {
+  height: 100lvh;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  pointer-events: all;
+  width: var(--side-menu-width);
+  max-height: 100vh;
+  color: #fff;
+
+  background-image: repeating-linear-gradient(#026 1px, #024 2px);
+}
+
+#SIDEBAR pnl {
+  min-width: var(--side-menu-width);
+  padding: .2rem;
+}
+
+#TIP {
+  position: fixed;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  color: #fff;
+}
+
+.pnl {
+  /*background: #fffa;
+  border: #4004 solid;*/
+  padding: 10px 2px;
+  margin: 5px;
+  border-width: 2px 4px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  pointer-events: all;
+  text-align: center;
+  scrollbar-color: #048 #024;
+}
+
+/** Tab select buttons */
+.ptl {
+  font-size: 80%;
+  padding: 0 10px;
+}
+
+#TIP {
+  left: 0;
+}
+
+
+/** Main buttons */
+#BTN {
+  position: relative;
+  right: 1rem;
+  top: 95vh;
+  text-align: right;
+  pointer-events: none;
+  display: flex;
+  justify-content: flex-end;
+}
+
+#BTN button {
+  padding: 5px;
+  margin: 3px;
+}
+
+#BTN button:last-child {
+  transform: scale(1.2);
+  margin-left: 1rem;
+}
+
+
+button#Next {
+  padding: 10px;
+}
+
+button {
+  border: 1px solid #036;
+  border-right-color: #08a;
+  border-top-color: #08a;
+  pointer-events: all;
+  background: #06a;
+  color: #fff;
+}
+
+button:hover {
+  background: #0af;
+}
+
+.agent-tab-buttons button.selected {
+  background: #036;
+  border-bottom-color: #036;
+}
+
+button:active {
+  box-shadow: 0 0 10px #fff;
+  transform: scale(1.2);
+}
+
+
+.icon .img canvas {
+  position: relative;
+  margin: 0 0 0 3px;
+  transform: scale(1.5) translateY(1px);
+  filter: drop-shadow(1px 1px #0008);
+  pointer-events: all;
+}
+
+.good:hover .ttx,
+.icon:hover .ttx {
+  color: #400;
+  visibility: visible;
+  white-space: nowrap;
+}
+
+/** Tooltip */
+.ttx {
+  visibility: hidden;
+  position: absolute;
+  transform: translateY(-35px) translateX(-50%);
+  z-index: 1;
+  padding: 5px;
+  background: #fffa;
+  pointer-events: none;
+}
+
+
+/** Tab switching buttons */
+.agent-tab-buttons {
+  text-align: center;
+  background: #fff4;
+}
+
+.agent-tab-buttons button {
+  padding-bottom: 5px;
+}
+
+
+.CS {
+  display: flex;
+  flex-direction: row;
+}
+
+.tc {
+  columns: 2;
+  column-gap: 0;
+}
+
+table {
+  margin: auto;
+  color: #fff;
+}
+
+td {
+  text-align: center;
+}
+
+#CHANGELOG {
+  position: fixed;
+  top: 0;
+  left: 0;
+  max-width: 350px;
+  color: #fff;
+  text-align: left;
+}
+
+@media screen and (width <=1500px) {
+  #CHANGELOG {
+    display: none;
+  }
+}
+
+#MID {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  color: #fff;
+  text-shadow: 1px 1px #000;
+  text-align: center;
+}
+
+#X {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+#SIDEBAR.unhappy>*:first-child {
+  background: #faaa;
+}
+
+#SIDEBAR.happy>*:first-child {
+  background: #afaa;
+}
+
+h4 {
+  cursor: pointer;
+  margin-bottom: 5px;
+}
+
+h1 {
+  font-family: Georgia;
+  text-align: center;
+  font-size: 70px;
+  padding-bottom: 30px;
+}
+
+input {
+  width: 70px;
+}
+
+@keyframes grow-shrink {
+  0% {
+    scale: 90%;
+  }
+
+  100% {
+    scale: 110%;
+  }
+}
+
+.grow-shrink-animation {
+  animation: .3s infinite alternate;
+  animation-name: grow-shrink;
+}
+
+#UI {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100dvh;
+  pointer-events: none;
+}
+
+table.transfers td {
+  text-align: left;
+}
+
+table.transfers tr.odd0 td{
+  background: #88f4;
+}
+
+table.transfers tr.odd1 td{
+  background: #88a4;
+}
+
+table.transfers .r{
+  text-align: right;
+}
+
+table.transfers td.arrow{
+  background: transparent;
+}
+
+.happines-gain {
+  display: grid;
+  grid-template-columns: 1fr 3fr 2fr 1fr 3fr 2fr;
+  margin-bottom: 1rem;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+}
+
+.grid2 div:nth-child(odd){
+  text-align: right;
+  margin-right: 1rem;
+}
+
+.grid2 div:nth-child(even){
+  text-align: left;
+}</style>
 </head>
 
 <body>
   <canvas id=C oncontextmenu="return false"></canvas>
-  <svg>
-    <defs id=DEFS></defs>
-  </svg>
-  <div id=BTN></div>
   <div id=TIP></div>
-  <div id=INFO></div>
-  <div id=MID></div>
+
+  <div id=UI></div>
+
 </body>
 
 </html>

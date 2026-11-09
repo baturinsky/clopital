@@ -1,7 +1,7 @@
 import { animate, cancelAnimation, MovementAnimation } from "./animation";
 import { Cell, cellAgentParameters, PathPoint } from "./cell";
 //import { updateBuildButton } from "./controls";
-import { marginalUtility, MarketAgent, RecipeX, Transfer } from "./market";
+import { MarketAgent, RecipeX, Transfer } from "./market";
 import { Race, raceAgentParameters } from "./races";
 import { cellNeighborhood } from "./root";
 import { iterationsPerTurn, races } from "./setting";
@@ -248,7 +248,8 @@ export class Agent extends MarketAgent {
   /** Calculate manual trade */
   giftCalc(good: string, give: boolean) {
     let giver = give ? queen() : this;
-    let mu = marginalUtility(this.stock[good] ?? 0)
+    /** Value it in our own terms, so this stays consistent with everything else */
+    let mu = this.mutil(good)
     let amount = Math.ceil(giver.stock[good] / 20);
     let value = ~~((mu * amount * (give ? .9 : 1.1))**.45);
     if (!give)

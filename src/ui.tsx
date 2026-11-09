@@ -5,7 +5,7 @@ import { plainText as changelog } from "../changelog.md"
 import { Agent } from "./agent";
 import { Cell } from "./cell";
 import { buttonEffect } from "./controls";
-import { gains, GoodNumbers, losses, marginalUtility, MarketAgent } from "./market";
+import { gains, GoodNumbers, losses, MarketAgent } from "./market";
 import { tradeables } from "./resources";
 import { saveTitlePrefix } from "./saves";
 import { resourceIcon, resourceIconDataUrl } from "./sprites";

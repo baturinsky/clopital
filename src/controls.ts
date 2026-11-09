@@ -264,7 +264,7 @@ onkeydown = e => {
     selected().happiness++;
   }
   if (DEBUG) {
-    if (e.code == "KeyI" && e.shiftKey && u) {
+      if (e.code == "KeyI" && e.shiftKey && u) {
       console.log(
         selected().recipes.map((recipe) => [recipe.recipe, selected().util(recipe) * selected().max(recipe)])
       )

@@ -101,16 +101,18 @@ export const iconDataUrls: { [id: string]: string } = {},
 
   constructFilter = (rgbReplace: RGBA[]): CanvasFilter => {
     return safariRecolor(rgbReplace);
+  },
+
+  svgRecolor = (rgbReplace: RGBA[]): CanvasFilter => {
     let name = JSON.stringify(rgbReplace)
     if (!filters[name]) {
       let f =
-        <svg xmlns="http://www.w3.org/2000/svg">
+        `<svg xmlns="http://www.w3.org/2000/svg">
           <filter id="f" color-interpolation-filters="sRGB"><feColorMatrix type="matrix"
-            values={[0, 1, 2, 3].map(i =>
+            values=${[0, 1, 2, 3].map(i =>
               `${rgbReplace[0][i]} ${rgbReplace[1][i]} ${rgbReplace[2][i]} ${i == 3 ? 1 : 0} 0`).join(' ')} /></filter>
-        </svg>
+        </svg>`
 
-      f = <svg xmlns="http://www.w3.org/2000/svg">${f}</svg>
       let url = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(f as string)}`;
       url = `url(${url}#f)`
 
